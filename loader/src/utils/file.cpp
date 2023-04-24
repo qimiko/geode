@@ -94,6 +94,8 @@ Result<> utils::file::writeBinary(ghc::filesystem::path const& path, ByteVector 
     return Err("Unable to open file");
 }
 
+#if 1
+
 Result<> utils::file::createDirectory(ghc::filesystem::path const& path) {
     try {
         ghc::filesystem::create_directory(path);
@@ -113,6 +115,39 @@ Result<> utils::file::createDirectoryAll(ghc::filesystem::path const& path) {
         return Err("Unable to create directories");
     }
 }
+
+#else
+
+#include <sys/stat.h>
+
+Result<> utils::file::createDirectory(ghc::filesystem::path const& path) {
+    // try {
+    //     ghc::filesystem::create_directory(path);
+    ::mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    return Ok();
+    // }
+    // catch (...) {
+    //     return Err("Unable to create directory");
+    // }
+}
+
+Result<> utils::file::createDirectoryAll(ghc::filesystem::path const& path) {
+    // try {
+    //     ghc::filesystem::create_directories(path);
+    //     return Ok();
+    // }
+    // catch (...) {
+    //     return Err("Unable to create directories");
+    // }
+    ghc::filesystem::path start;
+    for (auto part : path) {
+        start = start / part;
+        createDirectory(start);
+    }
+    return Ok();
+}
+
+#endif
 
 Result<std::vector<ghc::filesystem::path>> utils::file::listFiles(
     ghc::filesystem::path const& path, bool recursive

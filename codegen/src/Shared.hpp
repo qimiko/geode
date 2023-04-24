@@ -6,6 +6,7 @@
 #include <fmt/ranges.h>
 #include <ghc/filesystem.hpp>
 #include <fstream>
+#include <iostream>
 
 using std::istreambuf_iterator;
 
@@ -93,7 +94,10 @@ namespace codegen {
         FunctionBegin const* fb;
 
         if (auto fn = field.get_as<FunctionBindField>()) {
-            if (platformNumberWithPlatform(p, fn->binds)) return BindStatus::NeedsBinding;
+            if (auto addr = platformNumberWithPlatform(p, fn->binds)) {
+                if (addr == 0xB00B135) return BindStatus::Unbindable;
+                return BindStatus::NeedsBinding;
+            }
 
             fb = &fn->beginning;
         }
@@ -105,11 +109,18 @@ namespace codegen {
         // if (field.parent.rfind("GDString", 0) == 0) return BindStatus::NeedsBinding;
 
         if (p == Platform::Android) {
-            for (auto& [type, name] : fb->args) {
-                if (type.name.find("gd::") != std::string::npos) return BindStatus::NeedsBinding;
-            }
 
             if (field.parent.rfind("cocos2d::CCEGLView", 0) == 0) return BindStatus::Unbindable;
+            if (field.parent.rfind("GDString", 0) == 0) return BindStatus::Unbindable;
+
+
+            if (auto fn = field.get_as<OutOfLineField>()) {
+                return BindStatus::Unbindable;
+            } else {
+                for (auto& [type, name] : fb->args) {
+                    if (type.name.find("gd::") != std::string::npos) return BindStatus::NeedsBinding;
+                }
+            }
 
             return BindStatus::Binded;
         }

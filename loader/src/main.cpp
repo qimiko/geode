@@ -62,6 +62,17 @@ extern "C" __attribute__((visibility("default"))) void dynamicTrigger() {
 // remove when we can figure out how to not remove it
 auto dynamicTriggerRef = &dynamicTrigger;
 
+#elif defined(GEODE_IS_ANDROID)
+
+#include <thread>
+
+[[gnu::constructor]] void geodeConstructorEntry() {
+    // std::thread([] {
+    //     geodeEntry(nullptr);
+    // }).detach();
+    geodeEntry(nullptr);
+}
+
 #elif defined(GEODE_IS_WINDOWS)
     #include <Windows.h>
 
@@ -151,7 +162,22 @@ $execute {
     });
 }
 
+#include <cocos2d.h>
+
+class Foo : public CCObject {
+public:
+    void whatever(float) {
+        log::info("whats up!!");
+        auto* node = CCSprite::create("GJ_button_01.png");
+        auto winsize = CCDirector::sharedDirector()->getWinSize();
+        node->setPosition(ccp(rand() % int(winsize.width), rand() % int(winsize.height)));
+        CCDirector::sharedDirector()->getRunningScene()->addChild(node);
+    }
+};
+
 int geodeEntry(void* platformData) {
+    log::info("hello oworld!!!!");
+
     // set up internal mod, settings and data
     auto internalSetupRes = LoaderImpl::get()->setupInternalMod();
     if (!internalSetupRes) {
@@ -163,6 +189,8 @@ int geodeEntry(void* platformData) {
         LoaderImpl::get()->reset();
         return 1;
     }
+
+    log::info("owo!! set up internal mod");
 
     // set up loader, load mods, etc.
     auto setupRes = LoaderImpl::get()->setup();
@@ -179,17 +207,23 @@ int geodeEntry(void* platformData) {
 
     log::info("Set up loader");
 
-    // open console
-    if (Mod::get()->getSettingValue<bool>("show-platform-console")) {
-        Loader::get()->openPlatformConsole();
-    }
+    // // open console
+    // if (Mod::get()->getSettingValue<bool>("show-platform-console")) {
+    //     Loader::get()->openPlatformConsole();
+    // }
 
-    // download and install new loader update in the background
-    if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
-        LoaderImpl::get()->checkForLoaderUpdates();
-    }
+    // // download and install new loader update in the background
+    // if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
+    //     LoaderImpl::get()->checkForLoaderUpdates();
+    // }
+
 
     log::debug("Entry done.");
+
+    std::thread([] {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        CCDirector::sharedDirector()->getScheduler()->scheduleSelector(schedule_selector(Foo::whatever), CCDirector::sharedDirector(), 0.5f, false);
+    }).detach();
 
     return 0;
 }

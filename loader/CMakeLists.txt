@@ -43,6 +43,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 	src/internal/*.cpp
 	src/platform/mac/*.cpp
 	src/platform/ios/*.cpp
+	src/platform/android/*.cpp
 	src/loader/*.cpp
 	src/main.cpp
 	src/utils/*.cpp

@@ -21,13 +21,16 @@ ghc::filesystem::path dirs::getSaveDir() {
             .string()
     );
 #else
-    return ghc::filesystem::path(CCFileUtils::sharedFileUtils()->getWritablePath().c_str());
+    // return ghc::filesystem::path(CCFileUtils::sharedFileUtils()->getWritablePath().c_str());
+    return ghc::filesystem::path("/data/data/com.geode.launcher");
 #endif
 }
 
 ghc::filesystem::path dirs::getGeodeDir() {
 #ifdef GEODE_IS_MACOS
     return ghc::filesystem::current_path() / "geode";
+#elif defined(GEODE_IS_ANDROID)
+    return dirs::getSaveDir() / "ggeode";
 #else
     return dirs::getGameDir() / "geode";
 #endif

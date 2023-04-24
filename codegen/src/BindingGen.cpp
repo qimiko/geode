@@ -218,7 +218,7 @@ std::string generateBindingHeader(Root& root, ghc::filesystem::path const& singl
             } else if (auto fn = field.get_as<FunctionBindField>()) {
                 fb = &fn->beginning;
 
-                if (!codegen::platformNumber(fn->binds)) {
+                if (codegen::getStatusWithPlatform(codegen::platform, field) != BindStatus::Binded && !codegen::platformNumber(fn->binds) && codegen::platform != Platform::Android) {
                     used_format = format_strings::error_definition;
 
                     if (fb->is_virtual)

@@ -91,6 +91,13 @@ std::string generateAddressHeader(Root& root) {
                 continue;
             }
 
+            switch (fn->beginning.type) {
+                case FunctionType::Ctor:
+                case FunctionType::Dtor:
+                    if (codegen::platform == Platform::Android)
+                        continue;
+            }
+
             if (codegen::getStatus(field) == BindStatus::Binded) {
                 auto const ids = bank.getIDs(fn->beginning, c.name);
 
@@ -103,12 +110,12 @@ std::string generateAddressHeader(Root& root) {
                 );
             }
             else if (codegen::getStatus(field) == BindStatus::NeedsBinding) {
-		if (is_cocos_class(field.parent) && codegen::platform == Platform::Windows) {
-		    address_str = fmt::format("base::getCocos() + 0x{:x}", codegen::platformNumber(fn->binds));
-		}
-		else {
-		    address_str = fmt::format("base::get() + 0x{:x}", codegen::platformNumber(fn->binds));
-		}
+                if (is_cocos_class(field.parent) && codegen::platform == Platform::Windows) {
+                    address_str = fmt::format("base::getCocos() + 0x{:x}", codegen::platformNumber(fn->binds));
+                }
+                else {
+                    address_str = fmt::format("base::get() + 0x{:x}", codegen::platformNumber(fn->binds));
+                }
             }
             else {
                 continue;
@@ -132,6 +139,13 @@ std::string generateAddressHeader(Root& root) {
 
             if (!fn) {
                 continue;
+            }
+
+            switch (fn->beginning.type) {
+                case FunctionType::Ctor:
+                case FunctionType::Dtor:
+                    if (codegen::platform == Platform::Android)
+                        continue;
             }
 
             if (codegen::getStatus(field) == BindStatus::Binded) {

@@ -28,8 +28,13 @@ Mod::Impl::~Impl() {
 }
 
 Result<> Mod::Impl::setup() {
+    log::info("setting the save dir path!");
     m_saveDirPath = dirs::getModsSaveDir() / m_info.id();
-    ghc::filesystem::create_directories(m_saveDirPath);
+    log::info("trying to create directory: {}", m_saveDirPath.string());
+    // ghc::filesystem::create_directories(m_saveDirPath);
+    (void) utils::file::createDirectoryAll(m_saveDirPath);
+    log::info("creating directories!");
+
     
     this->setupSettings();
     auto loadRes = this->loadData();

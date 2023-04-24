@@ -81,7 +81,7 @@ endif()
 
 CPMAddPackage("gh:geode-sdk/json#74347f3")
 CPMAddPackage("gh:fmtlib/fmt#9.1.0")
-CPMAddPackage("gh:gulrak/filesystem#3e5b930")
+CPMAddPackage("gh:gulrak/filesystem#8a2edd6")
 
 # Tulip hook (hooking)
 if (PROJECT_IS_TOP_LEVEL AND NOT GEODE_BUILDING_DOCS)
@@ -106,7 +106,7 @@ ExternalProject_Add(CodegenProject
 	# this should hopefully fix generator cache mismatch between different projects, however
 	# it causes a warning to be shown every time. if you know a better solution please tell us ok thx
 	CONFIGURE_COMMAND ${CMAKE_COMMAND} ${GEODE_CODEGEN_CMAKE_ARGS} -DCMAKE_INSTALL_PREFIX:STRING=${GEODE_CODEGEN_BINARY_OUT} -S <SOURCE_DIR> -B <BINARY_DIR>
-	INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> --config $<CONFIGURATION>
+	INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> --config Debug
 )
 
 

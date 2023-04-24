@@ -121,19 +121,23 @@ std::vector<Hook*> Mod::getHooks() const {
 }
 
 Result<Hook*> Mod::addHook(Hook* hook) {
-    return m_impl->addHook(hook);
+    // return m_impl->addHook(hook);
+    return Ok(hook);
 }
 
 Result<> Mod::enableHook(Hook* hook) {
-    return m_impl->enableHook(hook);
+    // return m_impl->enableHook(hook);
+    return Ok();
 }
 
 Result<> Mod::disableHook(Hook* hook) {
-    return m_impl->disableHook(hook);
+    // return m_impl->disableHook(hook);
+    return Ok();
 }
 
 Result<> Mod::removeHook(Hook* hook) {
-    return m_impl->removeHook(hook);
+    // return m_impl->removeHook(hook);
+    return Ok();
 }
 
 Result<Patch*> Mod::patch(void* address, ByteVector const& data) {

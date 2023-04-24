@@ -1,0 +1,1 @@
+cmake --build build --config Debug && adb push bin\nightly\Geode.so /storage/emulated/0/Android/data/com.geode.launcher/files/test/Geode.so

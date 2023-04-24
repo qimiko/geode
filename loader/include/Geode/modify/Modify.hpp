@@ -80,26 +80,26 @@ namespace geode::modifier {
         }
 
         Result<> setHookPriority(std::string const& name, int32_t priority) {
-            auto res = this->getHook(name);
-            if (!res) {
-                return Err(res.unwrapErr());
-            }
-            res.unwrap()->setPriority(priority);
+            // auto res = this->getHook(name);
+            // if (!res) {
+            //     return Err(res.unwrapErr());
+            // }
+            // res.unwrap()->setPriority(priority);
             return Ok();
         }
 
         // unordered_map<handles> idea
         ModifyBase() {
             // i really dont want to recompile codegen
-            auto test = static_cast<ModifyDerived*>(this);
-            test->ModifyDerived::apply();
-            ModifyDerived::Derived::onModify(*this);
-            for (auto& [uuid, hook] : m_hooks) {
-                auto res = Mod::get()->addHook(hook);
-                if (!res) {
-                    log::error("Failed to add hook {}: {}", hook->getDisplayName(), res.error());
-                }
-            }
+            // auto test = static_cast<ModifyDerived*>(this);
+            // test->ModifyDerived::apply();
+            // ModifyDerived::Derived::onModify(*this);
+            // for (auto& [uuid, hook] : m_hooks) {
+            //     auto res = Mod::get()->addHook(hook);
+            //     if (!res) {
+            //         log::error("Failed to add hook {}: {}", hook->getDisplayName(), res.error());
+            //     }
+            // }
         }
 
         virtual void apply() {}
