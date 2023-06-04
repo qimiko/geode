@@ -2,6 +2,7 @@
 
 #include "Result.hpp"
 #include "general.hpp"
+#include "../loader/Event.hpp"
 
 #include <json.hpp>
 #include <Geode/DefaultInclude.hpp>
@@ -24,8 +25,30 @@ namespace geode::utils::file {
     GEODE_DLL Result<json::Value> readJson(ghc::filesystem::path const& path);
     GEODE_DLL Result<ByteVector> readBinary(ghc::filesystem::path const& path);
 
+    template <class T>
+    Result<T> readFromJson(ghc::filesystem::path const& file) {
+        GEODE_UNWRAP_INTO(auto json, readJson(file));
+        try {
+            return json.template as<T>();
+        }
+        catch(std::exception& e) {
+            return Err("Error parsing JSON: {}", e.what());
+        }
+    }
+
     GEODE_DLL Result<> writeString(ghc::filesystem::path const& path, std::string const& data);
     GEODE_DLL Result<> writeBinary(ghc::filesystem::path const& path, ByteVector const& data);
+
+    template <class T>
+    Result<> writeToJson(ghc::filesystem::path const& path, T const& data) {
+        try {
+            GEODE_UNWRAP(writeString(path, json::Value(data).dump()));
+            return Ok();
+        }
+        catch(std::exception& e) {
+            return Err("Error serializing JSON: {}", e.what());
+        }
+    }
 
     GEODE_DLL Result<> createDirectory(ghc::filesystem::path const& path);
     GEODE_DLL Result<> createDirectoryAll(ghc::filesystem::path const& path);
@@ -230,4 +253,40 @@ namespace geode::utils::file {
      * @param options Picker options
      */
     GEODE_DLL Result<std::vector<ghc::filesystem::path>> pickFiles(FilePickOptions const& options);
+
+    class GEODE_DLL FileWatchEvent : public Event {
+    protected:
+        ghc::filesystem::path m_path;
+    
+    public:
+        FileWatchEvent(ghc::filesystem::path const& path);
+        ghc::filesystem::path getPath() const;
+    };
+
+    class GEODE_DLL FileWatchFilter : public EventFilter<FileWatchEvent> {
+    protected:
+        ghc::filesystem::path m_path;
+    
+    public:
+        using Callback = void(FileWatchEvent*);
+
+        ListenerResult handle(utils::MiniFunction<Callback> callback, FileWatchEvent* event);
+        FileWatchFilter(ghc::filesystem::path const& path);
+    };
+
+    /**
+     * Watch a file for changes. Whenever the file is modified on disk, a 
+     * FileWatchEvent is emitted. Add an EventListener with FileWatchFilter 
+     * to catch these events
+     * @param file The file to watch
+     * @note Watching uses file system equivalence instead of path equivalence, 
+     * so different paths that point to the same file will be considered the 
+     * same
+     */
+    GEODE_DLL Result<> watchFile(ghc::filesystem::path const& file);
+    /**
+     * Stop watching a file for changes
+     * @param file The file to unwatch
+     */
+    GEODE_DLL void unwatchFile(ghc::filesystem::path const& file);
 }

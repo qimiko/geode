@@ -33,7 +33,8 @@ protected:
     IconButtonSprite* m_installBtnSpr;
     CCMenuItemSpriteExtra* m_installBtn;
     CCMenuItemSpriteExtra* m_infoBtn;
-    CCLabelBMFont* m_updateVersionLabel = nullptr;
+    CCLabelBMFont* m_latestVersionLabel = nullptr;
+    CCLabelBMFont* m_minorVersionLabel = nullptr;
     MDTextArea* m_detailsArea;
     MDTextArea* m_changelogArea = nullptr;
     Scrollbar* m_scrollbar;
@@ -56,6 +57,8 @@ protected:
 
 class LocalModInfoPopup : public ModInfoPopup, public FLAlertLayerProtocol {
 protected:
+    IndexItemHandle m_item;
+    EventListener<ModInstallFilter> m_installListener;
     Mod* m_mod;
 
     bool init(Mod* mod, ModListLayer* list);
@@ -69,10 +72,18 @@ protected:
     void onOpenConfigDir(CCObject*);
     void doUninstall();
 
+    void onUpdateProgress(ModInstallEvent* event);
+    void onUpdate(CCObject*);
+    void onCancel(CCObject*);
+    void doUpdate();
+
+
     void FLAlert_Clicked(FLAlertLayer*, bool) override;
 
     CCNode* createLogo(CCSize const& size) override;
     ModInfo getModInfo() const override;
+
+    LocalModInfoPopup();
 
 public:
     static LocalModInfoPopup* create(Mod* mod, ModListLayer* list);

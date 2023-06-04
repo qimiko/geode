@@ -73,15 +73,21 @@ include(cmake/GeodeFile.cmake)
 include(cmake/Platform.cmake)
 include(cmake/CPM.cmake)
 
+if (PROJECT_IS_TOP_LEVEL AND NOT GEODE_BUILDING_DOCS)
+	set(MAT_JSON_AS_INTERFACE ON)
+endif()
+CPMAddPackage("gh:geode-sdk/json#19cf6f4")
+CPMAddPackage("gh:fmtlib/fmt#9.1.0")
+CPMAddPackage("gh:gulrak/filesystem#3e5b930")
+
+target_compile_definitions(${PROJECT_NAME} INTERFACE MAT_JSON_DYNAMIC=1)
+
 # this is needed for cross compilation on linux,
 # since fmtlib will fail to compile otherwise
 if (GEODE_DISABLE_FMT_CONSTEVAL)
-	target_compile_definitions(${PROJECT_NAME} INTERFACE -DFMT_CONSTEVAL=)
+	message(VERBOSE "Disabling FMT_CONSTEVAL")
+	target_compile_definitions(fmt PUBLIC -DFMT_CONSTEVAL=)
 endif()
-
-CPMAddPackage("gh:geode-sdk/json#74347f3")
-CPMAddPackage("gh:fmtlib/fmt#9.1.0")
-CPMAddPackage("gh:gulrak/filesystem#8a2edd6")
 
 # Tulip hook (hooking)
 if (PROJECT_IS_TOP_LEVEL AND NOT GEODE_BUILDING_DOCS)
@@ -116,6 +122,10 @@ file(GLOB CODEGEN_DEPENDS CONFIGURE_DEPENDS
 	${CMAKE_CURRENT_SOURCE_DIR}/codegen/src/*.hpp
 )
 
+file(GLOB CODEGEN_OUTPUTS CONFIGURE_DEPENDS 
+	${GEODE_CODEGEN_PATH}/Geode/binding/*.hpp
+)
+
 add_custom_command(
 	DEPENDS ${CODEGEN_DEPENDS}
 	DEPENDS CodegenProject
@@ -123,7 +133,7 @@ add_custom_command(
 	COMMAND echo codegen > ${GEODE_CODEGEN_PATH}/.stamp
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT "Run Codegen"
-	OUTPUT ${GEODE_CODEGEN_PATH}/Geode/GeneratedSource.cpp ${GEODE_CODEGEN_PATH}/Geode/GeneratedAddress.cpp ${GEODE_CODEGEN_PATH}/.stamp
+	OUTPUT ${GEODE_CODEGEN_PATH}/Geode/GeneratedSource.cpp ${GEODE_CODEGEN_PATH}/Geode/GeneratedAddress.cpp ${GEODE_CODEGEN_PATH}/.stamp ${CODEGEN_OUTPUTS}
 )
 
 add_custom_target(CodegenRun

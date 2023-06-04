@@ -11,6 +11,8 @@ namespace geode {
         LessEq,
         Exact,
         MoreEq,
+        Less,
+        More,
     };
 
     /**
@@ -199,13 +201,19 @@ namespace geode {
                 return false;
             }
 
+            // the comparison works invertedly as a version like "v1.2.0" 
+            // should return true for "<=v1.3.0"
             switch (m_compare) {
                 case VersionCompare::LessEq:
-                    return m_version <= version;
+                    return version <= m_version;
                 case VersionCompare::MoreEq:
-                    return m_version >= version;
-                default:
-                    return m_version == version;
+                    return version >= m_version;
+                case VersionCompare::Less:
+                    return version < m_version;
+                case VersionCompare::More:
+                    return version > m_version;
+                case VersionCompare::Exact:
+                    return version == m_version;
             }
         }
 

@@ -5,6 +5,7 @@
 
 using namespace geode::prelude;
 
+#include <Geode/loader/Dirs.hpp>
 #import <AppKit/AppKit.h>
 #include <Geode/utils/web.hpp>
 #include <Geode/utils/file.hpp>
@@ -77,7 +78,7 @@ void utils::web::openLinkInBrowser(std::string const& url) {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
 
     // allowed files
-    NSMutableArray* allowed;
+    NSMutableArray* allowed = [NSMutableArray array];
 
     for (auto& f : options.filters) {
         for (auto& i : f.files) {
@@ -146,6 +147,26 @@ CCPoint cocos::getMousePos() {
     auto scaleFactor = CCPoint(CCDirector::get()->getWinSize()) / ccp(frame.size.width, frame.size.height);
     auto mouse = [NSEvent mouseLocation];
     return ccp(mouse.x - frame.origin.x, mouse.y - frame.origin.y) * scaleFactor;
+}
+
+ghc::filesystem::path dirs::getGameDir() {
+    static auto path = [] {
+        std::array<char, PATH_MAX> gddir;
+
+        uint32_t out = PATH_MAX;
+        _NSGetExecutablePath(gddir.data(), &out);
+
+        ghc::filesystem::path gdpath = gddir.data();
+        auto currentPath = gdpath.parent_path().parent_path();    
+        return currentPath;
+    }();
+
+    return path;
+}
+
+ghc::filesystem::path dirs::getSaveDir() {
+    // not using ~/Library/Caches
+    return ghc::filesystem::path("/Users/Shared/Geode");
 }
 
 #endif

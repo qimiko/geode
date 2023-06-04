@@ -29,8 +29,8 @@ execute_process(
 # Package info file for internal representation
 configure_file(resources/mod.json.in ${CMAKE_CURRENT_SOURCE_DIR}/resources/mod.json)
 file(READ resources/mod.json LOADER_MOD_JSON)
-file(READ resources/about.md LOADER_ABOUT_MD)
-file(READ ${GEODE_ROOT_PATH}/CHANGELOG.md LOADER_CHANGELOG_MD)
+configure_file(${GEODE_ROOT_PATH}/VERSION ${CMAKE_CURRENT_SOURCE_DIR}/resources/version COPYONLY)
+configure_file(${GEODE_ROOT_PATH}/CHANGELOG.md ${CMAKE_CURRENT_SOURCE_DIR}/resources/changelog.md COPYONLY)
 configure_file(src/internal/about.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/about.hpp)
 
 # Source files
@@ -150,7 +150,7 @@ if (APPLE)
 	#set_property(TARGET ${PROJECT_NAME} PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC GEODE_EXPORTING)
+target_compile_definitions(${PROJECT_NAME} PUBLIC GEODE_EXPORTING MAT_JSON_EXPORTING)
 
 # These are only needed for building source :-)
 if (NOT GEODE_BUILDING_DOCS)
@@ -204,17 +204,6 @@ if (APPLE)
 	endif()
 elseif (WIN32)
 	add_subdirectory(launcher/windows)
-
-	CPMAddPackage("gh:TsudaKageyu/minhook#49d03ad")
-	target_link_libraries(${PROJECT_NAME} minhook)
-
-	# target_include_directories(${PROJECT_NAME} PRIVATE dobby/include)
-	# target_link_directories(${PROJECT_NAME} PRIVATE dobby)
-	# target_link_libraries(${PROJECT_NAME} dobby)
-
-	# set(DOBBY_GENERATE_SHARED OFF CACHE BOOL "Build dobby shared library" FORCE)
-	# # set(DOBBY_DEBUG ON CACHE BOOL "Build dobby shared library" FORCE)
-	# add_subdirectory(dobby)
 
 	target_link_libraries(${PROJECT_NAME} dbghelp)
 

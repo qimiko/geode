@@ -14,6 +14,7 @@
 #include <Geode/utils/web.hpp>
 #include <Geode/utils/JsonValidation.hpp>
 #include "ModImpl.hpp"
+#include "ModInfoImpl.hpp"
 #include <about.hpp>
 #include <crashlog.hpp>
 #include <fmt/format.h>
@@ -505,6 +506,7 @@ void Loader::Impl::fetchLatestGithubRelease(
     if (m_latestGithubRelease) {
         return then(m_latestGithubRelease.value());
     }
+    // TODO: add header to not get rate limited
     web::AsyncWebRequest()
         .join("loader-auto-update-check")
         .fetch("https://api.github.com/repos/geode-sdk/geode/releases/latest")
@@ -528,7 +530,7 @@ void Loader::Impl::tryDownloadLoaderResources(
         .join(url)
         .fetch(url)
         .into(tempResourcesZip)
-        .then([tempResourcesZip, resourcesDir](auto) {
+        .then([tempResourcesZip, resourcesDir, this](auto) {
             // unzip resources zip
             auto unzip = file::Unzip::intoDir(tempResourcesZip, resourcesDir, true);
             if (!unzip) {
@@ -537,6 +539,8 @@ void Loader::Impl::tryDownloadLoaderResources(
                 ).post();
                 return;
             }
+            this->updateSpecialFiles();
+
             ResourceDownloadEvent(UpdateFinished()).post();
         })
         .expect([this, tryLatestOnError](std::string const& info, int code) {
@@ -559,6 +563,14 @@ void Loader::Impl::tryDownloadLoaderResources(
                 )
             ).post();
         });
+}
+
+void Loader::Impl::updateSpecialFiles() {
+    auto resourcesDir = dirs::getGeodeResourcesDir() / Mod::get()->getID();
+    auto res = ModInfoImpl::getImpl(ModImpl::get()->m_info).addSpecialFiles(resourcesDir);
+    if (res.isErr()) {
+        log::warn("Unable to add special files: {}", res.unwrapErr());
+    }
 }
 
 void Loader::Impl::downloadLoaderResources(bool useLatestRelease) {
@@ -614,8 +626,18 @@ bool Loader::Impl::verifyLoaderResources() {
         ghc::filesystem::exists(resourcesDir) &&
         ghc::filesystem::is_directory(resourcesDir)
     )) {
+        log::debug("Resources directory does not exist");
         this->downloadLoaderResources();
         return false;
+    }
+
+    // TODO: actually have a proper way to disable checking resources
+    // for development builds
+    if (ghc::filesystem::exists(resourcesDir / "dont-update.txt")) {
+        // this is kind of a hack, but it's the easiest way to prevent
+        // auto update while developing
+        log::debug("Not updating resources since dont-update.txt exists");
+        return true;
     }
 
     // make sure every file was covered
@@ -630,10 +652,9 @@ bool Loader::Impl::verifyLoaderResources() {
         }
         // verify hash
         auto hash = calculateSHA256(file.path());
-        if (hash != LOADER_RESOURCE_HASHES.at(name)) {
-            log::debug(
-                "compare {} {} {}", file.path().string(), hash, LOADER_RESOURCE_HASHES.at(name)
-            );
+        auto expected = LOADER_RESOURCE_HASHES.at(name);
+        if (hash != expected) {
+            log::debug("Resource hash mismatch: {} ({}, {})", name, hash.substr(0, 7), expected.substr(0, 7));
             this->downloadLoaderResources();
             return false;
         }
@@ -642,6 +663,7 @@ bool Loader::Impl::verifyLoaderResources() {
 
     // make sure every file was found
     if (coverage != LOADER_RESOURCE_HASHES.size()) {
+        log::debug("Resource coverage mismatch");
         this->downloadLoaderResources();
         return false;
     }

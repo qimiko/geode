@@ -33,7 +33,12 @@
             "images/*.png"
         ],
         "files": [
-            "sounds/*.ogg"
+            "sounds/*.ogg",
+            "about.md",
+            "changelog.md",
+            "support.md",
+            "mod.json",
+            "version"
         ],
         "spritesheets": {
             "LogoSheet": [

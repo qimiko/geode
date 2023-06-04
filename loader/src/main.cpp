@@ -31,15 +31,7 @@ void dynamicEntry() {
     auto dylib = dlopen("GeodeBootstrapper.dylib", RTLD_NOLOAD);
     dlclose(dylib);
 
-    std::array<char, PATH_MAX> gddir;
-
-    uint32_t out = PATH_MAX;
-    _NSGetExecutablePath(gddir.data(), &out);
-
-    ghc::filesystem::path gdpath = gddir.data();
-    ghc::filesystem::current_path(gdpath.parent_path().parent_path());
-
-    auto workingDir = gdpath.parent_path().parent_path();
+    auto workingDir = dirs::getGameDir();
     auto libDir = workingDir / "Frameworks";
     auto updatesDir = workingDir / "geode" / "update";
 
@@ -85,7 +77,7 @@ DWORD WINAPI loadThread(void* arg) {
     }
 
     if (canMoveBootstrapper) {
-        auto workingDir = ghc::filesystem::current_path();
+        auto workingDir = dirs::getGameDir();
         auto updatesDir = workingDir / "geode" / "update";
 
         auto error = std::error_code();

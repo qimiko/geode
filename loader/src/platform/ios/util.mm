@@ -4,11 +4,11 @@
 #ifdef GEODE_IS_IOS
 
 using namespace geode::prelude;
-
-    #include <UIKit/UIKit.h>
-    #include <iostream>
-    #include <sstream>
-    #include <Geode/utils/web.hpp>
+#include <Geode/loader/Dirs.hpp>
+#include <UIKit/UIKit.h>
+#include <iostream>
+#include <sstream>
+#include <Geode/utils/web.hpp>
 
 bool utils::clipboard::write(std::string const& data) {
     [UIPasteboard generalPasteboard].string = [NSString stringWithUTF8String:data.c_str()];
@@ -26,6 +26,15 @@ void utils::web::openLinkInBrowser(std::string const& url) {
 
 void geode_nslog(uintptr_t x) {
     NSLog(@"geode %lx", x);
+}
+
+
+ghc::filesystem::path dirs::getGameDir() {
+    return ghc::filesystem::current_path();
+}
+
+ghc::filesystem::path dirs::getSaveDir() {
+    return weaklyCanonical(CCFileUtils::sharedFileUtils()->getWritablePath().c_str());
 }
 
 #endif
