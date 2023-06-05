@@ -4,7 +4,7 @@
 
 namespace geode {
     struct PlatformInfo {
-        void* m_idk;
+        void* m_so;
     };
 }
 

@@ -17,6 +17,7 @@ FileWatcher::~FileWatcher() {
 }
 
 void FileWatcher::watch() {
+	// TODO: setup inotify or something
 }
 
 bool FileWatcher::watching() const {

@@ -10,7 +10,7 @@ using namespace geode::prelude;
 #include <ghc/filesystem.hpp>
 
 ghc::filesystem::path dirs::getGameDir() {
-    return ghc::filesystem::current_path();
+    return ghc::filesystem::path(CCFileUtils::sharedFileUtils()->getWritablePath().c_str());
 }
 
 ghc::filesystem::path dirs::getSaveDir() {
