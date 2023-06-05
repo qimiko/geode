@@ -70,7 +70,7 @@ elseif (GEODE_TARGET_PLATFORM STREQUAL "Android")
 		SYSTEM_NAME Android
 	)
 
-	target_link_libraries(${PROJECT_NAME} INTERFACE 
+	target_link_libraries(${PROJECT_NAME} INTERFACE
 		${GEODE_LOADER_PATH}/include/Geode/cocos/libcocos2dcpp.so
 		${GEODE_LOADER_PATH}/include/link/libcurl.a
 		${GEODE_LOADER_PATH}/include/link/libssl.a
@@ -78,5 +78,5 @@ elseif (GEODE_TARGET_PLATFORM STREQUAL "Android")
 		log
 	)
 
-	set(GEODE_PLATFORM_BINARY "Geode.so")
+	set(GEODE_PLATFORM_BINARY "libgeode.so")
 endif()
