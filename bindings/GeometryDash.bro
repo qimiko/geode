@@ -4079,7 +4079,7 @@ class MapPackCell : TableViewCell {
     void loadFromMapPack(GJMapPack *) = win 0x5cac0;
 }
 
-class MenuGameLayer : GJBaseGameLayer {
+class MenuGameLayer : cocos2d::CCLayer {
     void resetPlayer() = mac 0x28fdc0, win 0x18f4b0;
     void destroyPlayer() = win 0x190100;
     virtual void update(float) = mac 0x28fa70, win 0x18f190;
