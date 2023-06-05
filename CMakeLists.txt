@@ -93,8 +93,15 @@ endif()
 if (PROJECT_IS_TOP_LEVEL AND NOT GEODE_BUILDING_DOCS)
 	set(TULIP_LINK_SOURCE ON)
 endif()
-CPMAddPackage("gh:geode-sdk/TulipHook#4369d05")
 
+if (GEODE_TARGET_PLATFORM STREQUAL "Android")
+  # for some reason keystone complains this isn't defined
+	# define it here for now but this should really be figured out...
+	add_compile_definitions(-DMAXPATHLEN=4096)
+	CPMAddPackage("gh:matcool/TulipHook#7179f66")
+else()
+	CPMAddPackage("gh:geode-sdk/TulipHook#4369d05")
+endif()
 
 target_sources(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/entry.cpp)
 
