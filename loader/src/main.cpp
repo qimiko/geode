@@ -56,13 +56,11 @@ auto dynamicTriggerRef = &dynamicTrigger;
 
 #elif defined(GEODE_IS_ANDROID)
 
-#include <thread>
+#include <jni.h>
 
-[[gnu::constructor]] void geodeConstructorEntry() {
-    // std::thread([] {
-    //     geodeEntry(nullptr);
-    // }).detach();
+extern "C" [[gnu::visibility("default")]] jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     geodeEntry(nullptr);
+    return JNI_VERSION_1_1;
 }
 
 #elif defined(GEODE_IS_WINDOWS)
