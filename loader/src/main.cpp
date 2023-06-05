@@ -166,8 +166,6 @@ public:
 };
 
 int geodeEntry(void* platformData) {
-    log::info("hello oworld!!!!");
-
     // set up internal mod, settings and data
     auto internalSetupRes = LoaderImpl::get()->setupInternalMod();
     if (!internalSetupRes) {
@@ -179,8 +177,6 @@ int geodeEntry(void* platformData) {
         LoaderImpl::get()->reset();
         return 1;
     }
-
-    log::info("owo!! set up internal mod");
 
     // set up loader, load mods, etc.
     auto setupRes = LoaderImpl::get()->setup();
@@ -197,16 +193,17 @@ int geodeEntry(void* platformData) {
 
     log::info("Set up loader");
 
-    // // open console
-    // if (Mod::get()->getSettingValue<bool>("show-platform-console")) {
-    //     Loader::get()->openPlatformConsole();
-    // }
+    // open console
+    if (Mod::get()->getSettingValue<bool>("show-platform-console")) {
+        Loader::get()->openPlatformConsole();
+    }
 
-    // // download and install new loader update in the background
-    // if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
-    //     LoaderImpl::get()->checkForLoaderUpdates();
-    // }
-
+    /*
+    // download and install new loader update in the background
+    if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
+        LoaderImpl::get()->checkForLoaderUpdates();
+    }
+    */
 
     log::debug("Entry done.");
 
