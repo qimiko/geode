@@ -328,7 +328,7 @@ class CCContentLayer : cocos2d::CCLayerColor {
 }
 
 class CCIndexPath : cocos2d::CCObject {
-    static CCIndexPath* CCIndexPathWithSectionRow(unsigned int idk1, int idk2) = win 0x30e40;
+    static CCIndexPath* CCIndexPathWithSectionRow(int idk1, int idk2) = win 0x30e40;
     inline CCIndexPath() = default;
     int m_unknown1;
     int m_unknown2;
@@ -1292,7 +1292,7 @@ class EditorUI : cocos2d::CCLayer, FLAlertLayerProtocol, ColorSelectDelegate, GJ
         this->updateScaleControl();
     }
     void constrainGameLayerPosition(float x, float y) = mac 0x18890, win 0x8f920;
-    void moveGameLayer(cocos2d::CCPoint pos) = mac 0x1ca90, win 0x79290;
+    void moveGamelayer(cocos2d::CCPoint pos) = mac 0x1ca90, win 0x79290;
     void showUI(bool show) = mac 0x245b0, win 0x87180;
     void resetUI() = mac 0x18520, win 0x7ac10;
     void editObject2(cocos2d::CCObject* sender) = win 0x8d1b0;
@@ -1637,8 +1637,8 @@ class FLAlertLayerProtocol {
 class FMODAudioEngine : cocos2d::CCNode {
     static FMODAudioEngine* sharedEngine() = mac 0x20ef80, win 0x239f0;
     void preloadEffect(gd::string filename) = win 0x24240;
-    bool isBackgroundMusicPlaying() = win 0x24050, android 0xB00B135;
-    bool isBackgroundMusicPlaying(gd::string path) = win 0x24080, android 0xB00B135;
+    bool isBackgroundMusicPlaying() = win 0x24050;
+    bool isBackgroundMusicPlaying(gd::string path) = win 0x24080;
     void playBackgroundMusic(gd::string path, bool fade, bool paused) = win 0x23d80;
     
     virtual void update(float) = win 0x23b20;
@@ -2514,8 +2514,8 @@ class GJSearchObject : cocos2d::CCNode {
         return m_searchType;
     }
 
-    static GJSearchObject* create(SearchType nID) = win 0xc2b90, android 0xB00B135;
-    static GJSearchObject* create(SearchType nID, gd::string str) = win 0xc2c80, android 0xB00B135;
+    static GJSearchObject* create(SearchType nID) = win 0xc2b90;
+    static GJSearchObject* create(SearchType nID, gd::string str) = win 0xc2c80;
 
     SearchType m_searchType;
     gd::string m_searchQuery;
@@ -5294,8 +5294,8 @@ class SongCell : TableViewCell {
 }
 
 class SongInfoLayer : FLAlertLayer {
-    static SongInfoLayer* create(int songID) = win 0x250520, android 0xB00B135;
-    static SongInfoLayer* create(gd::string songName, gd::string artistName, gd::string downloadLink, gd::string artistNG, gd::string artistYT, gd::string artistFB) = win 0x250830, android 0xB00B135;
+    static SongInfoLayer* create(int songID) = win 0x250520;
+    static SongInfoLayer* create(gd::string songName, gd::string artistName, gd::string downloadLink, gd::string artistNG, gd::string artistYT, gd::string artistFB) = win 0x250830;
 
     gd::string m_downloadLink;
     gd::string m_artistNewgrounds;
