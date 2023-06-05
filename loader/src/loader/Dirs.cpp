@@ -7,13 +7,15 @@
 
 using namespace geode::prelude;
 
-ghc::filesystem::path dirs::getGameDir() {
+namespace {
+    ghc::filesystem::path weaklyCanonical(ghc::filesystem::path const& path) {
     #ifdef GEODE_IS_WINDOWS
         // this is std::filesystem intentionally because ghc version doesnt want to work with softlinked directories
         return std::filesystem::weakly_canonical(path.string()).string();
     #else
         return ghc::filesystem::weakly_canonical(path.string()).string();
     #endif
+    }
 }
 
 ghc::filesystem::path dirs::getGeodeDir() {

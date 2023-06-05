@@ -35,30 +35,6 @@ gd::string::~string() {
 
 }
 
-ghc::filesystem::path crashlog::getCrashLogDirectory() {
-    return geode::dirs::getSaveDir();
-}
-
-bool crashlog::setupPlatformHandler() {
-    return false;
-}
-
-bool crashlog::didLastLaunchCrash() {
-    return false;
-}
-
-void geode::utils::web::openLinkInBrowser(std::string const& url) {
-
-}
-
-bool geode::utils::file::openFolder(ghc::filesystem::path const&) {
-    return false;
-}
-
-geode::Result<ghc::filesystem::path> geode::utils::file::pickFile(geode::utils::file::PickMode, geode::utils::file::FilePickOptions const&) {
-    return geode::Err("sorry");
-}
-
 namespace gd {
     
     bool string::operator<(string const& other) const {
