@@ -88,6 +88,13 @@ elseif(APPLE)
 	list(APPEND SOURCES ${MAC_SOURCES})
 	list(APPEND SOURCES ${OBJC_SOURCES})
 
+elseif(ANDROID)
+	# unsure why this exists if the sources are added earlier anyways
+	file(GLOB ANDROID_SOURCES CONFIGURE_DEPENDS
+		src/platform/android/*.cpp
+	)
+	list(APPEND SOURCES ${ANDROID_SOURCES})
+
 endif()
 
 # Embed version info in binary
