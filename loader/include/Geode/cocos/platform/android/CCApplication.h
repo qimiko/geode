@@ -46,8 +46,7 @@ public:
      */
     virtual TargetPlatform getTargetPlatform();
 
-    virtual void openURL(const char* url) override;
-
+    virtual void openURL(char const* url) override;
 
 protected:
     static CCApplication * sm_pSharedApplication;
