@@ -120,7 +120,7 @@ protected:
     void onDescription(CCObject*) {
         FLAlertLayer::create(
             setting()->getDefinition().getDisplayName().c_str(),
-            setting()->castDefinition().description.value(),
+            setting()->castDefinition().description.value().c_str(),
             "OK"
         )->show();
     }
@@ -301,7 +301,7 @@ class ColorSettingNode :
     public GeodeSettingNode<ColorSetting>,
     public ColorPickPopupDelegate {
 protected:
-    ColorChannelSprite* m_colorSpr;
+    // ColorChannelSprite* m_colorSpr;
 
     void valueChanged(bool updateText) override;
     void updateColor(ccColor4B const& color) override;
@@ -318,7 +318,7 @@ class ColorAlphaSettingNode :
     public GeodeSettingNode<ColorAlphaSetting>,
     public ColorPickPopupDelegate {
 protected:
-    ColorChannelSprite* m_colorSpr;
+    // ColorChannelSprite* m_colorSpr;
 
     void valueChanged(bool updateText) override;
     void updateColor(ccColor4B const& color) override;

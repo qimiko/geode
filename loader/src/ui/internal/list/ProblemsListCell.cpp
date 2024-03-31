@@ -166,7 +166,7 @@ bool ProblemsListCell::init(LoadProblem problem, ProblemsListPopup* list, CCSize
 }
 
 void ProblemsListCell::onMore(cocos2d::CCObject*) {
-    FLAlertLayer::create("Problem Info", m_longMessage, "OK")->show();
+    FLAlertLayer::create("Problem Info", m_longMessage.c_str(), "OK")->show();
 }
 
 LoadProblem ProblemsListCell::getProblem() const {

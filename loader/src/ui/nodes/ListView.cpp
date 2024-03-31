@@ -32,7 +32,7 @@ void GenericListCell::updateBGColor(int index) {
     m_backgroundLayer->setOpacity(0xff);
 }
 
-void ListView::setupList(float) {
+void ListView::setupList() {
     if (!m_entries->count()) return;
     m_tableView->reloadData();
 

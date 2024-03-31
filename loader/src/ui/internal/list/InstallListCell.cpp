@@ -138,7 +138,7 @@ bool InstallListCell::init(InstallListPopup* list, CCSize const& size) {
 }
 
 bool InstallListCell::isIncluded() {
-    return m_toggle && m_toggle->isOn();
+    return m_toggle && m_toggle->getIsActive();
 }
 
 // ModInstallListCell

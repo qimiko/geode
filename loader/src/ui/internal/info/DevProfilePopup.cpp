@@ -8,7 +8,7 @@
 #include <Geode/loader/Mod.hpp>
 
 bool DevProfilePopup::setup(std::string const& developer, ModListLayer* list) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_layer = list;
 
     this->setTitle("Mods by " + developer);

@@ -129,7 +129,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
                     "OK"
                 );
                 popup->m_scene = this;
-                popup->m_noElasticity = true;
+                // popup->m_noElasticity = true;
                 popup->show();
             }
         }
@@ -145,7 +145,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
                 "OK"
             );
             popup->m_scene = this;
-            popup->m_noElasticity = true;
+            // popup->m_noElasticity = true;
             popup->show();
         }
 
@@ -171,7 +171,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
                 false
             );
             popup->m_scene = this;
-            popup->m_noElasticity = true;
+            // popup->m_noElasticity = true;
             popup->show();
         }
 

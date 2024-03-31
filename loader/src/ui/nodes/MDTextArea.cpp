@@ -1,4 +1,4 @@
-#include <Geode/binding/ProfilePage.hpp>
+// #include <Geode/binding/ProfilePage.hpp>
 #include <Geode/binding/CCContentLayer.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <Geode/ui/MDTextArea.hpp>
@@ -173,8 +173,8 @@ void MDTextArea::onLink(CCObject* pSender) {
     auto href = as<CCString*>(as<CCNode*>(pSender)->getUserObject());
     auto layer = FLAlertLayer::create(
         this, "Hold Up!",
-        "Links are spooky! Are you sure you want to go to <cy>" + std::string(href->getCString()) +
-            "</c>?",
+        ("Links are spooky! Are you sure you want to go to <cy>" + std::string(href->getCString()) +
+            "</c>?").c_str(),
         "Cancel", "Yes", 360.f
     );
     layer->setUserObject(href);
@@ -182,6 +182,7 @@ void MDTextArea::onLink(CCObject* pSender) {
 }
 
 void MDTextArea::onGDProfile(CCObject* pSender) {
+/*
     auto href = as<CCString*>(as<CCNode*>(pSender)->getUserObject());
     auto profile = std::string(href->getCString());
     profile = profile.substr(profile.find(":") + 1);
@@ -199,6 +200,7 @@ void MDTextArea::onGDProfile(CCObject* pSender) {
         return;
     }
     ProfilePage::create(id, false)->show();
+*/
 }
 
 void MDTextArea::FLAlert_Clicked(FLAlertLayer* layer, bool btn) {

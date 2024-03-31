@@ -23,7 +23,7 @@ namespace geode {
      */
     class GEODE_DLL ListView : public CustomListView {
     protected:
-        void setupList(float) override;
+        void setupList() override;
         TableViewCell* getListCell(char const* key) override;
         void loadCell(TableViewCell* cell, int index) override;
 

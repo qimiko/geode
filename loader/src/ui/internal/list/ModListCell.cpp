@@ -15,7 +15,7 @@
 template <class T>
 static bool tryOrAlert(Result<T> const& res, char const* title) {
     if (!res) {
-        FLAlertLayer::create(title, res.unwrapErr(), "OK")->show();
+        FLAlertLayer::create(title, res.unwrapErr().c_str(), "OK")->show();
     }
     return res.isOk();
 }
@@ -239,7 +239,7 @@ void ModCell::onEnable(CCObject* sender) {
             "OK"
         )->show();
     }
-    if (!as<CCMenuItemToggler*>(sender)->isToggled()) {
+    if (!as<CCMenuItemToggler*>(sender)->getIsActive()) {
         tryOrAlert(m_mod->enable(), "Error enabling mod");
     }
     else {
@@ -442,7 +442,7 @@ CCNode* IndexItemCell::createLogo(CCSize const& size) {
 void InvalidGeodeFileCell::onInfo(CCObject*) {
     FLAlertLayer::create(
         this, "Error Info",
-        m_info.reason,
+        m_info.reason.c_str(),
         "OK", "Remove file", 360.f
     )->show();
 }
@@ -452,22 +452,22 @@ void InvalidGeodeFileCell::FLAlert_Clicked(FLAlertLayer*, bool btn2) {
         std::error_code ec;
         if (ghc::filesystem::remove(m_info.path, ec)) {
             FLAlertLayer::create(
-                "File Removed", "Removed <cy>" + m_info.path.string() + "</c>", "OK"
+                "File Removed", ("Removed <cy>" + m_info.path.string() + "</c>").c_str(), "OK"
             )->show();
         }
         else {
             if (ec) {
                 FLAlertLayer::create(
                     "Unable to Remove File",
-                    "Unable to remove <cy>" + m_info.path.string() + "</c>: <cr>" +
-                        ec.message() + "</c>",
+                    ("Unable to remove <cy>" + m_info.path.string() + "</c>: <cr>" +
+                        ec.message() + "</c>").c_str(),
                     "OK"
                 )->show();
             }
             else {
                 FLAlertLayer::create(
                     "Unable to Remove File",
-                    "Unable to remove <cy>" + m_info.path.string() + "</c>",
+                    ("Unable to remove <cy>" + m_info.path.string() + "</c>").c_str(),
                     "OK"
                 )->show();
             }

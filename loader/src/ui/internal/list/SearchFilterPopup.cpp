@@ -10,7 +10,7 @@
 const float iosAndAndroidSize = 25.f;
 
 bool SearchFilterPopup::setup(ModListLayer* layer, ModListType type) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_modLayer = layer;
 
     this->setTitle("Search Filters");
@@ -163,7 +163,7 @@ bool SearchFilterPopup::setup(ModListLayer* layer, ModListType type) {
 void SearchFilterPopup::onTag(CCObject* sender) {
     auto toggle = static_cast<CCMenuItemToggler*>(sender);
     auto tag = static_cast<CCString*>(toggle->getUserObject())->getCString();
-    if (!toggle->isToggled()) {
+    if (!toggle->getIsActive()) {
         m_modLayer->getQuery().tags.insert(tag);
     }
     else {
@@ -175,12 +175,12 @@ void SearchFilterPopup::onTag(CCObject* sender) {
 
 void SearchFilterPopup::onShowInstalled(CCObject* sender) {
     auto toggle = static_cast<CCMenuItemToggler*>(sender);
-    m_modLayer->getQuery().forceVisibility = !toggle->isToggled();
+    m_modLayer->getQuery().forceVisibility = !toggle->getIsActive();
 }
 
 void SearchFilterPopup::onShowInvalid(CCObject* sender) {
     auto toggle = static_cast<CCMenuItemToggler*>(sender);
-    m_modLayer->getQuery().forceInvalid = !toggle->isToggled();
+    m_modLayer->getQuery().forceInvalid = !toggle->getIsActive();
 }
 
 void SearchFilterPopup::enable(CCMenuItemToggler* toggle, ModListType type) {
@@ -227,7 +227,7 @@ CCMenuItemToggler* SearchFilterPopup::addPlatformToggle(const char* title, Platf
 }
 
 void SearchFilterPopup::onPlatformToggle(CCObject* sender) {
-    if (static_cast<CCMenuItemToggler*>(sender)->isToggled()) {
+    if (static_cast<CCMenuItemToggler*>(sender)->getIsActive()) {
         m_modLayer->getQuery().platforms.erase(PlatformID::from(sender->getTag()));
     }
     else {

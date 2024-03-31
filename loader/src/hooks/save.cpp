@@ -24,9 +24,9 @@ namespace {
 
 struct SaveLoader : Modify<SaveLoader, AppDelegate> {
     GEODE_FORWARD_COMPAT_DISABLE_HOOKS("save moved to CCApplication::gameDidSave()")
-    void trySaveGame(bool p0) {
+    void trySaveGame() {
         saveModData();
-        return AppDelegate::trySaveGame(p0);
+        return AppDelegate::trySaveGame();
     }
 };
 

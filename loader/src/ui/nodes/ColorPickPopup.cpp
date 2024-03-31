@@ -32,7 +32,7 @@ static GLubyte parseFloat(char const* str) {
 }
 
 bool ColorPickPopup::setup(ccColor4B const& color, bool isRGBA) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_color = color;
     m_originalColor = color;
 

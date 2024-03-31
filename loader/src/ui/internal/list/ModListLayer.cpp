@@ -458,7 +458,7 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
 
     float scroll = 0.0f;
     if (keepScroll && m_list) {
-        scroll = m_list->m_listView->m_tableView->m_contentLayer->getPositionY();
+        // scroll = m_list->m_listView->m_tableView->m_contentLayer->getPositionY();
     }
 
     // set search query
@@ -535,7 +535,7 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
 
     // set list
     // TODO: 6th param dont know
-    m_list = GJListLayer::create(list, nullptr, { 0, 0, 0, 180 }, 358.f, 220.f, 0);
+    m_list = GJListLayer::create(list, nullptr, { 0, 0, 0, 180 }, 358.f, 220.f);
     m_list->setZOrder(2);
     m_list->setPosition(winSize / 2 - m_list->getScaledContentSize() / 2);
     this->addChild(m_list);
@@ -589,11 +589,13 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
 }
 
 void ModListLayer::updateAllStates() {
+/*
     for (auto cell : CCArrayExt<GenericListCell*>(
         m_list->m_listView->m_tableView->m_cellArray
     )) {
         static_cast<ModListCell*>(cell->getChildByID("mod-list-cell"))->updateState();
     }
+*/
 }
 
 // Getters
@@ -660,9 +662,8 @@ void ModListLayer::onReload(CCObject*) {
 }
 
 void ModListLayer::onExpand(CCObject* sender) {
-    m_display = static_cast<CCMenuItemToggler*>(sender)->isToggled() ?
-        ModListDisplay::Concise :
-        ModListDisplay::Expanded;
+    m_display = static_cast<CCMenuItemToggler*>(sender)->getIsActive() ? ModListDisplay::Concise :
+                                                                         ModListDisplay::Expanded;
     this->reloadList(false);
 }
 

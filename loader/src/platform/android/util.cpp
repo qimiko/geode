@@ -276,7 +276,7 @@ void geode::utils::game::exit() {
     //     log::error("Cannot exit in PlayLayer or LevelEditorLayer!");
     //     return;
     // }
-    AppDelegate::get()->trySaveGame(true);
+    AppDelegate::get()->trySaveGame();
     // AppDelegate::get()->showLoadingCircle(false, true);
 
     CCDirector::get()->getActionManager()->addAction(CCSequence::create(
@@ -307,7 +307,7 @@ void geode::utils::game::restart() {
     // Not implemented
     // log::error("Restarting the game is not implemented on android");
 
-    AppDelegate::get()->trySaveGame(true);
+    AppDelegate::get()->trySaveGame();
     // AppDelegate::get()->showLoadingCircle(false, true);
 
     CCDirector::get()->getActionManager()->addAction(CCSequence::create(

@@ -9,7 +9,7 @@
 ModListLayer* m_layer;
 
 bool ModDevsPopup::setup(ModMetadata const& mod, ModListLayer* list) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_layer = list;
 
     this->setTitle("Developers for " + mod.getName());

@@ -12,7 +12,7 @@
 #include <Geode/binding/CCMenuItemToggler.hpp>
 
 bool InstallListPopup::setup(IndexItemHandle item, MiniFunction<void(IndexInstallList const&)> callback) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
 
     m_item = item;
     m_callback = callback;
@@ -197,7 +197,7 @@ CCSize InstallListPopup::getCellSize() const {
 void InstallListPopup::onCellToggle(cocos2d::CCObject* obj) {
     auto* toggler = typeinfo_cast<CCMenuItemToggler*>(obj);
     if (toggler && !toggler->m_notClickable)
-        toggler->toggle(!toggler->isOn());
+        toggler->toggle(!toggler->getIsActive());
     this->createList();
 }
 

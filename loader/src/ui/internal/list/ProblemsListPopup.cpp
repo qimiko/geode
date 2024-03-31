@@ -8,7 +8,7 @@
 #include <Geode/ui/General.hpp>
 
 bool ProblemsListPopup::setup(Mod* scrollTo) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     this->setTitle("Problems");
     this->createList(scrollTo);
     return true;

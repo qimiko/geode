@@ -429,6 +429,10 @@ enum class EditCommand {
     Skew = 31
 };
 
+enum class EditMode {};
+
+enum class EnterEffect {};
+
 // Geode Addition
 enum class PlaybackMode {
     Not = 0,
@@ -527,10 +531,14 @@ enum class GJChallengeType {
     Stars = 3
 };
 
+enum class GJCustomColorMode {};
+
 enum class GJScoreType {
     Unknown = 0,
     Creator = 1
 };
+
+enum class LastGameScene {};
 
 enum class LevelLeaderboardType {
     Friends = 0,
@@ -556,6 +564,8 @@ enum class DialogAnimationType {
     FromTop = 4,
     // a 5th type is defined which acts exactly the same as FromTop
 };
+
+enum class CircleMode {};
 
 // Geode Addition
 enum class ComparisonType {

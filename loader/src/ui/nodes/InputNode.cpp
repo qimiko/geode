@@ -26,7 +26,7 @@ void InputNode::activate() {
     auto const size = m_input->getContentSize();
     auto const pos = m_input->convertToNodeSpace(getMousePos()) + m_input->m_textField->getAnchorPoint() * size;
     m_input->onClickTrackNode(true);
-    m_input->updateCursorPosition(pos, { CCPointZero, size });
+//    m_input->updateCursorPosition(pos, { CCPointZero, size });
 }
 
 void InputNode::setEnabled(bool enabled) {
@@ -54,7 +54,7 @@ bool InputNode::init(
     m_input->setLabelPlaceholderColor({ 150, 150, 150 });
     m_input->setLabelPlaceholderScale(.75f);
     m_input->setMaxLabelScale(.85f);
-    m_input->setMaxLabelLength(maxCharCount);
+    m_input->setCharLimit(maxCharCount);
     m_input->setPosition(width / 2, height / 2);
     m_input->setUserObject("fix-text-input", CCBool::create(true));
     if (filter.length()) {

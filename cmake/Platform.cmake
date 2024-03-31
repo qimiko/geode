@@ -89,26 +89,6 @@ elseif (GEODE_TARGET_PLATFORM STREQUAL "Android32")
 	set(GEODE_OUTPUT_NAME "Geode.android32")
 	set(GEODE_PLATFORM_BINARY "Geode.android32.so")
 	set(GEODE_MOD_BINARY_SUFFIX ".android32.so" CACHE STRING "" FORCE)
-elseif (GEODE_TARGET_PLATFORM STREQUAL "Android64")
-	set_target_properties(${PROJECT_NAME} PROPERTIES
-		SYSTEM_NAME Android
-	)
-
-	target_link_libraries(${PROJECT_NAME} INTERFACE
-		c
-		${GEODE_LOADER_PATH}/include/link/android64/libssl.a
-		${GEODE_LOADER_PATH}/include/link/android64/libcrypto.a
-		${GEODE_LOADER_PATH}/include/link/android64/libnghttp2.a
-		${GEODE_LOADER_PATH}/include/link/android64/libcurl.a
-		${GEODE_LOADER_PATH}/include/link/android64/libcocos2dcpp.so
-		${GEODE_LOADER_PATH}/include/link/android64/libfmod.so
-		GLESv2
-		log
-	)
-
-	set(GEODE_OUTPUT_NAME "Geode.android64")
-	set(GEODE_PLATFORM_BINARY "Geode.android64.so")
-	set(GEODE_MOD_BINARY_SUFFIX ".android64.so" CACHE STRING "" FORCE)
 else()
 	message(FATAL_ERROR "Unknown platform ${GEODE_TARGET_PLATFORM}")
 endif()

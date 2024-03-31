@@ -32,7 +32,7 @@ struct TextInputNodeFix : Modify<TextInputNodeFix, CCTextInputNode> {
         }
 
         this->onClickTrackNode(true);
-        this->updateCursorPosition(touchPos, {{0, 0}, size});
+        // this->updateCursorPosition(touchPos, {{0, 0}, size});
 
         return true;
     }

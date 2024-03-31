@@ -9,7 +9,7 @@
 #include "GeodeSettingNode.hpp"
 
 bool ModSettingsPopup::setup(Mod* mod) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_mod = mod;
 
     this->setTitle(("Settings for " + mod->getName()).c_str());

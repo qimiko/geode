@@ -28,7 +28,7 @@ static constexpr int const TAG_CONFIRM_UNINSTALL_WITH_SAVEDATA = 7;
 static const CCSize LAYER_SIZE = {440.f, 290.f};
 
 bool ModInfoPopup::setup(ModMetadata const& metadata, ModListLayer* list) {
-    m_noElasticity = true;
+    // m_noElasticity = true;
     m_layer = list;
 
     auto winSize = CCDirector::sharedDirector()->getWinSize();
@@ -204,7 +204,7 @@ void ModInfoPopup::onInfo(CCObject*) {
     FLAlertLayer::create(
         nullptr,
         ("About " + info.getName()).c_str(),
-        about,
+        about.c_str(),
         "OK", nullptr,
         400.f
     )->show();
@@ -213,7 +213,7 @@ void ModInfoPopup::onInfo(CCObject*) {
 void ModInfoPopup::onChangelog(CCObject* sender) {
     auto toggle = static_cast<CCMenuItemToggler*>(sender);
     m_detailsArea->setString((
-        toggle->isToggled() ?
+        toggle->getIsActive() ?
             this->getMetadata().getDetails().value() :
             this->getMetadata().getChangelog().value()
     ).c_str());
@@ -284,7 +284,7 @@ void ModInfoPopup::popupInstallItem(IndexItemHandle item) {
             if (!canInstall) {
                 FLAlertLayer::create(
                     "Unable to Install",
-                    canInstall.unwrapErr(),
+                    canInstall.unwrapErr().c_str(),
                     "OK"
                 )->show();
                 return;
@@ -479,7 +479,7 @@ void LocalModInfoPopup::onUpdateProgress(ModInstallEvent* event) {
             this->setInstallStatus(std::nullopt);
 
             FLAlertLayer::create(
-                "Update Failed", info, "OK"
+                "Update Failed", info.c_str(), "OK"
             )->show();
 
             m_installBtn->setEnabled(true);
@@ -503,7 +503,7 @@ void LocalModInfoPopup::onUninstall(CCObject*) {
         fmt::format("Are you sure you want to uninstall <cr>{}</c>?{}", m_mod->getName(),
             m_mod == Mod::get() ?
             "\nThis will close the game and launch the <co>Geode Uninstaller</c>. "
-            "You will have to restart the game <cy>manually</c> after that." : ""),
+            "You will have to restart the game <cy>manually</c> after that." : "").c_str(),
         "Cancel",
         "OK"
     );
@@ -520,16 +520,16 @@ void LocalModInfoPopup::onEnableMod(CCObject* sender) {
             "OK"
         )->show();
     }
-    if (as<CCMenuItemToggler*>(sender)->isToggled()) {
+    if (as<CCMenuItemToggler*>(sender)->getIsActive()) {
         auto res = m_mod->enable();
         if (!res) {
-            FLAlertLayer::create(nullptr, "Error Enabling Mod", res.unwrapErr(), "OK", nullptr)->show();
+            FLAlertLayer::create(nullptr, "Error Enabling Mod", res.unwrapErr().c_str(), "OK", nullptr)->show();
         }
     }
     else {
         auto res = m_mod->disable();
         if (!res) {
-            FLAlertLayer::create(nullptr, "Error Disabling Mod", res.unwrapErr(), "OK", nullptr)->show();
+            FLAlertLayer::create(nullptr, "Error Disabling Mod", res.unwrapErr().c_str(), "OK", nullptr)->show();
         }
     }
     if (m_layer) {
@@ -576,7 +576,7 @@ void LocalModInfoPopup::FLAlert_Clicked(FLAlertLayer* layer, bool btn2) {
         case TAG_CONFIRM_UNINSTALL_WITH_SAVEDATA: {
             auto res = m_mod->uninstall(btn2);
             if (!res) {
-                return FLAlertLayer::create("Uninstall Failed", res.unwrapErr(), "OK")->show();
+                return FLAlertLayer::create("Uninstall Failed", res.unwrapErr().c_str(), "OK")->show();
             }
             if (m_layer) {
                 m_layer->reloadList();
@@ -659,7 +659,7 @@ void IndexItemInfoPopup::onInstallProgress(ModInstallEvent* event) {
             this->setInstallStatus(std::nullopt);
 
             FLAlertLayer::create(
-                "Installation Failed", info, "OK"
+                "Installation Failed", info.c_str(), "OK"
             )->show();
 
             m_installBtn->setEnabled(true);

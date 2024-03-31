@@ -2,7 +2,7 @@
 
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/binding/CCTextInputNode.hpp>
-#include <Geode/binding/ColorChannelSprite.hpp>
+// #include <Geode/binding/ColorChannelSprite.hpp>
 #include <Geode/binding/Slider.hpp>
 #include <Geode/binding/CCMenuItemToggler.hpp>
 #include <Geode/loader/Loader.hpp>
@@ -126,7 +126,7 @@ void BoolSettingNode::valueChanged(bool updateText) {
 }
 
 void BoolSettingNode::onToggle(CCObject*) {
-    m_uncommittedValue = !m_toggle->isToggled();
+    m_uncommittedValue = !m_toggle->getIsActive();
     this->valueChanged(true);
     m_toggle->toggle(!m_uncommittedValue);
 }
@@ -402,7 +402,7 @@ bool FileSettingNode::setup(FileSettingValue* setting, float width) {
 
 void ColorSettingNode::valueChanged(bool updateText) {
     GeodeSettingNode::valueChanged(updateText);
-    m_colorSpr->setColor(m_uncommittedValue);
+    // m_colorSpr->setColor(m_uncommittedValue);
 }
 
 void ColorSettingNode::updateColor(ccColor4B const& color) {
@@ -411,13 +411,16 @@ void ColorSettingNode::updateColor(ccColor4B const& color) {
 }
 
 void ColorSettingNode::onSelectColor(CCObject*) {
+/*
     auto popup = ColorPickPopup::create(m_uncommittedValue);
     popup->setDelegate(this);
     popup->setColorTarget(m_colorSpr);
     popup->show();
+*/
 }
 
 bool ColorSettingNode::setup(ColorSettingValue* setting, float width) {
+/*
     m_colorSpr = ColorChannelSprite::create();
     m_colorSpr->setColor(m_uncommittedValue);
     m_colorSpr->setScale(.65f);
@@ -427,16 +430,18 @@ bool ColorSettingNode::setup(ColorSettingValue* setting, float width) {
     );
     button->setPositionX(-10.f);
     m_menu->addChild(button);
-
+*/
     return true;
 }
 
 // ColorAlphaSettingNode
 
 void ColorAlphaSettingNode::valueChanged(bool updateText) {
+/*
     GeodeSettingNode::valueChanged(updateText);
     m_colorSpr->setColor(to3B(m_uncommittedValue));
     m_colorSpr->updateOpacity(m_uncommittedValue.a / 255.f);
+*/
 }
 
 void ColorAlphaSettingNode::updateColor(ccColor4B const& color) {
@@ -447,11 +452,12 @@ void ColorAlphaSettingNode::updateColor(ccColor4B const& color) {
 void ColorAlphaSettingNode::onSelectColor(CCObject*) {
     auto popup = ColorPickPopup::create(m_uncommittedValue);
     popup->setDelegate(this);
-    popup->setColorTarget(m_colorSpr);
+    // popup->setColorTarget(m_colorSpr);
     popup->show();
 }
 
 bool ColorAlphaSettingNode::setup(ColorAlphaSettingValue* setting, float width) {
+/*
     m_colorSpr = ColorChannelSprite::create();
     m_colorSpr->setColor(to3B(m_uncommittedValue));
     m_colorSpr->updateOpacity(m_uncommittedValue.a / 255.f);
@@ -463,6 +469,7 @@ bool ColorAlphaSettingNode::setup(ColorAlphaSettingValue* setting, float width) 
     button->setPositionX(-10.f);
     m_menu->addChild(button);
 
+*/
     return true;
 }
 
