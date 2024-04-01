@@ -476,7 +476,9 @@ protected:
      *  This variable is used for improving the performance of file search.
      */
     gd::map<gd::string, gd::string> m_fullPathCache;
-    
+
+    gd::string m_strAndroidPath;
+
     /**
      *  The singleton pointer of CCFileUtils.
      */

@@ -393,7 +393,6 @@ public:
         CC_SYNTHESIZE_READONLY_NV_NC(float, m_fScreenBottom, ScreenBottom);
         CC_SYNTHESIZE_READONLY_NV_NC(float, m_fScreenLeft, ScreenLeft);
         CC_SYNTHESIZE_READONLY_NV(float, m_fScreenRight, ScreenRight);
-        CC_SYNTHESIZE_NV(CCScene*, m_pSceneReference, SceneReference);
     )
 
 public:
@@ -433,10 +432,6 @@ public:
     /* delta time since last tick to main loop */
 	CC_PROPERTY_READONLY(float, m_fDeltaTime, DeltaTime);
 
-    /* *actual* delta time, according to rob. not sure what that means but i'm not arguing */
-    RT_ADD(
-        CC_SYNTHESIZE_NV(float, m_fActualDeltaTime, ActualDeltaTime); 
-    )
     
 	
 public:
@@ -473,6 +468,8 @@ public:
     /* The CCEGLView, where everything is rendered */
     CCEGLView    *m_pobOpenGLView;
 
+    // uint32_t m_uPadding01;
+
     double m_dAnimationInterval;
     double m_dOldAnimationInterval;
 
@@ -480,8 +477,6 @@ public:
     bool m_bLandscape;
     
     bool m_bDisplayStats;
-
-    float m_unknown;
 
     float m_fAccumDt;
     float m_fFrameRate;
@@ -537,15 +532,9 @@ public:
 
     RT_ADD(
         CC_SYNTHESIZE(CCSceneDelegate*, m_pAppDelegate, SceneDelegate);
-        void* m_unknownPtr;
-        CCNode* m_unknownLabel;
         CCSize m_obScaleFactor;
         CCSize m_obResolutionInPixels;
         CC_SYNTHESIZE_READONLY_NV(TextureQuality, m_eTextureQuality, LoadedTextureQuality);
-        CC_SYNTHESIZE_NV(bool, m_bDontCallWillSwitch, DontCallWillSwitch);
-        // these were just garbage memory in reclass
-        void* m_unknownPtr2;
-        void* m_unknownPtr3;
     )
     
     // CCEGLViewProtocol will recreate stats labels to fit visible rect
