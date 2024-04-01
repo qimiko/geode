@@ -14,7 +14,7 @@ bool Notification::init(std::string const& text, CCSprite* icon, float time) {
 
     m_time = time;
 
-    m_bg = CCScale9Sprite::create("square02b_small.png", { 0, 0, 40, 40 });
+    m_bg = CCScale9Sprite::create("square02_small.png", { 0, 0, 40, 40 });
     m_bg->setColor({ 0, 0, 0 });
     this->addChild(m_bg);
 

@@ -36,7 +36,7 @@ bool TagNode::init(std::string const& category, TagNodeStyle style) {
         this->setContentSize({ label->getScaledContentSize().width + 30.f, 40.f });
     }
     else {
-        auto bg = CCScale9Sprite::create("square02b_small.png");
+        auto bg = CCScale9Sprite::create("square02_small.png");
         bg->setColor({ 0, 0, 0 });
         bg->setOpacity(145);
         this->addChild(bg);
