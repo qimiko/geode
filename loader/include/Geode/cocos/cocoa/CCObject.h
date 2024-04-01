@@ -102,10 +102,10 @@ protected:
     // count of references
     unsigned int        m_uReference;
 
+    CCObjectType m_eObjType;
+
     // count of autorelease
     unsigned int        m_uAutoReleaseCount;
-
-    CCObjectType m_eObjType;
 public:
 	GEODE_CUSTOM_CONSTRUCTOR_BEGIN(CCObject)
     CCObject(void);

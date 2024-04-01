@@ -374,10 +374,6 @@ public:
     virtual void setPopupNotify(bool bNotify);
     virtual bool isPopupNotify();
 
-  	gd::string getAndroidPath() const;
-	  void setAndroidPath(gd::string);
-
-
 protected:
     /**
      *  The default constructor.
@@ -485,7 +481,10 @@ protected:
      *  The singleton pointer of CCFileUtils.
      */
     static CCFileUtils* s_sharedFileUtils;
-    
+
+public:
+    gd::string getAndroidPath() const;
+    void setAndroidPath(gd::string);
 };
 
 // end of platform group

@@ -171,15 +171,14 @@ protected:
     CCSpriteBatchNode * addSpriteWithoutQuad(CCSprite*child, unsigned int z, int aTag);
 
     RT_ADD(
-        bool getManualSortChildren(void)const;
+        virtual bool getManualSortChildren(void) const;
+        virtual void setManualSortChildren(bool);
+        void manualSortAllChildren(void);
         int getAtlasCapacity(void);
     public:
         int getUsedAtlasCapacity(void);
         void increaseAtlasCapacity(unsigned int);
         void increaseAtlasCapacity();
-    protected:
-        void manualSortAllChildren(void);
-        void setManualSortChildren(bool);
     );
 
 private:

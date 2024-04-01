@@ -329,7 +329,6 @@ protected:
         bool m_bIsBatched;
         CCArray* m_pTargetArray;
         CCTexture2D* m_pSomeTexture;
-        void* m_pUnknown; // 2.2 addition, might be positioned somewhere else
     )
 
 };
