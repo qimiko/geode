@@ -11,8 +11,6 @@ $register_ids(LoadingLayer) {
         "bg-texture",
         "gd-logo",
         "robtop-logo",
-        "cocos2d-logo",
-        "fmod-logo",
         "loading-text",
         "text-area",
         "progress-slider"
