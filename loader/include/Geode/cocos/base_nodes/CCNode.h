@@ -169,7 +169,7 @@ public:
      * @return A string terminated with '\0'
      * @js NA
      */
-    const char* description(void);
+    // const char* description(void);
     
     /// @} end of initializers
     
@@ -442,7 +442,7 @@ public:
      */
     virtual const CCSize& getContentSize() const;
 
-    RT_ADD(virtual CCSize getScaledContentSize(void); )
+    // RT_ADD(virtual CCSize getScaledContentSize(void); )
 
     /**
      * Sets whether the node is visible
@@ -790,7 +790,7 @@ public:
      * }
      * @returns A interger that identifies the node.
      */
-    RT_REMOVE(  virtual int getTag() const; )
+    virtual int getTag() const;
     /**
      * Changes the tag that is used to identify the node easily.
      *
@@ -798,8 +798,8 @@ public:
      *
      * @param A interger that indentifies the node.
      */
-    RT_REMOVE(  virtual void setTag(int nTag);  )
-    
+    virtual void setTag(int nTag);
+
     /**
      * Returns a custom user data pointer
      *
@@ -878,6 +878,12 @@ public:
     [[deprecated("Will be removed, it's an ABI break")]]
     GEODE_DLL void setAttribute(std::string const& attribute, matjson::Value const& value);
 #endif
+
+    // method doesn't exist in 1.9, but it's used too much so just reimplement it here
+    GEODE_DLL CCSize getScaledContentSize(){
+        auto cs = getContentSize();
+        return {cs.width * m_fScaleX, cs.height * m_fScaleY};
+    }
 
     /**
      * Get the string ID of this node
@@ -1452,26 +1458,21 @@ public:
      * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.
      * The matrix is in Pixels.
      */
-    RT_REMOVE(  virtual CCAffineTransform nodeToParentTransform(void);          )
-    RT_ADD(     virtual const CCAffineTransform nodeToParentTransform(void);    )
+    virtual CCAffineTransform nodeToParentTransform(void);
 
     // 2.2 additions
-    virtual const CCAffineTransform nodeToParentTransformFast();
+   //  virtual const CCAffineTransform nodeToParentTransformFast();
 
     /** 
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.
      * The matrix is in Pixels.
      */
-    RT_REMOVE(  virtual CCAffineTransform parentToNodeTransform(void);      )
-    RT_ADD(     virtual const CCAffineTransform parentToNodeTransform(void);)
+    virtual CCAffineTransform parentToNodeTransform(void);
 
     /** 
      * Returns the world affine transform matrix. The matrix is in Pixels.
      */
     virtual CCAffineTransform nodeToWorldTransform(void);
-
-    // 2.2 additions
-    virtual CCAffineTransform nodeToWorldTransformFast();
 
     /** 
      * Returns the inverse world affine transform matrix. The matrix is in Pixels.
@@ -1597,28 +1598,7 @@ public:
     
     RT_ADD(
         virtual void updateTweenAction(float, const char*);
-
-        CCNode& operator=(const CCNode&);
     )
-
-    // 2.2 additions
-    virtual void updateTweenActionInt(float, int);
-
-	cocos2d::CCAffineTransform getTransformTemp();
-
-	bool getUseChildIndex();
-	void setUseChildIndex(bool);
-	void qsortAllChildrenWithIndex();
-
-protected:
-	static void resetGlobalOrderOfArrival();
-    
-public:
-
-	void sortAllChildrenNoIndex();
-	void sortAllChildrenWithIndex();
-	void updateChildIndexes();
-
 
 private:
     /// lazy allocs
@@ -1665,12 +1645,12 @@ protected:
     CCGridBase *m_pGrid;                ///< a grid
     
     // 2.2 additions
-    RT_REMOVE(  int m_nZOrder; )                     ///< z-order value that affects the draw order
+    int m_nZOrder;                     ///< z-order value that affects the draw order
     
     CCArray *m_pChildren;               ///< array of children nodes
     CCNode *m_pParent;                  ///< weak reference to parent node
     
-    RT_REMOVE(  int m_nTag; )                         ///< a tag. Can be any number you assigned just to identify this node
+    int m_nTag;                         ///< a tag. Can be any number you assigned just to identify this node
     
     void *m_pUserData;                  ///< A user assingned void pointer, Can be point to any cpp object
     CCObject *m_pUserObject;            ///< A user assigned CCObject
@@ -1679,8 +1659,7 @@ protected:
     
     ccGLServerState m_eGLServerState;   ///< OpenGL servier side state
     
-    // 2.2 additions
-    RT_REMOVE( unsigned int m_uOrderOfArrival; )     ///< used to preserve sequence while sorting children with the same zOrder
+    unsigned int m_uOrderOfArrival;     ///< used to preserve sequence while sorting children with the same zOrder
     
     CCScheduler *m_pScheduler;          ///< scheduler used to schedule timers and updates
     
@@ -1691,9 +1670,6 @@ protected:
     bool m_bTransformDirty;             ///< transform dirty flag
     bool m_bInverseDirty;               ///< transform dirty flag
     bool m_bAdditionalTransformDirty;   ///< The flag to check whether the additional transform is dirty
-
-    // 2.2 additions
-    PAD(10); // i dont know if this is related to transform at all, but its here
     
     bool m_bVisible;                    ///< is this node visible
     
@@ -1707,10 +1683,6 @@ protected:
     ccScriptType m_eScriptType;         ///< type of script binding, lua or javascript
     
     CCComponentContainer *m_pComponentContainer;        ///< Dictionary of components
-
-    // 2.2 additions
-    bool m_bUnkBool1;
-    bool m_bUnkBool2;
 };
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)

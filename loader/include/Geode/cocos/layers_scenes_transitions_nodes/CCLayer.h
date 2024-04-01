@@ -184,13 +184,9 @@ public:
     virtual void keyMenuClicked(void);
     
     RT_ADD(
-        void keyDown(enumKeyCodes);
+        virtual void keyDown(enumKeyCodes);
     )
 
-    // 2.2 additions
-    virtual void setPreviousPriority(int);
-    virtual int getPreviousPriority();
-    
     inline CCTouchScriptHandlerEntry* getScriptTouchHandlerEntry() { return m_pScriptTouchHandlerEntry; };
     inline CCScriptHandlerEntry* getScriptKeypadHandlerEntry() { return m_pScriptKeypadHandlerEntry; };
     inline CCScriptHandlerEntry* getScriptAccelerateHandlerEntry() { return m_pScriptAccelerateHandlerEntry; };
@@ -212,9 +208,6 @@ private:
     int m_nTouchPriority;
     ccTouchesMode m_eTouchMode;
 
-    // 2.2 additions
-    int m_uPreviousPriority; // no idea
-    
     int  excuteScriptTouchHandler(int nEventType, CCTouch *pTouch);
     int  excuteScriptTouchHandler(int nEventType, CCSet *pTouches);
 };
@@ -334,11 +327,6 @@ public:
    
     virtual void setColor(const ccColor3B &color);
     virtual void setOpacity(GLubyte opacity);
-
-	void addToVertices(cocos2d::CCPoint, cocos2d::CCPoint, cocos2d::CCPoint);
-	void setVertices(cocos2d::CCPoint, cocos2d::CCPoint, cocos2d::CCPoint);
-
-
 protected:
     virtual void updateColor();
 };

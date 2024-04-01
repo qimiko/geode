@@ -228,10 +228,10 @@ CCMenuItemToggler* SearchFilterPopup::addPlatformToggle(const char* title, Platf
 
 void SearchFilterPopup::onPlatformToggle(CCObject* sender) {
     if (static_cast<CCMenuItemToggler*>(sender)->getIsActive()) {
-        m_modLayer->getQuery().platforms.erase(PlatformID::from(sender->getTag()));
+        m_modLayer->getQuery().platforms.erase(PlatformID::from(static_cast<CCNode*>(sender)->getTag()));
     }
     else {
-        m_modLayer->getQuery().platforms.insert(PlatformID::from(sender->getTag()));
+        m_modLayer->getQuery().platforms.insert(PlatformID::from(static_cast<CCNode*>(sender)->getTag()));
     }
 }
 

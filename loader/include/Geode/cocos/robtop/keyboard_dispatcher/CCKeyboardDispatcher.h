@@ -21,7 +21,7 @@ RT_ADD(
 
 		static enumKeyCodes convertKeyCode(enumKeyCodes key);
 
-		bool dispatchKeyboardMSG(enumKeyCodes key, bool isKeyDown, bool isKeyRepeat);
+		bool dispatchKeyboardMSG(enumKeyCodes key, bool isKeyDown);
 
 		inline bool getAltKeyPressed() const {
 			return m_bAltPressed;
@@ -42,14 +42,6 @@ RT_ADD(
 
 		void updateModifierKeys(bool shft, bool ctrl, bool alt, bool cmd);
 
-		inline bool getBlockRepeat() const {
-			return m_bBlockRepeat;
-		}
-
-		inline void setBlockRepeat(bool blockRepeat) {
-			this->m_bBlockRepeat = blockRepeat;
-		}
-
 	protected:
 		CCArray* m_pDelegates;	// 0x34
 		bool m_bUnknown38;			// 0x38
@@ -61,7 +53,6 @@ RT_ADD(
 		bool m_bControlPressed;	// 0x45
 		bool m_bAltPressed;			// 0x46
 		bool m_bCommandPressed;	// 0x47
-		bool m_bBlockRepeat;		// 0x48
 
 		// ~~there's more here, check the initializer~~ no there's not??
 	};

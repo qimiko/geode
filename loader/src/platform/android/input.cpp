@@ -89,7 +89,7 @@ namespace {
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_geode_launcher_utils_GeodeUtils_nativeKeyDown(
-	JNIEnv* env, jobject, jint keycode, jint modifiers, jboolean isRepeat
+	JNIEnv* env, jobject, jint keycode, jint modifiers
 ) {
     if (keycode != AKEYCODE_BACK && keycode != AKEYCODE_MENU) {
         auto keyboard_dispatcher = cocos2d::CCDirector::sharedDirector()->getKeyboardDispatcher();
@@ -101,7 +101,7 @@ Java_com_geode_launcher_utils_GeodeUtils_nativeKeyDown(
 
         keyboard_dispatcher->updateModifierKeys(isShiftPressed, isCtrlPressed, isAltPressed, false);
 
-        keyboard_dispatcher->dispatchKeyboardMSG(translated_code, true, isRepeat);
+        keyboard_dispatcher->dispatchKeyboardMSG(translated_code, true);
     } else {
         auto keypad_dispatcher = cocos2d::CCDirector::sharedDirector()->getKeypadDispatcher();
         if (keycode == AKEYCODE_BACK) {
@@ -131,7 +131,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_geode_launcher_utils_GeodeUtils_nativ
             false
         );
 
-        keyboard_dispatcher->dispatchKeyboardMSG(translated_code, false, false);
+        keyboard_dispatcher->dispatchKeyboardMSG(translated_code, false);
     }
 }
 

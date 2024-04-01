@@ -16,7 +16,7 @@ namespace geode {
         bool m_dynamic;
 
         ~Popup() override {
-            cocos2d::CCTouchDispatcher::get()->unregisterForcePrio(this);
+            cocos2d::CCTouchDispatcher::get()->decrementForcePrio();
         }
 
         void registerWithTouchDispatcher() override {
@@ -33,7 +33,7 @@ namespace geode {
             auto winSize = cocos2d::CCDirector::get()->getWinSize();
             m_size = cocos2d::CCSize { width, height };
 
-            cocos2d::CCTouchDispatcher::get()->registerForcePrio(this, 2);
+            cocos2d::CCTouchDispatcher::get()->incrementForcePrio();
 
             if (!this->initWithColor({ 0, 0, 0, 105 })) return false;
             m_mainLayer = cocos2d::CCLayer::create();

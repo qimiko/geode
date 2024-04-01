@@ -40,12 +40,12 @@ public:
         auto old = target->m_pUserObject;
         // faster than dynamic_cast, technically can
         // but extremely unlikely to fail
-        if (old && old->getTag() == METADATA_TAG) {
+        if (typeinfo_cast<GeodeNodeMetadata*>(old) != nullptr) {
             return static_cast<GeodeNodeMetadata*>(old);
         }
         auto meta = new GeodeNodeMetadata();
         meta->autorelease();
-        meta->setTag(METADATA_TAG);
+        // meta->setTag(METADATA_TAG);
 
         // set user object
         target->m_pUserObject = meta;
@@ -137,7 +137,7 @@ void CCNode::removeChildByID(std::string const& id) {
 void CCNode::setLayout(Layout* layout, bool apply, bool respectAnchor) {
     if (respectAnchor && this->isIgnoreAnchorPointForPosition()) {
         for (auto child : CCArrayExt<CCNode*>(m_pChildren)) {
-            child->setPosition(child->getPosition() + this->getScaledContentSize());
+            child->setPosition(child->getPosition() + this->getContentSize());
         }
         this->ignoreAnchorPointForPosition(false);
     }

@@ -99,24 +99,13 @@ public:
     // Lua reference id
     int                 m_nLuaID;
 protected:
-    // the object's tag
-    int m_nTag;
     // count of references
     unsigned int        m_uReference;
+
     // count of autorelease
     unsigned int        m_uAutoReleaseCount;
 
     CCObjectType m_eObjType;
-
-    int m_uIndexInArray; // used in some ccarray stuff, I don't remember what it does rn
-
-    // 2.2 additions
-
-    int m_uUnknown; // -1 by default
-    int m_unknown2;
-    int m_nZOrder; // moved from CCNode, why rob
-    int m_uOrderOfArrival; // moved from CCNode, why rob
-    int m_unknown5;
 public:
 	GEODE_CUSTOM_CONSTRUCTOR_BEGIN(CCObject)
     CCObject(void);
@@ -138,24 +127,16 @@ public:
     virtual void acceptVisitor(CCDataVisitor &visitor);
 
     virtual void update(float dt) {CC_UNUSED_PARAM(dt);};
-    
-    virtual void encodeWithCoder(DS_Dictionary*);
 
-    static CCObject* createWithCoder(DS_Dictionary*);
-    
+    virtual CCObjectType getObjType() const;
+
+    virtual void setObjType(CCObjectType type);
+
+    virtual void encodeWithCoder(DS_Dictionary*);
     virtual bool canEncode();
 
-    inline CCObjectType getObjType() const {
-        return m_eObjType;
-    }
- 
-    virtual int getTag() const;
+    static CCObject* createWithCoder(DS_Dictionary*);
 
-    virtual void setTag(int nTag);
-    
-    inline void setObjType(CCObjectType type) {
-        m_eObjType = type;
-    }
 
     friend class CCAutoreleasePool;
 };

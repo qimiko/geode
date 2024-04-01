@@ -107,7 +107,7 @@ protected:
         for (auto& spr : m_sprites) {
             spr->setColor({ 200, 200, 200 });
         }
-        m_currentIcon = static_cast<Icon>(sender->getTag());
+        m_currentIcon = static_cast<Icon>(static_cast<cocos2d::CCNode*>(sender)->getTag());
         static_cast<CCSprite*>(
             static_cast<CCMenuItemSpriteExtra*>(sender)->getNormalImage()
         )->setColor({ 0, 255, 0 });

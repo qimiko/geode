@@ -188,7 +188,7 @@ void IntSettingNode::updateLabel() {
 }
 
 void IntSettingNode::onArrow(CCObject* sender) {
-    m_uncommittedValue += sender->getTag();
+    m_uncommittedValue += static_cast<CCNode*>(sender)->getTag();
     this->valueChanged(true);
 }
 
@@ -273,7 +273,7 @@ void FloatSettingNode::updateLabel() {
 }
 
 void FloatSettingNode::onArrow(CCObject* sender) {
-    m_uncommittedValue += sender->getTag();
+    m_uncommittedValue += static_cast<CCNode*>(sender)->getTag();
     this->valueChanged(true);
 }
 

@@ -685,7 +685,7 @@ void ModListLayer::onResetSearch(CCObject*) {
 
 void ModListLayer::onTab(CCObject* pSender) {
     if (pSender) {
-        g_tab = static_cast<ModListType>(pSender->getTag());
+        g_tab = static_cast<ModListType>(static_cast<CCNode*>(pSender)->getTag());
     }
     this->reloadList(false);
 

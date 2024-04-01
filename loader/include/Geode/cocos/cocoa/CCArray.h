@@ -200,10 +200,6 @@ public:
     /** Add a certain object */
     void addObject(CCObject* object);
 
-    /**
-     * Rob modification
-     * Add a certain object */
-    void addObjectNew(CCObject* object);
     /** Add all elements of an existing array */
     void addObjectsFromArray(CCArray* otherArray);
     /** Insert a certain object at a certain index */
@@ -232,13 +228,7 @@ public:
     void fastRemoveObjectAtIndex(unsigned int index);
     /** 
      * Fast way to remove an element with a certain index
-     * @note RobTop addition
      */
-    void fastRemoveObjectAtIndexNew(unsigned int index);
-
-	void fastRemoveObjectAtIndexChild(unsigned int);
-
-	void recreateNewIndexes();
 	void removeObjectAtIndexChild(unsigned int, bool);
 
 

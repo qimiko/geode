@@ -201,15 +201,9 @@ public:
      */
     CCTouchHandler* findHandler(CCTouchDelegate *pDelegate);
 
-	void addPrioTargetedDelegate(cocos2d::CCTouchDelegate*, int, bool);
-	bool isUsingForcePrio();
-	void registerForcePrio(cocos2d::CCObject*, int);
-	void unregisterForcePrio(cocos2d::CCObject*);
-
-private:
     RT_ADD(
-        void incrementForcePrio(int priority);
-        void decrementForcePrio(int priority);
+        void incrementForcePrio();
+        void decrementForcePrio();
     )
 protected:
     void forceRemoveDelegate(CCTouchDelegate *pDelegate);
@@ -237,8 +231,7 @@ protected:
 
     // 2.2 changes
 
-    CC_SYNTHESIZE_NV(int, m_forcePrio, ForcePrio);
-    void* m_unknown;
+    CC_SYNTHESIZE_NV(bool, m_forcePrio, ForcePrio);
     CC_SYNTHESIZE_NV(int, m_targetPrio, TargetPrio);
 };
 
