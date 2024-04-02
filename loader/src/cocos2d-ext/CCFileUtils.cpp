@@ -108,4 +108,27 @@ struct FileUtilsUpdatePaths : Modify<FileUtilsUpdatePaths, CCFileUtils> {
 
         return CCFileUtils::fullPathForFilename(filename, unk);
     }
+
+    // 1.9 exclusive bugfix!
+    char const* fullPathFromRelativeFile(char const* pszFilename, char const* pszRelativeFile) override {
+        // detect if the path points to a resource file, in which case return the input
+        // kinda limited heuristic rn
+        bool slashPresent = false;
+        int periodCount = 0;
+        for (auto i = 0u; pszFilename[i]; i++) {
+            auto c = pszFilename[i];
+
+            if (c == '/') {
+                slashPresent = true;
+            } else if (c == '.') {
+                periodCount++;
+            }
+        }
+
+        if (slashPresent && periodCount > 1) {
+            return pszFilename;
+        }
+
+        return CCFileUtils::fullPathFromRelativeFile(pszFilename, pszRelativeFile);
+    }
 };
