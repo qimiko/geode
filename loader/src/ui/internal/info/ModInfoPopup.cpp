@@ -311,7 +311,7 @@ void ModInfoPopup::preInstall() {
         this, menu_selector(ModInfoPopup::onCancelInstall)
     );
     m_installBtnSpr->setString("Cancel");
-    m_installBtnSpr->setBG("GJ_button_06.png", false);
+    m_installBtnSpr->setBG("GJ_button_05.png", false);
 }
 
 void ModInfoPopup::onCancelInstall(CCObject*) {
@@ -367,7 +367,7 @@ bool LocalModInfoPopup::init(Mod* mod, ModListLayer* list) {
     auto enableBtnSpr = ButtonSprite::create("Enable", "bigFont.fnt", "GJ_button_01.png", .6f);
     enableBtnSpr->setScale(.6f);
 
-    auto disableBtnSpr = ButtonSprite::create("Disable", "bigFont.fnt", "GJ_button_06.png", .6f);
+    auto disableBtnSpr = ButtonSprite::create("Disable", "bigFont.fnt", "GJ_button_03.png", .6f);
     disableBtnSpr->setScale(.6f);
 
     auto enableBtn = CCMenuItemToggler::create(

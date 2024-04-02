@@ -386,7 +386,7 @@ bool FileSettingNode::setup(FileSettingValue* setting, float width) {
     m_input->getInput()->setDelegate(this);
     m_menu->addChild(m_input);
 
-    auto fileBtnSpr = CCSprite::createWithSpriteFrameName("gj_folderBtn_001.png");
+    auto fileBtnSpr = CCSprite::createWithSpriteFrameName("gj_folderBtn_001.png"_spr);
     fileBtnSpr->setScale(.5f);
 
     auto fileBtn = CCMenuItemSpriteExtra::create(

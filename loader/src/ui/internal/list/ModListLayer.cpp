@@ -272,7 +272,7 @@ bool ModListLayer::init() {
 
     // add open folder button
     auto openSpr = CircleButtonSprite::createWithSpriteFrameName(
-        "gj_folderBtn_001.png", .7f, CircleBaseColor::Green, CircleBaseSize::Small
+        "gj_folderBtn_001.png"_spr, .7f, CircleBaseColor::Green, CircleBaseSize::Small
     );
     auto openBtn =
         CCMenuItemSpriteExtra::create(openSpr, this, menu_selector(ModListLayer::onOpenFolder));
@@ -286,14 +286,14 @@ bool ModListLayer::init() {
     auto unextendedIconSpr = CCSprite::create("GJ_button_02.png");
     unextendedIconSpr->setScale(.75f);
 
-    auto unextendedIconTopSpr = CCSprite::createWithSpriteFrameName("GJ_smallModeIcon_001.png");
+    auto unextendedIconTopSpr = CCSprite::createWithSpriteFrameName("GJ_smallModeIcon_001.png"_spr);
     unextendedIconTopSpr->setPosition(unextendedIconSpr->getContentSize() / 2);
     unextendedIconSpr->addChild(unextendedIconTopSpr);
 
     auto extendedIconSpr = CCSprite::create("GJ_button_01.png");
     extendedIconSpr->setScale(.75f);
 
-    auto extendedIconTopSpr = CCSprite::createWithSpriteFrameName("GJ_smallModeIcon_001.png");
+    auto extendedIconTopSpr = CCSprite::createWithSpriteFrameName("GJ_smallModeIcon_001.png"_spr);
     extendedIconTopSpr->setPosition(extendedIconSpr->getContentSize() / 2);
     extendedIconSpr->addChild(extendedIconTopSpr);
 
@@ -404,14 +404,14 @@ void ModListLayer::createSearchControl() {
     menu->addChild(m_filterBtn);
 
     // search button
-    auto searchSpr = CCSprite::createWithSpriteFrameName("gj_findBtn_001.png");
+    auto searchSpr = CCSprite::createWithSpriteFrameName("gj_findBtn_001.png"_spr);
     searchSpr->setScale(.7f);
 
     m_searchBtn = CCMenuItemSpriteExtra::create(searchSpr, this, nullptr);
     m_searchBtn->setPosition(-35.f, 0.f);
     menu->addChild(m_searchBtn);
 
-    auto searchClearSpr = CCSprite::createWithSpriteFrameName("gj_findBtnOff_001.png");
+    auto searchClearSpr = CCSprite::createWithSpriteFrameName("gj_findBtnOff_001.png"_spr);
     searchClearSpr->setScale(.7f);
 
     m_searchClearBtn = CCMenuItemSpriteExtra::create(
