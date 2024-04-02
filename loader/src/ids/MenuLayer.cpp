@@ -45,8 +45,6 @@ $register_ids(MenuLayer) {
         }
     }
     
-    setIDSafe<CCLabelBMFont>(this, labelOffset++, "player-username");
-    
     // main menu
     if (auto menu = getChildOfType<CCMenu>(this, 0)) {
         menu->setID("main-menu");
@@ -54,21 +52,6 @@ $register_ids(MenuLayer) {
         auto iconBtn = setIDSafe(menu, 1, "icon-kit-button");
 
         setIDSafe(menu, 2, "editor-button");
-
-        if (auto pfp = setIDSafe(menu, 3, "profile-button")) {
-            auto profileMenu = detachAndCreateMenu(
-                this, "profile-menu",
-                RowLayout::create()
-                    ->setAxisAlignment(AxisAlignment::Start),
-                pfp
-            );
-            profileMenu->setContentSize({ 150.f, 50.f });
-            profileMenu->setPositionX(
-                profileMenu->getPositionX() + 150.f / 2 - 
-                    pfp->getScaledContentSize().height / 2
-            );
-            profileMenu->updateLayout();
-        }
 
         // the buttons are added in order play, icon, editor which doesn't work
         // well with setLayout that deals with children in order
@@ -85,23 +68,16 @@ $register_ids(MenuLayer) {
     // bottom menu
     if (auto menu = getChildOfType<CCMenu>(this, 1)) {
         menu->setID("bottom-menu");
+#ifdef GEODE_IS_ANDROID
+        setIDSafe(menu, 0, "play-games-button");
+        auto ach = setIDSafe(menu, 1, "achievements-button");
+        setIDSafe(menu, 2, "settings-button");
+        setIDSafe(menu, 3, "stats-button");
+#else
         auto ach = setIDSafe(menu, 0, "achievements-button");
         setIDSafe(menu, 1, "settings-button");
         setIDSafe(menu, 2, "stats-button");
-        setIDSafe(menu, 3, "newgrounds-button");
-
-        // move daily chest to its own menu
-
-        if (auto dailyChest = setIDSafe(menu, -1, "daily-chest-button")) {
-            auto menu = detachAndCreateMenu(
-                this,
-                "right-side-menu",
-                ColumnLayout::create(),
-                dailyChest
-            );
-            menu->setContentSize({ 65.f, 180.f });
-            menu->updateLayout();
-        }
+#endif
 
         menu->setContentSize({ winSize.width - 220.f, 65.f });
         menu->setLayout(
@@ -116,8 +92,8 @@ $register_ids(MenuLayer) {
         setIDSafe(menu, 1, "facebook-button");
         setIDSafe(menu, 2, "twitter-button");
         setIDSafe(menu, 3, "youtube-button");
-        setIDSafe(menu, 4, "twitch-button");
-        setIDSafe(menu, 5, "discord-button");
+        // setIDSafe(menu, 4, "twitch-button");
+        // setIDSafe(menu, 5, "discord-button");
     }
     
     // more games menu

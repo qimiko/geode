@@ -92,7 +92,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
 
             bottomMenu->updateLayout();
 
-            this->fixSocialMenu();
+            // this->fixSocialMenu();
 
             if (auto node = this->getChildByID("settings-gamepad-icon")) {
                 node->setPositionX(
@@ -233,20 +233,8 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
             robtopButton->getScaledContentSize().height + verticalGap + youtubeButton->getScaledContentSize().height / 2
         });
 
-        auto twitchButton = static_cast<CCMenuItemSpriteExtra*>(socialMenu->getChildByID("twitch-button"));
-        twitchButton->setPosition({
-            youtubeButton->getPositionX() + youtubeButton->getScaledContentSize().width / 2 + horizontalGap + twitchButton->getScaledContentSize().width / 2,
-            robtopButton->getScaledContentSize().height + verticalGap + twitchButton->getScaledContentSize().height / 2
-        });
-
-        auto discordButton = static_cast<CCMenuItemSpriteExtra*>(socialMenu->getChildByID("discord-button"));
-        discordButton->setPosition({
-            twitchButton->getPositionX(),
-            discordButton->getScaledContentSize().height / 2
-        });
-
         socialMenu->setContentSize({
-            discordButton->getPositionX() + discordButton->getScaledContentSize().width / 2,
+            youtubeButton->getPositionX() + youtubeButton->getScaledContentSize().width / 2,
             facebookButton->getPositionY() + facebookButton->getScaledContentSize().height / 2
         });
 
@@ -334,6 +322,9 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
     }
 
     void onGeode(CCObject*) {
+
+        geode::log::info("flalertlayer size: {} # {}", offsetof(FLAlertLayer, m_buttonMenu), sizeof(FLAlertLayer));
+
         ModListLayer::scene();
     }
 };
