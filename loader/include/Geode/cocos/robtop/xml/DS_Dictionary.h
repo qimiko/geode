@@ -29,7 +29,7 @@ public:
 
 	bool loadRootSubDictFromFile(const char*);
 	bool loadRootSubDictFromCompressedFile(const char*);
-	bool loadRootSubDictFromString(gd::string const&);
+	bool loadRootSubDictFromString(gd::string);
 
 	bool saveRootSubDictToFile(const char*);
 	bool saveRootSubDictToCompressedFile(const char*);

@@ -50,51 +50,33 @@ enum class SearchType {
 
 enum class GameObjectType {
     Solid = 0,
+    Basic = 1,
     Hazard = 2,
     InverseGravityPortal = 3,
     NormalGravityPortal = 4,
     ShipPortal = 5,
     CubePortal = 6,
     Decoration = 7,
-    YellowJumpPad = 8,
-    PinkJumpPad = 9,
-    GravityPad = 10,
-    YellowJumpRing = 11,
-    PinkJumpRing = 12,
-    GravityRing = 13,
-    InverseMirrorPortal = 14,
+    PulsingDecoration = 8,
+    YellowJumpPad = 9,
+    PinkJumpPad = 10,
+    GravityPad = 11,
+    YellowJumpRing = 12,
+    PinkJumpRing = 13,
+    GravityRing = 14,
     NormalMirrorPortal = 15,
-    BallPortal = 16,
-    RegularSizePortal = 17,
-    MiniSizePortal = 18,
-    UfoPortal = 19,
-    Modifier = 20,
-    Breakable = 21,
-    SecretCoin = 22,
-    DualPortal = 23,
-    SoloPortal = 24,
-    Slope = 25,
-    WavePortal = 26,
-    RobotPortal = 27,
-    TeleportPortal = 28,
-    GreenRing = 29,
-    Collectible = 30,
-    UserCoin = 31,
-    DropRing = 32,
-    SpiderPortal = 33,
-    RedJumpPad = 34,
-    RedJumpRing = 35,
-    CustomRing = 36,
-    DashRing = 37,
-    GravityDashRing = 38,
-    CollisionObject = 39,
-    Special = 40,
-    SwingPortal = 41,
-    GravityTogglePortal = 42,
-    SpiderOrb = 43,
-    SpiderPad = 44,
-    TeleportOrb = 46,
-    AnimatedHazard = 47,
+    InverseMirrorPortal = 16,
+    BallPortal = 17,
+    RegularSizePortal = 18,
+    MiniSizePortal = 19,
+    UfoPortal = 20,
+    Modifier = 21,
+    Breakable = 22,
+    SecretCoin = 23,
+    DualPortal = 24,
+    SoloPortal = 25,
+    Slope = 26,
+    WavePortal = 27
 };
 
 enum class GJGameEvent {
@@ -200,8 +182,14 @@ enum class GJErrorCode {
 };
 enum class AccountError {
 };
+
 enum class GJSongError {
+    Unknown = 0,
+    NotFound = 1,
+    NotAllowed = 2,
+    Cancelled = 3
 };
+
 enum class LikeItemType {
     Unknown = 0,
     Level = 1,
@@ -538,7 +526,12 @@ enum class GJScoreType {
     Creator = 1
 };
 
-enum class LastGameScene {};
+enum class LastGameScene {
+    Search = 1,
+    EditorLevels = 2,
+    CreatorsScores = 6,
+    PreviousSearch = 10,
+};
 
 enum class LevelLeaderboardType {
     Friends = 0,
