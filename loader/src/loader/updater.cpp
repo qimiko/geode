@@ -217,6 +217,8 @@ void updater::downloadLoaderResources(bool useLatestRelease) {
 }
 
 bool updater::verifyLoaderResources() {
+    return true;
+/*
     static std::optional<bool> CACHED = std::nullopt;
     if (CACHED.has_value()) {
         return CACHED.value();
@@ -274,6 +276,7 @@ bool updater::verifyLoaderResources() {
     }
 
     return true;
+*/
 }
 
 void updater::downloadLoaderUpdate(std::string const& url) {

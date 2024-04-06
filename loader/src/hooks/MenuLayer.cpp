@@ -326,9 +326,6 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
     }
 
     void onGeode(CCObject*) {
-
-        geode::log::info("flalertlayer size: {} # {}", offsetof(FLAlertLayer, m_buttonMenu), sizeof(FLAlertLayer));
-
         ModListLayer::scene();
     }
 };

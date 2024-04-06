@@ -86,9 +86,9 @@ elseif (GEODE_TARGET_PLATFORM STREQUAL "Android32")
 		log
 	)
 
-	set(GEODE_OUTPUT_NAME "Geode.android32")
-	set(GEODE_PLATFORM_BINARY "Geode.android32.so")
-	set(GEODE_MOD_BINARY_SUFFIX ".android32.so" CACHE STRING "" FORCE)
+	set(GEODE_OUTPUT_NAME "geode")
+	set(GEODE_PLATFORM_BINARY "libgeode.so")
+	set(GEODE_MOD_BINARY_SUFFIX ".so" CACHE STRING "" FORCE)
 else()
 	message(FATAL_ERROR "Unknown platform ${GEODE_TARGET_PLATFORM}")
 endif()
