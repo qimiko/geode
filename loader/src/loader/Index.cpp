@@ -396,6 +396,7 @@ void Index::Impl::checkForUpdates() {
         return;
     }
 
+/*
     log::debug("Checking updates for index");
     IndexUpdateEvent(UpdateProgress(0, "Checking status")).post();
 
@@ -437,6 +438,7 @@ void Index::Impl::checkForUpdates() {
                 UpdateFailed(fmt::format("Error checking for updates: {}", err))
             ).post();
         });
+*/
 }
 
 // TODO: gross hack :3 (ctrl+f this comment to find the other part)

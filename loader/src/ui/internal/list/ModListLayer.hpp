@@ -64,6 +64,7 @@ protected:
     ModListQuery m_query;
     ModListDisplay m_display = ModListDisplay::Concise;
     EventListener<IndexUpdateFilter> m_indexListener;
+    ListView* m_listView = nullptr;
 
     virtual ~ModListLayer();
 

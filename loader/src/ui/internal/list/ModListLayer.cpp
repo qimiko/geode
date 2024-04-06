@@ -326,17 +326,17 @@ bool ModListLayer::init() {
     m_installedTabBtn = TabButton::create("Installed", this, menu_selector(ModListLayer::onTab));
     m_installedTabBtn->setPosition(-95.f, 138.5f);
     m_installedTabBtn->setTag(static_cast<int>(ModListType::Installed));
-    m_menu->addChild(m_installedTabBtn);
+    // m_menu->addChild(m_installedTabBtn);
 
     m_downloadTabBtn = TabButton::create("Download", this, menu_selector(ModListLayer::onTab));
     m_downloadTabBtn->setPosition(0.f, 138.5f);
     m_downloadTabBtn->setTag(static_cast<int>(ModListType::Download));
-    m_menu->addChild(m_downloadTabBtn);
+    m_downloadTabBtn->setEnabled(false);
 
     m_featuredTabBtn = TabButton::create("Featured", this, menu_selector(ModListLayer::onTab));
     m_featuredTabBtn->setPosition(95.f, 138.5f);
     m_featuredTabBtn->setTag(static_cast<int>(ModListType::Featured));
-    m_menu->addChild(m_featuredTabBtn);
+    m_featuredTabBtn->setEnabled(false);
 
     // tabs gradient
     m_tabsGradientNode = CCClippingNode::create();
@@ -359,8 +359,8 @@ bool ModListLayer::init() {
     m_topMenu->setZOrder(10);
 
     this->addChild(m_menu);
-    this->addChild(m_tabsGradientNode);
-    this->addChild(m_tabsGradientStencil);
+    // this->addChild(m_tabsGradientNode);
+    // this->addChild(m_tabsGradientStencil);
     this->addChild(m_topMenu);
 
     // select first tab
@@ -457,8 +457,8 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
     }
 
     float scroll = 0.0f;
-    if (keepScroll && m_list) {
-        // scroll = m_list->m_listView->m_tableView->m_contentLayer->getPositionY();
+    if (keepScroll && m_listView) {
+        scroll = m_listView->m_tableView->m_contentLayer->getPositionY();
     }
 
     // set search query
@@ -506,6 +506,7 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
         );
     }
 
+/*
     // update index if needed
     if (g_tab == ModListType::Download && !Index::get()->isUpToDate()) {
         m_listLabel->setVisible(true);
@@ -532,9 +533,10 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
             m_loadingCircle = nullptr;
         }
     }
+*/
 
     // set list
-    // TODO: 6th param dont know
+    m_listView = list;
     m_list = GJListLayer::create(list, nullptr, { 0, 0, 0, 180 }, 358.f, 220.f);
     m_list->setZOrder(2);
     m_list->setPosition(winSize / 2 - m_list->getScaledContentSize() / 2);
@@ -560,6 +562,7 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
     m_searchBtn->setVisible(!hasQuery);
     m_searchClearBtn->setVisible(hasQuery);
 
+/*
     // add/remove "Check for Updates" button
     if (
 		// only show it on the install tab
@@ -584,18 +587,17 @@ void ModListLayer::reloadList(bool keepScroll, std::optional<ModListQuery> const
         m_checkForUpdatesBtn->removeFromParent();
         m_checkForUpdatesBtn = nullptr;
     }
+*/
 
     cocos::handleTouchPriority(this, true);
 }
 
 void ModListLayer::updateAllStates() {
-/*
     for (auto cell : CCArrayExt<GenericListCell*>(
-        m_list->m_listView->m_tableView->m_cellArray
+        m_listView->m_tableView->m_cellArray
     )) {
         static_cast<ModListCell*>(cell->getChildByID("mod-list-cell"))->updateState();
     }
-*/
 }
 
 // Getters
@@ -622,7 +624,7 @@ ModListQuery& ModListLayer::getQuery() {
 // Callbacks & Vtable impls
 
 void ModListLayer::onCheckForUpdates(CCObject*) {
-    Index::get()->update();
+    // Index::get()->update();
 }
 
 void ModListLayer::onIndexUpdate(IndexUpdateEvent* event) {
@@ -703,9 +705,9 @@ void ModListLayer::onTab(CCObject* pSender) {
             m_tabsGradientStencil->setPosition(member->m_onButton->convertToWorldSpace({0.f, 0.f}));
     };
 
-    toggleTab(m_downloadTabBtn);
-    toggleTab(m_installedTabBtn);
-    toggleTab(m_featuredTabBtn);
+    // toggleTab(m_downloadTabBtn);
+    // toggleTab(m_installedTabBtn);
+    // toggleTab(m_featuredTabBtn);
 }
 
 void ModListLayer::textChanged(CCTextInputNode* input) {

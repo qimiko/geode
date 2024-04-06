@@ -134,6 +134,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
             }
         }
 
+/*
         // show auto update message
         static bool shownUpdateInfo = false;
         if (updater::isNewUpdateDownloaded() && !shownUpdateInfo) {
@@ -148,6 +149,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
             // popup->m_noElasticity = true;
             popup->show();
         }
+*/
 
         // show crash info
         static bool shownLastCrash = false;
@@ -175,6 +177,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
             popup->show();
         }
 
+/*
         // update mods index
         if (!m_fields->m_menuDisabled && !INDEX_UPDATE_NOTIF && !Index::get()->hasTriedToUpdate()) {
             this->addChild(EventListenerNode<IndexUpdateFilter>::create(
@@ -189,6 +192,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
         }
 
         this->addUpdateIndicator();
+*/
 
         for (auto mod : Loader::get()->getAllMods()) {
             if (mod->getMetadata().usesDeprecatedIDForm()) {

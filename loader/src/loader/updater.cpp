@@ -47,6 +47,10 @@ void updater::fetchLatestGithubRelease(
     const utils::MiniFunction<void(matjson::Value const&)>& then,
     utils::MiniFunction<void(std::string const&)> expect, bool force
 ) {
+    expect("Unoperational");
+    return;
+
+/*
     if (s_latestGithubRelease) {
         return then(s_latestGithubRelease.value());
     }
@@ -74,6 +78,7 @@ void updater::fetchLatestGithubRelease(
             then(json);
         })
         .expect(std::move(expect));
+*/
 }
 
 void updater::downloadLatestLoaderResources() {
@@ -163,6 +168,11 @@ void updater::updateSpecialFiles() {
 }
 
 void updater::downloadLoaderResources(bool useLatestRelease) {
+    ResourceDownloadEvent(
+        UpdateFinished()
+    ).post();
+
+/*
     web::AsyncWebRequest()
         .join("loader-tag-exists-check")
         .header("If-Modified-Since", Mod::get()->getSavedValue("last-modified-tag-exists-check", std::string()))
@@ -203,6 +213,7 @@ void updater::downloadLoaderResources(bool useLatestRelease) {
                 ).post();
             }
         });
+*/
 }
 
 bool updater::verifyLoaderResources() {
