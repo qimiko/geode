@@ -170,6 +170,7 @@ int geodeEntry(void* platformData) {
     ipc::setup();
     log::popNest();
 
+/*
     // download and install new loader update in the background
     if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
         log::info("Starting loader update check");
@@ -178,6 +179,7 @@ int geodeEntry(void* platformData) {
     else {
         log::info("Skipped loader update check");
     }
+*/
 
     auto end = std::chrono::high_resolution_clock::now();
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
