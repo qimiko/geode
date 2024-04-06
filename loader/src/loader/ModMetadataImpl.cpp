@@ -392,6 +392,22 @@ Result<> ModMetadata::Impl::addSpecialFiles(ghc::filesystem::path const& dir) {
     return Ok();
 }
 
+Result<> ModMetadata::Impl::addSpecialFilesFromResources() {
+    // unzip known MD files
+    for (auto& [file, target] : this->getSpecialFiles()) {
+        geode::log::info("add special file {} for mod {}", file, this->m_id);
+        auto file_path = this->m_id + "/" + file;
+
+        auto data = geode::utils::file::readStringFromResources(file_path);
+        if (!data) {
+            return Err("Unable to read \"" + file + "\": " + data.unwrapErr());
+        }
+
+        *target = sanitizeDetailsData(data.unwrap());
+    }
+    return Ok();
+}
+
 std::vector<std::pair<std::string, std::optional<std::string>*>> ModMetadata::Impl::getSpecialFiles() {
     return {
         {"about.md", &this->m_details},
@@ -656,6 +672,10 @@ Result<> ModMetadata::addSpecialFiles(ghc::filesystem::path const& dir) {
 }
 Result<> ModMetadata::addSpecialFiles(utils::file::Unzip& zip) {
     return m_impl->addSpecialFiles(zip);
+}
+
+Result<> ModMetadata::addSpecialFilesFromResources() {
+    return m_impl->addSpecialFilesFromResources();
 }
 
 std::vector<std::pair<std::string, std::optional<std::string>*>> ModMetadata::getSpecialFiles() {

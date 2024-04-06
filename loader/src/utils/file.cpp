@@ -68,6 +68,27 @@ Result<ByteVector> utils::file::readBinary(ghc::filesystem::path const& path) {
     return Ok(ByteVector(std::istreambuf_iterator<char>(in), {}));
 }
 
+Result<std::string> utils::file::readStringFromResources(std::string const& path) {
+    if (!cocos2d::CCFileUtils::sharedFileUtils()->isFileExist(path)) {
+        return Err("File does not exist");
+    }
+
+    auto size = 0ul;
+    auto data = cocos2d::CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "r", &size);
+
+    std::string str{reinterpret_cast<char*>(data), size};
+    return Ok(str);
+}
+
+Result<matjson::Value> utils::file::readJsonFromResources(std::string const& path) {
+    auto str = utils::file::readStringFromResources(path);
+    if (!str) return Err(str.unwrapErr());
+    std::string error;
+    auto res = matjson::parse(str.value(), error);
+    if (error.size()) return Err("Unable to parse JSON: " + error);
+    return Ok(res.value());
+}
+
 Result<> utils::file::writeString(ghc::filesystem::path const& path, std::string const& data) {
     std::ofstream file;
 #if _WIN32

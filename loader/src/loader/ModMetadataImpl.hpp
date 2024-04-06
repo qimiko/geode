@@ -51,6 +51,7 @@ namespace geode {
 
         Result<> addSpecialFiles(ghc::filesystem::path const& dir);
         Result<> addSpecialFiles(utils::file::Unzip& zip);
+        Result<> addSpecialFilesFromResources();
 
         std::vector<std::pair<std::string, std::optional<std::string>*>> getSpecialFiles();
     };

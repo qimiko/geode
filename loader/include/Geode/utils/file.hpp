@@ -28,6 +28,9 @@ namespace geode::utils::file {
     GEODE_DLL Result<matjson::Value> readJson(ghc::filesystem::path const& path);
     GEODE_DLL Result<ByteVector> readBinary(ghc::filesystem::path const& path);
 
+    GEODE_DLL Result<std::string> readStringFromResources(std::string const& path);
+    GEODE_DLL Result<matjson::Value> readJsonFromResources(std::string const& path);
+
     template <class T>
     Result<T> readFromJson(ghc::filesystem::path const& file) {
         GEODE_UNWRAP_INTO(auto json, readJson(file));
