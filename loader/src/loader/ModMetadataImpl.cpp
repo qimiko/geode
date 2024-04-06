@@ -130,6 +130,18 @@ Result<ModMetadata> ModMetadata::Impl::createFromSchemaV010(ModJson const& rawJs
         return Err("[mod.json] is missing target GD version");
     }
 
+    root.addKnownKey("internal-binary");
+    if (rawJson.contains("internal-binary")) {
+        if (rawJson["internal-binary"].is_object()) {
+            auto key = PlatformID::toShortString(GEODE_PLATFORM_TARGET, true);
+            if (rawJson["internal-binary"].contains(key) &&
+                rawJson["internal-binary"][key].is_string())
+                impl->m_internalBinary = rawJson["internal-binary"][key].as_string();
+        } else {
+            return Err("[mod.json] has invalid internal binary value");
+        }
+    }
+
     // don't think its used locally yet
     root.addKnownKey("tags"); 
 
@@ -393,9 +405,7 @@ Result<> ModMetadata::Impl::addSpecialFiles(ghc::filesystem::path const& dir) {
 }
 
 Result<> ModMetadata::Impl::addSpecialFilesFromResources() {
-    // unzip known MD files
     for (auto& [file, target] : this->getSpecialFiles()) {
-        geode::log::info("add special file {} for mod {}", file, this->m_id);
         auto file_path = this->m_id + "/" + file;
 
         auto data = geode::utils::file::readStringFromResources(file_path);
@@ -528,6 +538,10 @@ bool ModMetadata::isAPI() const {
 std::optional<std::string> ModMetadata::getGameVersion() const {
     if (m_impl->m_gdVersion.empty()) return std::nullopt;
     return m_impl->m_gdVersion;
+}
+
+std::optional<std::string> ModMetadata::getInternalBinary() const {
+    return m_impl->m_internalBinary;
 }
 
 VersionInfo ModMetadata::getGeodeVersion() const {

@@ -254,9 +254,55 @@ void Loader::Impl::addProblem(LoadProblem const& problem) {
     m_problems.push_back(problem);
 }
 
+void Loader::Impl::queueInternalMods(std::vector<ModMetadata>& modQueue) {
+    geode::log::info("Finding internal mods");
+
+    auto internalModListing = cocos2d::CCArray::createWithContentsOfFile("mods.plist");
+    for (auto& mod : CCArrayExt<CCString*>(internalModListing)) {
+        // determine filename
+        std::string mod_id = mod->getCString();
+        auto mod_pathname = mod_id + "/mod.json";
+
+        auto json = utils::file::readJsonFromResources(mod_pathname);
+        if (!json) {
+            geode::log::error("Unable to parse mod.json: {}", json.unwrapErr());
+            continue;
+        }
+
+        log::pushNest();
+
+        auto res = ModMetadata::create(json.unwrap());
+        if (!res) {
+            this->addProblem({LoadProblem::Type::InvalidFile, mod_id, res.unwrapErr()});
+            log::error("Failed to queue: {}", res.unwrapErr());
+            log::popNest();
+            continue;
+        }
+        auto modMetadata = res.unwrap();
+
+        if (!modMetadata.getInternalBinary()) {
+            this->addProblem({LoadProblem::Type::UnzipFailed, mod_id, res.unwrapErr()});
+            log::error("Failed to queue: internal mod has no defined internal binary");
+            log::popNest();
+            continue;
+        }
+
+        log::debug("id: {}", modMetadata.getID());
+        log::debug("version: {}", modMetadata.getVersion());
+        log::debug("early: {}", modMetadata.needsEarlyLoad() ? "yes" : "no");
+
+        (void)modMetadata.addSpecialFilesFromResources();
+
+        modQueue.push_back(modMetadata);
+        log::popNest();
+    }
+}
+
 // Dependencies and refreshing
 
 void Loader::Impl::queueMods(std::vector<ModMetadata>& modQueue) {
+    this->queueInternalMods(modQueue);
+
     for (auto const& dir : m_modSearchDirectories) {
         log::debug("Searching {}", dir);
         log::pushNest();
@@ -406,7 +452,13 @@ void Loader::Impl::loadModGraph(Mod* node, bool early) {
     m_refreshedModCount += 1;
     m_lateRefreshedModCount += early ? 0 : 1;
 
-    auto unzipFunction = [this, node]() {
+
+    auto unzipFunction = [this, node]() -> Result<> {
+        auto skipUnzip = node->isInternal();
+        if (skipUnzip) {
+            return Ok<>();
+        }
+
         log::debug("Unzip");
         auto res = node->m_impl->unzipGeodeFile(node->getMetadata());
         return res;

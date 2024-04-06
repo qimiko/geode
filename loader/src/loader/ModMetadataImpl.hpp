@@ -23,6 +23,7 @@ namespace geode {
         std::optional<std::string> m_changelog;
         std::optional<std::string> m_supportInfo;
         std::optional<std::string> m_repository;
+        std::optional<std::string> m_internalBinary;
         std::optional<IssuesInfo> m_issues;
         std::vector<Dependency> m_dependencies;
         std::vector<Incompatibility> m_incompatibilities;

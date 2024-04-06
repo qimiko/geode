@@ -164,6 +164,12 @@ namespace geode {
         [[nodiscard]] std::optional<std::string> getGameVersion() const;
 
         /**
+         * Gets the internal binary filename for the current platform.
+         * Returns nullopt if mod does not have an internal binary.
+        */
+        [[nodiscard]] std::optional<std::string> getInternalBinary() const;
+
+        /**
          * Gets the target Geode version for the current platform.
         */
         [[nodiscard]] VersionInfo getGeodeVersion() const;

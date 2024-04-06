@@ -382,7 +382,7 @@ bool LocalModInfoPopup::init(Mod* mod, ModListLayer* list) {
         disableBtnSpr->setColor({150, 150, 150});
     }
 
-    bool shouldShowUninstall = mod != Mod::get();
+    bool shouldShowUninstall = !mod->isInternal();
 #if defined(GEODE_IS_WINDOWS)
     shouldShowUninstall = shouldShowUninstall ||
         exists((dirs::getGameDir() / "GeodeUninstaller.exe"));

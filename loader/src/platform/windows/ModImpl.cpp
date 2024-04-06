@@ -84,3 +84,7 @@ Result<> Mod::Impl::loadPlatformBinary() {
     }
     return Err("Unable to load the DLL: " + getLastWinError());
 }
+
+Result<> Mod::Impl::loadInternalBinary() {
+    return Err("Unimplemented");
+}

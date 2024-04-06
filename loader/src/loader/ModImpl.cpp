@@ -125,7 +125,7 @@ bool Mod::Impl::isEnabled() const {
 }
 
 bool Mod::Impl::isInternal() const {
-    return m_metadata.getID() == "geode.loader";
+    return m_metadata.getID() == "geode.loader" || m_metadata.getInternalBinary().has_value();
 }
 
 bool Mod::Impl::needsEarlyLoad() const {
@@ -367,6 +367,32 @@ Result<> Mod::Impl::loadBinary() {
     log::debug("Loading binary for mod {}", m_metadata.getID());
     if (m_enabled)
         return Ok();
+
+    if (this->m_metadata.getInternalBinary()) {
+        LoaderImpl::get()->provideNextMod(m_self);
+
+        m_enabled = true;
+        m_isCurrentlyLoading = true;
+
+        auto res = this->loadInternalBinary();
+        if (!res) {
+            m_isCurrentlyLoading = false;
+            m_enabled = false;
+
+            LoaderImpl::get()->releaseNextMod();
+            log::error("Failed to load internal binary for mod {}: {}", m_metadata.getID(), res.unwrapErr());
+            return res;
+        }
+
+        LoaderImpl::get()->releaseNextMod();
+
+        ModStateEvent(m_self, ModEventType::Loaded).post();
+        ModStateEvent(m_self, ModEventType::Enabled).post();
+
+        m_isCurrentlyLoading = false;
+
+        return Ok();
+    }
 
     if (!ghc::filesystem::exists(this->getBinaryPath())) {
         return Err(

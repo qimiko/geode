@@ -98,6 +98,7 @@ namespace geode {
         VersionInfo maxModVersion();
         bool isModVersionSupported(VersionInfo const& version);
 
+        void queueInternalMods(std::vector<ModMetadata>& modQueue);
         void queueMods(std::vector<ModMetadata>& modQueue);
         void populateModList(std::vector<ModMetadata>& modQueue);
         void buildModGraph();

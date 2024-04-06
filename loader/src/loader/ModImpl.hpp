@@ -77,6 +77,7 @@ namespace geode {
         Result<> setup();
 
         Result<> loadPlatformBinary();
+        Result<> loadInternalBinary();
         Result<> createTempDir();
 
         // called on a separate thread
@@ -103,6 +104,7 @@ namespace geode {
 #if defined(GEODE_EXPOSE_SECRET_INTERNALS_IN_HEADERS_DO_NOT_DEFINE_PLEASE)
         void setMetadata(ModMetadata const& metadata);
         std::vector<Mod*> getDependants() const;
+        void setInternal(bool isInternal);
 #endif
 
         Result<> saveData();
