@@ -279,6 +279,7 @@ bool ModListLayer::init() {
     openBtn->setPosition(-winSize.width / 2 + 30.0f, -winSize.height / 2 + 80.0f);
     m_menu->addChild(openBtn);
 
+/*
     // add list display button
     // the button backgrounds are intentially the wrong way around,
     // to match the behaviour of the smallModeIcon button on comments
@@ -302,6 +303,7 @@ bool ModListLayer::init() {
     );
     listDisplayType->setPosition(-210.f, .0f);
     m_topMenu->addChild(listDisplayType);
+*/
 
     // add list status label
     m_listLabel = CCLabelBMFont::create("", "bigFont.fnt");
