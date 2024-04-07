@@ -213,7 +213,7 @@ void ModInfoPopup::onInfo(CCObject*) {
 void ModInfoPopup::onChangelog(CCObject* sender) {
     auto toggle = static_cast<CCMenuItemToggler*>(sender);
     m_detailsArea->setString((
-        toggle->getIsActive() ?
+        toggle->m_toggled ?
             this->getMetadata().getDetails().value() :
             this->getMetadata().getChangelog().value()
     ).c_str());
