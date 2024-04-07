@@ -8,24 +8,6 @@
 #include <string>
 
 namespace geode::log {
-    class Log final {
-        log_clock::time_point m_time;
-        Severity m_severity;
-        std::string m_thread;
-        std::string m_source;
-        int32_t m_nestCount;
-        std::string m_content;
-
-    public:
-        ~Log();
-        Log(Severity sev, std::string&& thread, std::string&& source, int32_t nestCount,
-            std::string&& content);
-
-        [[nodiscard]] std::string toString() const;
-
-        [[nodiscard]] Severity getSeverity() const;
-    };
-
     class Logger {
     private:
         std::vector<Log> m_logs;

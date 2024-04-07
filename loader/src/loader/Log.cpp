@@ -204,6 +204,10 @@ Severity Log::getSeverity() const {
     return m_severity;
 }
 
+std::vector<Log> const& log::lines() {
+    return Logger::get()->list();
+}
+
 // Logger
 
 Logger* Logger::get() {

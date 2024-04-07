@@ -72,12 +72,30 @@ namespace matjson {
 }
 
 namespace geode {
-
     class Mod;
     Mod* getMod();
 
+    using log_clock = std::chrono::system_clock;
+
     namespace log {
-        using log_clock = std::chrono::system_clock;
+        class Log final {
+            log_clock::time_point m_time;
+            Severity m_severity;
+            std::string m_thread;
+            std::string m_source;
+            int32_t m_nestCount;
+            std::string m_content;
+
+        public:
+            ~Log();
+            Log(Severity sev, std::string&& thread, std::string&& source, int32_t nestCount,
+                std::string&& content);
+
+            std::string toString() const;
+
+            Severity getSeverity() const;
+        };
+
         GEODE_DLL std::string generateLogName();
 
         GEODE_DLL void vlogImpl(Severity, Mod*, fmt::string_view format, fmt::format_args args);
@@ -108,6 +126,8 @@ namespace geode {
         inline void error(impl::FmtStr<Args...> str, Args&&... args) {
             logImpl(Severity::Error, getMod(), str, std::forward<Args>(args)...);
         }
+
+        GEODE_DLL std::vector<Log> const& lines();
 
         GEODE_DLL void pushNest(Mod* mod);
         GEODE_DLL void popNest(Mod* mod);
