@@ -311,6 +311,8 @@ void Loader::Impl::queueMods(std::vector<ModMetadata>& modQueue) {
                 entry.path().extension() != GEODE_MOD_EXTENSION)
                 continue;
 
+            m_hasExternalMods = true;
+
             log::debug("Found {}", entry.path().filename());
             log::pushNest();
 
@@ -945,4 +947,8 @@ bool Loader::Impl::isSafeMode() const {
 
 void Loader::Impl::forceSafeMode() {
     m_forceSafeMode = true;
+}
+
+bool Loader::Impl::hasExternalMods() const {
+    return this->m_hasExternalMods;
 }

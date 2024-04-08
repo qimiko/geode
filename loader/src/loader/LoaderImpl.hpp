@@ -59,6 +59,7 @@ namespace geode {
         int m_refreshingModCount = 0;
         int m_refreshedModCount = 0;
         int m_lateRefreshedModCount = 0;
+        bool m_hasExternalMods = false;
 
         std::unordered_map<std::string, std::string> m_launchArgs;
 
@@ -132,6 +133,7 @@ namespace geode {
 
         Mod* getInternalMod();
         Result<> setupInternalMod();
+        bool hasExternalMods() const;
 
         bool userTriedToLoadDLLs() const;
 
