@@ -40,11 +40,13 @@ public:
         auto old = target->m_pUserObject;
         // faster than dynamic_cast, technically can
         // but extremely unlikely to fail
-        if (typeinfo_cast<GeodeNodeMetadata*>(old) != nullptr) {
+        if (old && static_cast<int>(old->getObjType()) == METADATA_TAG) {
             return static_cast<GeodeNodeMetadata*>(old);
         }
         auto meta = new GeodeNodeMetadata();
         meta->autorelease();
+        // this is a workaround for ccobjects not having tags in 1.9
+        meta->setObjType(static_cast<CCObjectType>(METADATA_TAG));
         // meta->setTag(METADATA_TAG);
 
         // set user object
