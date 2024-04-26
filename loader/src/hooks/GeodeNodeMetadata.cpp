@@ -17,6 +17,7 @@ struct ProxyCCNode;
 class GeodeNodeMetadata final : public cocos2d::CCObject {
 private:
     FieldContainer* m_fieldContainer;
+    std::unordered_map<std::string, FieldContainer*> m_classFieldContainers;
     std::string m_id = "";
     Ref<Layout> m_layout = nullptr;
     Ref<LayoutOptions> m_layoutOptions = nullptr;
@@ -31,6 +32,9 @@ private:
 
     virtual ~GeodeNodeMetadata() {
         delete m_fieldContainer;
+        for (auto& [_, container] : m_classFieldContainers) {
+            delete container;
+        }
     }
 
 public:
@@ -63,6 +67,13 @@ public:
 
     FieldContainer* getFieldContainer() {
         return m_fieldContainer;
+    }
+
+    FieldContainer* getFieldContainer(char const* forClass) {
+        if (!m_classFieldContainers.count(forClass)) {
+            m_classFieldContainers[forClass] = new FieldContainer();
+        }
+        return m_classFieldContainers[forClass];
     }
 };
 
@@ -99,6 +110,10 @@ size_t modifier::getFieldIndexForClass(char const* name) {
 // not const because might modify contents
 FieldContainer* CCNode::getFieldContainer() {
     return GeodeNodeMetadata::set(this)->getFieldContainer();
+}
+
+FieldContainer* CCNode::getFieldContainer(char const* forClass) {
+    return GeodeNodeMetadata::set(this)->getFieldContainer(forClass);
 }
 
 std::string CCNode::getID() {

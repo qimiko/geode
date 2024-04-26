@@ -48,7 +48,9 @@ struct _ListIterTypes {
     using _Nodeptr        = _Nodeptr_type;
 };
 
+#if _ITERATOR_DEBUG_LEVEL == 0
 using _STD _Fake_alloc;
+#endif
 
 // The following types are not accessible from std::list.
 template <class _Ty, class _Alloc = _STD allocator<_Ty>>
@@ -93,7 +95,7 @@ struct _ListImpl {
 template <class _Traits>
 class _Hash { // hash table -- list with vector of iterators for quick access
 protected:
-    using _MylistImpl         = typename _ListImpl<typename _Traits::value_type, typename _Traits::allocator_type>;
+    using _MylistImpl         = _ListImpl<typename _Traits::value_type, typename _Traits::allocator_type>;
     using _Mylist             = typename _MylistImpl::_Mylist;
     using _Alnode             = typename /* _Mylist */ _MylistImpl::_Alnode;
     using _Alnode_traits      = typename /* _Mylist */ _MylistImpl::_Alnode_traits;

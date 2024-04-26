@@ -11,11 +11,13 @@
 using namespace geode::prelude;
 
 struct CustomLoadingLayer : Modify<CustomLoadingLayer, LoadingLayer> {
-    bool m_menuDisabled;
-    CCLabelBMFont* m_smallLabel = nullptr;
-    CCLabelBMFont* m_smallLabel2 = nullptr;
-    int m_geodeLoadStep = 0;
-    int m_totalMods = 0;
+    struct Fields {
+        bool m_menuDisabled = false;
+        CCLabelBMFont* m_smallLabel = nullptr;
+        CCLabelBMFont* m_smallLabel2 = nullptr;
+        int m_geodeLoadStep = 0;
+        int m_totalMods = 0;
+    };
 
     static void onModify(auto& self) {
         if (!self.setHookPriority("LoadingLayer::init", geode::node_ids::GEODE_ID_PRIORITY)) {
@@ -146,13 +148,27 @@ struct CustomLoadingLayer : Modify<CustomLoadingLayer, LoadingLayer> {
         LoaderImpl::get()->updateResources(true);
         this->continueLoadAssets();
     }
+
+    int getLoadedMods() {
+        auto allMods = Loader::get()->getAllMods();
+        return std::count_if(allMods.begin(), allMods.end(), [&](auto& item) {
+            return item->isEnabled();
+        });
+    }
+
+    int getEnabledMods() {
+        auto allMods = Loader::get()->getAllMods();
+        return std::count_if(allMods.begin(), allMods.end(), [&](auto& item) {
+            return item->shouldLoad();
+        });
+    }
     
     int getCurrentStep() {
-        return m_fields->m_geodeLoadStep + m_loadStep + 1 + LoaderImpl::get()->m_refreshedModCount;
+        return m_fields->m_geodeLoadStep + m_loadStep + getLoadedMods();
     }
 
     int getTotalStep() {
-        return 18 + m_fields->m_totalMods;
+        return 3 + 14 + getEnabledMods();
     }
 
     void updateLoadingBar() {
