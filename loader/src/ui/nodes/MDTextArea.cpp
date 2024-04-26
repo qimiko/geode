@@ -221,9 +221,9 @@ void MDTextArea::onGDLevel(CCObject* pSender) {
     if (res.ec != std::errc()) {
         FLAlertLayer::create(
             "Error",
-            "Invalid level ID: <cr>" + level +
+            ("Invalid level ID: <cr>" + level +
                 "</c>. This is "
-                "probably the mod developers's fault, report the bug to them.",
+                "probably the mod developers's fault, report the bug to them.").c_str(),
             "OK"
         )
             ->show();
@@ -264,9 +264,9 @@ void MDTextArea::onGeodeMod(CCObject* pSender) {
     if (!success) {
         FLAlertLayer::create(
             "Error",
-            "Invalid mod ID: <cr>" + modString +
+            ("Invalid mod ID: <cr>" + modString +
                 "</c>. This is "
-                "probably the mod developers's fault, report the bug to them.",
+                "probably the mod developers's fault, report the bug to them.").c_str(),
             "OK"
         )
             ->show();
