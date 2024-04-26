@@ -285,8 +285,7 @@ public:
     /** Replaces the running scene with a new one. The running scene is terminated.
      * ONLY call it if there is a running scene.
      */
-    RT_REMOVE(  void replaceScene(CCScene *pScene); )
-    RT_ADD(     bool replaceScene(CCScene *pScene); )
+    void replaceScene(CCScene *pScene);
 
     /** Ends the execution, releases the running scene.
      It doesn't remove the OpenGL view from its parent. You have to do it manually.
