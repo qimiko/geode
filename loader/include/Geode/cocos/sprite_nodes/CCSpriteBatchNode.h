@@ -170,16 +170,15 @@ protected:
     */
     CCSpriteBatchNode * addSpriteWithoutQuad(CCSprite*child, unsigned int z, int aTag);
 
-    RT_ADD(
-        virtual bool getManualSortChildren(void) const;
-        virtual void setManualSortChildren(bool);
-        void manualSortAllChildren(void);
-        int getAtlasCapacity(void);
-    public:
-        int getUsedAtlasCapacity(void);
-        void increaseAtlasCapacity(unsigned int);
-        void increaseAtlasCapacity();
-    );
+    virtual bool getManualSortChildren(void) const;
+    virtual void setManualSortChildren(bool);
+    void manualSortAllChildren(void);
+    int getAtlasCapacity(void);
+
+public:
+    int getUsedAtlasCapacity(void);
+    void increaseAtlasCapacity(unsigned int);
+    void increaseAtlasCapacity();
 
 private:
     void updateAtlasIndex(CCSprite* sprite, int* curIndex);
@@ -193,10 +192,10 @@ protected:
     // all descendants: children, gran children, etc...
     CCArray* m_pobDescendants;
 
-    RT_ADD(
-        bool m_bManualSortChildren;
-        bool m_bManualSortAllChildrenDirty;
-    )
+    // @note RobTop Addition
+    bool m_bManualSortChildren;
+    // @note RobTop Addition
+    bool m_bManualSortAllChildrenDirty;
 };
 
 // end of sprite_nodes group

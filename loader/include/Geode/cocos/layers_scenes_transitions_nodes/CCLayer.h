@@ -33,10 +33,8 @@ THE SOFTWARE.
 #include "../platform/CCAccelerometerDelegate.h"
 #include "../keypad_dispatcher/CCKeypadDelegate.h"
 
-#ifdef RT_ADD
-    #include "../robtop/keyboard_dispatcher/CCKeyboardDelegate.h"
-    #include "../robtop/mouse_dispatcher/CCMouseDelegate.h"
-#endif
+#include "../robtop/keyboard_dispatcher/CCKeyboardDelegate.h"
+#include "../robtop/mouse_dispatcher/CCMouseDelegate.h"
 
 #include "../cocoa/CCArray.h"
 #ifdef EMSCRIPTEN
@@ -65,9 +63,9 @@ class CCTouchScriptHandlerEntry;
 All features from CCNode are valid, plus the following new features:
 - It can receive iPhone Touches
 - It can receive Accelerometer input
+ * @note Robtop Addition: added CCKeyboardDelegate and CCMouseDelegate
 */
-class CC_DLL CCLayer : public CCNode, public CCTouchDelegate, public CCAccelerometerDelegate, public CCKeypadDelegate
-    RT_ADD(, public CCKeyboardDelegate, public CCMouseDelegate)
+class CC_DLL CCLayer : public CCNode, public CCTouchDelegate, public CCAccelerometerDelegate, public CCKeypadDelegate, public CCKeyboardDelegate, public CCMouseDelegate
 {
     GEODE_FRIEND_MODIFY
 public:
@@ -167,13 +165,15 @@ public:
     virtual bool isKeypadEnabled();
     virtual void setKeypadEnabled(bool value);
 
-    RT_ADD(
-        virtual bool isKeyboardEnabled();
-        virtual void setKeyboardEnabled(bool value);
+    // @note RobTop Addition
+    virtual bool isKeyboardEnabled();
+    // @note RobTop Addition
+    virtual void setKeyboardEnabled(bool value);
 
-        virtual bool isMouseEnabled();
-        virtual void setMouseEnabled(bool value);
-    )
+    // @note RobTop Addition
+    virtual bool isMouseEnabled();
+    // @note RobTop Addition
+    virtual void setMouseEnabled(bool value);
 
     /** Register keypad events handler */
     void registerScriptKeypadHandler(int nHandler);
@@ -182,10 +182,9 @@ public:
 
     virtual void keyBackClicked(void);
     virtual void keyMenuClicked(void);
-    
-    RT_ADD(
-        virtual void keyDown(enumKeyCodes);
-    )
+
+    // @note RobTop Addition
+    virtual void keyDown(enumKeyCodes);
 
     inline CCTouchScriptHandlerEntry* getScriptTouchHandlerEntry() { return m_pScriptTouchHandlerEntry; };
     inline CCScriptHandlerEntry* getScriptKeypadHandlerEntry() { return m_pScriptKeypadHandlerEntry; };
@@ -194,10 +193,10 @@ protected:
     bool m_bTouchEnabled;
     bool m_bAccelerometerEnabled;
     bool m_bKeypadEnabled;
-    RT_ADD(
-        bool m_bKeyboardEnabled;
-        bool m_bMouseEnabled;
-    )
+    // @note RobTop Addition
+    bool m_bKeyboardEnabled;
+    // @note RobTop Addition
+    bool m_bMouseEnabled;
     
 private:
     // Script touch events handler
@@ -368,6 +367,8 @@ public:
     static CCLayerGradient* create(const ccColor4B& start, const ccColor4B& end, const CCPoint& v);
 
     virtual bool init();
+
+    virtual void updateColor();
     /** Initializes the CCLayer with a gradient between start and end. 
      *  @js init
      */
@@ -399,9 +400,6 @@ public:
     virtual bool isCompressedInterpolation();
     
     static CCLayerGradient* create();
-
-protected:
-    virtual void updateColor();
 };
 
 

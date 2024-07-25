@@ -5,11 +5,11 @@ using namespace geode::prelude;
 
 GenericContentLayer* GenericContentLayer::create(float width, float height) {
     auto ret = new GenericContentLayer();
-    if (ret && ret->initWithColor({ 0, 0, 0, 0 }, width, height)) {
+    if (ret->initWithColor({ 0, 0, 0, 0 }, width, height)) {
         ret->autorelease();
         return ret;
     }
-    CC_SAFE_DELETE(ret);
+    delete ret;
     return nullptr;
 }
 
@@ -58,10 +58,15 @@ void ScrollLayer::enableScrollWheel(bool enable) {
 }
 
 bool ScrollLayer::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-    if (this->isVisible()) {
+    if (nodeIsVisible(this)) {
         return CCScrollLayerExt::ccTouchBegan(touch, event);
     }
     return false;
+}
+
+void ScrollLayer::scrollToTop() {
+    auto listTopScrollPos = -m_contentLayer->getContentHeight() + this->getContentHeight();
+    m_contentLayer->setPositionY(listTopScrollPos);
 }
 
 ScrollLayer::ScrollLayer(CCRect const& rect, bool scrollWheelEnabled, bool vertical) :
@@ -74,8 +79,11 @@ ScrollLayer::ScrollLayer(CCRect const& rect, bool scrollWheelEnabled, bool verti
 
     m_contentLayer->removeFromParent();
     m_contentLayer = GenericContentLayer::create(rect.size.width, rect.size.height);
+    m_contentLayer->setID("content-layer");
     m_contentLayer->setAnchorPoint({ 0, 0 });
     this->addChild(m_contentLayer);
+
+    this->setID("ScrollLayer");
 
     this->setMouseEnabled(true);
     this->setTouchEnabled(true);
@@ -83,12 +91,8 @@ ScrollLayer::ScrollLayer(CCRect const& rect, bool scrollWheelEnabled, bool verti
 
 ScrollLayer* ScrollLayer::create(CCRect const& rect, bool scroll, bool vertical) {
     auto ret = new ScrollLayer(rect, scroll, vertical);
-    if (ret) {
-        ret->autorelease();
-        return ret;
-    }
-    CC_SAFE_DELETE(ret);
-    return nullptr;
+    ret->autorelease();
+    return ret;
 }
 
 ScrollLayer* ScrollLayer::create(CCSize const& size, bool scroll, bool vertical) {

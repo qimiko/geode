@@ -1,3 +1,4 @@
+#include <Geode/loader/Loader.hpp> // a third great circular dependency fix
 #include <Geode/loader/Log.hpp>
 #include <Geode/utils/file.hpp>
 #include <Geode/utils/map.hpp>
@@ -12,17 +13,26 @@
 #include <mz_zip.h>
 #include <internal/FileWatcher.hpp>
 #include <Geode/utils/ranges.hpp>
-#include <Geode/loader/Loader.hpp>
 
 #ifdef GEODE_IS_WINDOWS
 #include <filesystem>
 #endif
 
+#if defined(GEODE_IS_ANDROID) || defined(GEODE_IS_MACOS)
+struct path_hash_t {
+    std::size_t operator()(std::filesystem::path const& path) const noexcept {
+        return std::filesystem::hash_value(path);
+    }
+};
+#else
+using path_hash_t = std::hash<std::filesystem::path>;
+#endif
+
 using namespace geode::prelude;
 using namespace geode::utils::file;
 
-Result<std::string> utils::file::readString(ghc::filesystem::path const& path) {
-    if (!ghc::filesystem::exists(path))
+Result<std::string> utils::file::readString(std::filesystem::path const& path) {
+    if (!std::filesystem::exists(path))
         return Err("File does not exist");
 
 #if _WIN32
@@ -42,7 +52,7 @@ Result<std::string> utils::file::readString(ghc::filesystem::path const& path) {
     return Ok(contents);
 }
 
-Result<matjson::Value> utils::file::readJson(ghc::filesystem::path const& path) {
+Result<matjson::Value> utils::file::readJson(std::filesystem::path const& path) {
     auto str = utils::file::readString(path);
     if (!str)
         return Err(str.unwrapErr());
@@ -53,8 +63,8 @@ Result<matjson::Value> utils::file::readJson(ghc::filesystem::path const& path) 
     return Ok(res.value());
 }
 
-Result<ByteVector> utils::file::readBinary(ghc::filesystem::path const& path) {
-    if (!ghc::filesystem::exists(path))
+Result<ByteVector> utils::file::readBinary(std::filesystem::path const& path) {
+    if (!std::filesystem::exists(path))
         return Err("File does not exist");
 
 #if _WIN32
@@ -89,7 +99,7 @@ Result<matjson::Value> utils::file::readJsonFromResources(std::string const& pat
     return Ok(res.value());
 }
 
-Result<> utils::file::writeString(ghc::filesystem::path const& path, std::string const& data) {
+Result<> utils::file::writeString(std::filesystem::path const& path, std::string const& data) {
     std::ofstream file;
 #if _WIN32
     file.open(path.wstring());
@@ -106,7 +116,7 @@ Result<> utils::file::writeString(ghc::filesystem::path const& path, std::string
     return Ok();
 }
 
-Result<> utils::file::writeBinary(ghc::filesystem::path const& path, ByteVector const& data) {
+Result<> utils::file::writeBinary(std::filesystem::path const& path, ByteVector const& data) {
     std::ofstream file;
 #if _WIN32
     file.open(path.wstring(), std::ios::out | std::ios::binary);
@@ -123,12 +133,12 @@ Result<> utils::file::writeBinary(ghc::filesystem::path const& path, ByteVector 
     return Ok();
 }
 
-Result<> utils::file::createDirectory(ghc::filesystem::path const& path) {
+Result<> utils::file::createDirectory(std::filesystem::path const& path) {
     std::error_code ec;
 #ifdef GEODE_IS_WINDOWS
     std::filesystem::create_directory(path.wstring(), ec);
 #else
-    ghc::filesystem::create_directory(path, ec);
+    std::filesystem::create_directory(path, ec);
 #endif
     if (ec) {
         return Err("Unable to create directory");
@@ -136,12 +146,12 @@ Result<> utils::file::createDirectory(ghc::filesystem::path const& path) {
     return Ok();
 }
 
-Result<> utils::file::createDirectoryAll(ghc::filesystem::path const& path) {
+Result<> utils::file::createDirectoryAll(std::filesystem::path const& path) {
     std::error_code ec;
 #ifdef GEODE_IS_WINDOWS
     std::filesystem::create_directories(path.wstring(), ec);
 #else
-    ghc::filesystem::create_directories(path, ec);
+    std::filesystem::create_directories(path, ec);
 #endif
     if (ec) {
         return Err("Unable to create directory");
@@ -149,22 +159,22 @@ Result<> utils::file::createDirectoryAll(ghc::filesystem::path const& path) {
     return Ok();
 }
 
-Result<std::vector<ghc::filesystem::path>> utils::file::readDirectory(
-    ghc::filesystem::path const& path, bool recursive
+Result<std::vector<std::filesystem::path>> utils::file::readDirectory(
+    std::filesystem::path const& path, bool recursive
 ) {
-    if (!ghc::filesystem::exists(path)) {
+    if (!std::filesystem::exists(path)) {
         return Err("Directory does not exist");
     }
-    if (!ghc::filesystem::is_directory(path)) {
+    if (!std::filesystem::is_directory(path)) {
         return Err("Path is not a directory");
     }
-    std::vector<ghc::filesystem::path> res;
+    std::vector<std::filesystem::path> res;
     if (recursive) {
-        for (auto const& file : ghc::filesystem::recursive_directory_iterator(path)) {
+        for (auto const& file : std::filesystem::recursive_directory_iterator(path)) {
             res.push_back(file.path());
         }
     } else {
-        for (auto const& file : ghc::filesystem::directory_iterator(path)) {
+        for (auto const& file : std::filesystem::directory_iterator(path)) {
             res.push_back(file.path());
         }
     }
@@ -190,7 +200,7 @@ private:
     void* m_stream = nullptr;
     int32_t m_mode;
     std::variant<Path, ByteVector> m_srcDest;
-    std::unordered_map<Path, ZipEntry> m_entries;
+    std::unordered_map<Path, ZipEntry, path_hash_t> m_entries;
     utils::MiniFunction<void(uint32_t, uint32_t)> m_progressCallback;
 
     Result<> init() {
@@ -198,7 +208,8 @@ private:
         if (std::holds_alternative<Path>(m_srcDest)) {
             auto& path = std::get<Path>(m_srcDest);
             // open file
-            if (!mz_stream_os_create(&m_stream)) {
+            m_stream = mz_stream_os_create();
+            if (!m_stream) {
                 return Err("Unable to open file");
             }
             if (mz_stream_os_open(
@@ -212,7 +223,8 @@ private:
         // open stream from memory stream
         else {
             auto& src = std::get<ByteVector>(m_srcDest);
-            if (!mz_stream_mem_create(&m_stream)) {
+            m_stream = mz_stream_mem_create();
+            if (!m_stream) {
                 return Err("Unable to create memory stream");
             }
             // mz_stream_mem_set_buffer doesn't memcpy so we gotta store the data 
@@ -229,7 +241,8 @@ private:
         }
 
         // open zip
-        if (!mz_zip_create(&m_handle)) {
+        m_handle = mz_zip_create();
+        if (!m_handle) {
             return Err("Unable to create zip handler");
         }
         if (mz_zip_open(m_handle, m_stream, m_mode) != MZ_OK) {
@@ -368,7 +381,7 @@ public:
 #ifdef GEODE_IS_WINDOWS
             if (!std::filesystem::relative((dir / filePath).wstring(), dir.wstring()).empty()) {
 #else
-            if (!ghc::filesystem::relative(dir / filePath, dir).empty()) {
+            if (!std::filesystem::relative(dir / filePath, dir).empty()) {
 #endif
                 if (m_entries.at(filePath).isDirectory) {
                     GEODE_UNWRAP(file::createDirectoryAll(dir / filePath));
@@ -376,7 +389,9 @@ public:
                 else {
                     GEODE_UNWRAP(this->extractAt(dir, filePath));
                 }
-                m_progressCallback(currentEntry, numEntries);
+                if (m_progressCallback) {
+                    m_progressCallback(currentEntry, numEntries);
+                }
             }
             else {
                 log::error(
@@ -501,7 +516,7 @@ public:
         return Path();
     }
 
-    std::unordered_map<Path, ZipEntry> getEntries() const {
+    std::unordered_map<Path, ZipEntry, path_hash_t> getEntries() const {
         return m_entries;
     }
 
@@ -587,7 +602,7 @@ Result<> Unzip::intoDir(
     }
     if (deleteZipAfter) {
         std::error_code ec;
-        ghc::filesystem::remove(from, ec);
+        std::filesystem::remove(from, ec);
     }
     return Ok();
 }
@@ -603,7 +618,7 @@ Result<> Unzip::intoDir(
     GEODE_UNWRAP(unzip.extractAllTo(to));
     if (deleteZipAfter) {
         std::error_code ec;
-        ghc::filesystem::remove(from, ec);
+        std::filesystem::remove(from, ec);
     }
     return Ok();
 }
@@ -653,8 +668,8 @@ Result<> Zip::addFrom(Path const& file, Path const& entryDir) {
 
 Result<> Zip::addAllFromRecurse(Path const& dir, Path const& entry) {
     GEODE_UNWRAP(this->addFolder(entry / dir.filename()));
-    for (auto& file : ghc::filesystem::directory_iterator(dir)) {
-        if (ghc::filesystem::is_directory(file)) {
+    for (auto& file : std::filesystem::directory_iterator(dir)) {
+        if (std::filesystem::is_directory(file)) {
             GEODE_UNWRAP(this->addAllFromRecurse(file, entry / dir.filename()));
         } else {
             GEODE_UNWRAP_INTO(auto data, file::readBinary(file));
@@ -665,7 +680,7 @@ Result<> Zip::addAllFromRecurse(Path const& dir, Path const& entry) {
 }
 
 Result<> Zip::addAllFrom(Path const& dir) {
-    if (!ghc::filesystem::is_directory(dir)) {
+    if (!std::filesystem::is_directory(dir)) {
         return Err("Path is not a directory");
     }
     return this->addAllFromRecurse(dir, Path());
@@ -675,10 +690,10 @@ Result<> Zip::addFolder(Path const& entry) {
     return m_impl->addFolder(entry);
 }
 
-FileWatchEvent::FileWatchEvent(ghc::filesystem::path const& path)
+FileWatchEvent::FileWatchEvent(std::filesystem::path const& path)
   : m_path(path) {}
 
-ghc::filesystem::path FileWatchEvent::getPath() const {
+std::filesystem::path FileWatchEvent::getPath() const {
     return m_path;
 }
 
@@ -687,22 +702,22 @@ ListenerResult FileWatchFilter::handle(
     FileWatchEvent* event
 ) {
     std::error_code ec;
-    if (ghc::filesystem::equivalent(event->getPath(), m_path, ec)) {
+    if (std::filesystem::equivalent(event->getPath(), m_path, ec)) {
         callback(event);
     }
     return ListenerResult::Propagate;
 }
 
-FileWatchFilter::FileWatchFilter(ghc::filesystem::path const& path) 
+FileWatchFilter::FileWatchFilter(std::filesystem::path const& path) 
   : m_path(path) {}
 
-// This is a vector because need to use ghc::filesystem::equivalent for 
+// This is a vector because need to use std::filesystem::equivalent for 
 // comparisons and removal is not exactly performance-critical here
 // (who's going to add and remove 500 file watchers every frame)
 static std::vector<std::unique_ptr<FileWatcher>> FILE_WATCHERS {};
 
-Result<> file::watchFile(ghc::filesystem::path const& file) {
-    if (!ghc::filesystem::exists(file)) {
+Result<> file::watchFile(std::filesystem::path const& file) {
+    if (!std::filesystem::exists(file)) {
         return Err("File does not exist");
     }
     auto watcher = std::make_unique<FileWatcher>(
@@ -720,8 +735,8 @@ Result<> file::watchFile(ghc::filesystem::path const& file) {
     return Ok();
 }
 
-void file::unwatchFile(ghc::filesystem::path const& file) {
+void file::unwatchFile(std::filesystem::path const& file) {
     ranges::remove(FILE_WATCHERS, [=](std::unique_ptr<FileWatcher> const& watcher) {
-        return ghc::filesystem::equivalent(file, watcher->path());
+        return std::filesystem::equivalent(file, watcher->path());
     });
 }

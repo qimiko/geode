@@ -4,43 +4,44 @@
 #include "CCKeyboardDelegate.h"
 #include "../../cocoa/CCArray.h"
 
-RT_ADD(
-	NS_CC_BEGIN
 
-	class CC_DLL CCKeyboardDispatcher : public CCObject 
-	{
-	public:
-		CCKeyboardDispatcher();
-		virtual ~CCKeyboardDispatcher();
+NS_CC_BEGIN
 
-		void addDelegate(CCKeyboardDelegate* pDelegate);
-		void removeDelegate(CCKeyboardDelegate* pDelegate);
+// @note RobTop Addition
+class CC_DLL CCKeyboardDispatcher : public CCObject 
+{
+public:
+	CCKeyboardDispatcher();
+	virtual ~CCKeyboardDispatcher();
 
-		void forceAddDelegate(CCKeyboardDelegate* pDelegate);
-		void forceRemoveDelegate(CCKeyboardDelegate* pDelegate);
+	void addDelegate(CCKeyboardDelegate* pDelegate);
+	void removeDelegate(CCKeyboardDelegate* pDelegate);
 
-		static enumKeyCodes convertKeyCode(enumKeyCodes key);
+	void forceAddDelegate(CCKeyboardDelegate* pDelegate);
+	void forceRemoveDelegate(CCKeyboardDelegate* pDelegate);
 
-		bool dispatchKeyboardMSG(enumKeyCodes key, bool isKeyDown);
+	enumKeyCodes convertKeyCode(enumKeyCodes key);
 
-		inline bool getAltKeyPressed() const {
-			return m_bAltPressed;
-		}
-		inline bool getCommandKeyPressed() const {
-			return m_bCommandPressed;
-		}
-		inline bool getControlKeyPressed() const {
-			return m_bControlPressed;
-		}
-		inline bool getShiftKeyPressed() const {
-			return m_bShiftPressed;
-		}
+	bool dispatchKeyboardMSG(enumKeyCodes key, bool isKeyDown);
 
-		static GEODE_DLL CCKeyboardDispatcher* get();
+	void updateModifierKeys(bool shft, bool ctrl, bool alt, bool cmd);
 
-		const char* keyToString(enumKeyCodes key);
+	inline bool getAltKeyPressed() const {
+		return m_bAltPressed;
+	}
+	inline bool getCommandKeyPressed() const {
+		return m_bCommandPressed;
+	}
+	inline bool getControlKeyPressed() const {
+		return m_bControlPressed;
+	}
+	inline bool getShiftKeyPressed() const {
+		return m_bShiftPressed;
+	}
 
-		void updateModifierKeys(bool shft, bool ctrl, bool alt, bool cmd);
+	static GEODE_DLL CCKeyboardDispatcher* get();
+
+	const char* keyToString(enumKeyCodes key);
 
 	protected:
 		CCArray* m_pDelegates;	// 0x34
@@ -54,10 +55,9 @@ RT_ADD(
 		bool m_bAltPressed;			// 0x46
 		bool m_bCommandPressed;	// 0x47
 
-		// ~~there's more here, check the initializer~~ no there's not??
-	};
+	// ~~there's more here, check the initializer~~ no there's not??
+};
 
-	NS_CC_END
-)
+NS_CC_END
 
 #endif

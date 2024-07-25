@@ -1,3 +1,4 @@
+#include "Geode/utils/file.hpp"
 #include <Geode/DefaultInclude.hpp>
 
 using namespace geode::prelude;
@@ -7,6 +8,12 @@ using namespace geode::prelude;
 #include <Geode/Utils.hpp>
 #include <Geode/binding/GameManager.hpp>
 #include <objc/runtime.h>
+#include <Geode/utils/web.hpp>
+#include <Geode/utils/Task.hpp>
+
+#define CommentType CommentTypeDummy
+#import <Cocoa/Cocoa.h>
+#undef CommentType
 
 bool utils::clipboard::write(std::string const& data) {
     [[NSPasteboard generalPasteboard] clearContents];
@@ -23,7 +30,7 @@ std::string utils::clipboard::read() {
     return std::string(clipboard);
 }
 
-bool utils::file::openFolder(ghc::filesystem::path const& path) {
+bool utils::file::openFolder(std::filesystem::path const& path) {
     NSURL* fileURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path.string().c_str()]];
     NSURL* folderURL = [fileURL URLByDeletingLastPathComponent];
     [[NSWorkspace sharedWorkspace] openURL:folderURL];
@@ -36,13 +43,13 @@ void utils::web::openLinkInBrowser(std::string const& url) {
 }
 
 /*@interface FileDialog : NSObject
-+ (Result<ghc::filesystem::path>)importDocumentWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options mult:(bool)mult;
-+ (Result<std::vector<ghc::filesystem::path>>)importDocumentsWithOptions:(file::FilePickOptions const&)options;
++ (Result<std::filesystem::path>)importDocumentWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options mult:(bool)mult;
++ (Result<std::vector<std::filesystem::path>>)importDocumentsWithOptions:(file::FilePickOptions const&)options;
 @end
 
 @implementation FileDialog
 
-+ (Result<ghc::filesystem::path>)importDocumentWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options mult:(bool)mult {
++ (Result<std::filesystem::path>)importDocumentWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options mult:(bool)mult {
     NSOpenPanel* panel = [NSOpenPanel openPanel];
     // TODO: [panel setAllowedFileTypes:@[]];
 
@@ -57,7 +64,7 @@ void utils::web::openLinkInBrowser(std::string const& url) {
     if (result == NSFileHandlingPanelOKButton) {
         auto fileUrl = [[panel URLs] objectAtIndex:0];
         auto path = std::string([[fileUrl path] UTF8String], [[fileUrl path] lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
-        return Ok(ghc::filesystem::path(path));
+        return Ok(std::filesystem::path(path));
     } else {
         return Err(result);
     }
@@ -66,16 +73,16 @@ void utils::web::openLinkInBrowser(std::string const& url) {
 @end*/
 
 namespace {
-    using FileResult = Result<std::vector<ghc::filesystem::path>>;
+    using FileResult = Result<std::vector<std::filesystem::path>>;
 }
 
 @interface FileDialog : NSObject
-+(Result<std::vector<ghc::filesystem::path>>) filePickerWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options multiple:(bool)mult;
++(Result<std::vector<std::filesystem::path>>) filePickerWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options multiple:(bool)mult;
 +(void) dispatchFilePickerWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options multiple:(bool)mult onCompletion:(void(^)(FileResult))onCompletion;
 @end
 
 @implementation FileDialog
-+(Result<std::vector<ghc::filesystem::path>>) filePickerWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options multiple:(bool)mult {
++(Result<std::vector<std::filesystem::path>>) filePickerWithMode:(file::PickMode)mode options:(file::FilePickOptions const&)options multiple:(bool)mult {
     NSSavePanel* panel;
     if (mode == file::PickMode::SaveFile)
         panel = [NSSavePanel savePanel];
@@ -128,7 +135,7 @@ namespace {
     int result = [panel runModal];
 
     if (result == NSModalResponseOK) {
-        std::vector<ghc::filesystem::path> fileURLs;
+        std::vector<std::filesystem::path> fileURLs;
         if (mode == file::PickMode::SaveFile) {
             fileURLs.push_back(std::string([[[panel URL] path] UTF8String]));
         }
@@ -154,48 +161,35 @@ namespace {
 
 @end
 
-Result<ghc::filesystem::path> file::pickFile(
-    file::PickMode mode, file::FilePickOptions const& options
-) {
-    return Err("Use the callback version");
-}
-
-GEODE_DLL void file::pickFile(
-    PickMode mode, FilePickOptions const& options,
-    MiniFunction<void(ghc::filesystem::path)> callback,
-    MiniFunction<void()> failed
-) {
-    [FileDialog dispatchFilePickerWithMode:mode options:options multiple:false onCompletion: ^(FileResult result) {
-        Loader::get()->queueInMainThread([=]() {
-            if (result.isOk()) {
-                callback(std::move(result.unwrap()[0]));
+GEODE_DLL Task<Result<std::filesystem::path>> file::pick(file::PickMode mode, file::FilePickOptions const& options) {
+    using RetTask = Task<Result<std::filesystem::path>>;
+    return RetTask::runWithCallback([mode, options](auto resultCallback, auto progress, auto cancelled) {
+        [FileDialog dispatchFilePickerWithMode:mode options:options multiple:false onCompletion: ^(FileResult result) {
+            if (cancelled()) {
+                resultCallback(RetTask::Cancel());
             } else {
-                failed();
+                if (result.isOk()) {
+                    std::filesystem::path path = result.unwrap()[0];
+                    resultCallback(Ok(path));
+                } else {
+                    resultCallback(Err(result.err().value()));
+                }
             }
-        });
-    }];
+        }];
+    });
 }
 
-Result<std::vector<ghc::filesystem::path>> file::pickFiles(
-    file::FilePickOptions const& options
-) {
-    return Err("Use the callback version");
-}
-
-GEODE_DLL void file::pickFiles(
-    FilePickOptions const& options,
-    MiniFunction<void(std::vector<ghc::filesystem::path>)> callback,
-    MiniFunction<void()> failed
-) {
-    [FileDialog dispatchFilePickerWithMode: file::PickMode::OpenFile options:options multiple:true onCompletion: ^(FileResult result) {
-        Loader::get()->queueInMainThread([=]() {
-            if (result.isOk()) {
-                callback(std::move(result.unwrap()));
+GEODE_DLL Task<Result<std::vector<std::filesystem::path>>> file::pickMany(file::FilePickOptions const& options) {
+    using RetTask = Task<Result<std::vector<std::filesystem::path>>>;
+    return RetTask::runWithCallback([options](auto resultCallback, auto progress, auto cancelled) {
+        [FileDialog dispatchFilePickerWithMode: file::PickMode::OpenFile options:options multiple:true onCompletion: ^(FileResult result) {
+            if (cancelled()) {
+                resultCallback(RetTask::Cancel());
             } else {
-                failed();
+                resultCallback(result);
             }
-        });
-    }];
+        }];
+    });
 }
 
 CCPoint cocos::getMousePos() {
@@ -206,27 +200,27 @@ CCPoint cocos::getMousePos() {
     return ccp(mouse.x - windowFrame.origin.x, mouse.y - windowFrame.origin.y) * scaleFactor;
 }
 
-ghc::filesystem::path dirs::getGameDir() {
+std::filesystem::path dirs::getGameDir() {
     static auto path = [] {
         std::array<char, PATH_MAX> gddir;
 
         uint32_t out = PATH_MAX;
         _NSGetExecutablePath(gddir.data(), &out);
 
-        ghc::filesystem::path gdpath = gddir.data();
-        auto currentPath = ghc::filesystem::canonical(gdpath.parent_path().parent_path());
+        std::filesystem::path gdpath = gddir.data();
+        auto currentPath = std::filesystem::canonical(gdpath.parent_path().parent_path());
         return currentPath;
     }();
 
     return path;
 }
 
-ghc::filesystem::path dirs::getSaveDir() {
+std::filesystem::path dirs::getSaveDir() {
     static auto path = [] {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
         NSString *applicationSupportDirectory = [paths firstObject];
 
-        ghc::filesystem::path supportPath = [applicationSupportDirectory UTF8String];
+        std::filesystem::path supportPath = [applicationSupportDirectory UTF8String];
         auto currentPath = supportPath / "GeometryDash";
         return currentPath;
     }();
@@ -234,7 +228,7 @@ ghc::filesystem::path dirs::getSaveDir() {
     return path;
 }
 
-ghc::filesystem::path dirs::getModRuntimeDir() {
+std::filesystem::path dirs::getModRuntimeDir() {
     return dirs::getGeodeDir() / "unzipped";
 }
 
@@ -330,4 +324,17 @@ std::string geode::utils::thread::getDefaultName() {
 
 void geode::utils::thread::platformSetName(std::string const& name) {
     pthread_setname_np(name.c_str());
+}
+
+float geode::utils::getDisplayFactor() {
+    float displayScale = 1.f;
+    if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
+        NSArray* screens = [NSScreen screens];
+        for (int i = 0; i < screens.count; i++) {
+            float s = [screens[i] backingScaleFactor];
+            if (s > displayScale)
+                displayScale = s;
+        }
+    }
+    return displayScale;
 }

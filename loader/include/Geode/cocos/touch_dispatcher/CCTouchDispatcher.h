@@ -201,10 +201,10 @@ public:
      */
     CCTouchHandler* findHandler(CCTouchDelegate *pDelegate);
 
-    RT_ADD(
-        void incrementForcePrio();
-        void decrementForcePrio();
-    )
+    // @note RobTop Addition
+    void incrementForcePrio();
+    // @note RobTop Addition
+    void decrementForcePrio();
 protected:
     void forceRemoveDelegate(CCTouchDelegate *pDelegate);
     void forceAddHandler(CCTouchHandler *pHandler, CCArray* pArray);
@@ -229,8 +229,7 @@ public:
 
 protected:
 
-    // 2.2 changes
-
+    // @note RobTop Addition
     CC_SYNTHESIZE_NV(bool, m_forcePrio, ForcePrio);
     CC_SYNTHESIZE_NV(int, m_targetPrio, TargetPrio);
 };

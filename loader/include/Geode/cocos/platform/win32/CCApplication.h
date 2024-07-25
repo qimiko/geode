@@ -5,7 +5,7 @@
 #include "CCStdC.h"
 #include "../CCCommon.h"
 #include "../CCApplicationProtocol.h"
-#include "CCControllerHandler.h"
+#include "CXBOXController.h"
 #include <string>
 
 NS_CC_BEGIN
@@ -23,8 +23,11 @@ public:
     /**
     @brief    Run the message loop.
     */
-    RT_REMOVE(  virtual int run();  )
-    RT_ADD(     virtual void gameDidSave(); )
+    // Robtop Removal
+    // virtual int run();
+
+    // @note RobTop Addition
+    virtual void gameDidSave();
 
     /**
     @brief    Get current applicaiton instance.
@@ -48,27 +51,38 @@ public:
     virtual void setupGLView();
     virtual void platformShutdown();
     void toggleVerticalSync(bool);
-    RT_ADD(
-        void setupVerticalSync();
-        void updateVerticalSync();
-        void updateControllerKeys();
+    // @note RobTop Addition
+    void setupVerticalSync();
+    // @note RobTop Addition
+    void updateVerticalSync();
+    // @note RobTop Addition
+    void updateControllerKeys(CXBOXController* controller, int userIndex);
 
-        int getTimeElapsed();
-	    void resetForceTimer();
+    // @note RobTop Addition
+    int getTimeElapsed();
+    // @note RobTop Addition
+    void resetForceTimer();
 
-        void leftMouseDown();
-	    void leftMouseUp();
+    // @note RobTop Addition
+    void leftMouseDown();
+    // @note RobTop Addition
+    void leftMouseUp();
 
-    	void logTimeElapsed(gd::string);
+    // @note RobTop Addition
+    void logTimeElapsed(gd::string);
 
-    	void moveMouse(int, int);
+    // @note RobTop Addition
+    void moveMouse(int, int);
 
-    	void shutdownApplication();
-        void toggleMouseControl(bool);
-        void updateController();
-        void updateMouseControl();
+    // @note RobTop Addition
+    void shutdownApplication();
+    // @note RobTop Addition
+    void toggleMouseControl(bool);
+    // @note RobTop Addition
+    void updateController();
+    // @note RobTop Addition
+    void updateMouseControl();
 
-    )
 
     /**
      *  Sets the Resource root path.
@@ -96,8 +110,8 @@ public:
     LARGE_INTEGER       m_nVsyncInterval;
     gd::string          m_resourceRootPath;
     gd::string          m_startupScriptFilename;
-    CCControllerHandler* m_pControllerHandler;
-    void*               m_unk; //might be swapped with m_pControllerHandler
+    CXBOXController* m_pControllerHandler;
+    CXBOXController* m_pController2Handler; //might be swapped with m_pControllerHandler
     bool m_bUpdateController;
     CC_SYNTHESIZE_NV(bool, m_bShutdownCalled, ShutdownCalled);
     INPUT m_iInput;
@@ -114,6 +128,7 @@ public:
     CC_SYNTHESIZE_NV(bool, m_bFullscreen, Fullscreen);
     CC_SYNTHESIZE_NV(bool, m_bBorderless, Borderless);
 
+protected:
     static CCApplication * sm_pSharedApplication;
 };
 

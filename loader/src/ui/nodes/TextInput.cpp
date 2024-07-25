@@ -2,18 +2,19 @@
 #include <Geode/binding/TextInputDelegate.hpp>
 #include <Geode/modify/CCTextInputNode.hpp>
 #include <Geode/ui/TextInput.hpp>
+#include <Geode/utils/cocos.hpp>
 
 using namespace geode::prelude;
 
 struct TextInputNodeFix : Modify<TextInputNodeFix, CCTextInputNode> {
     GEODE_FORWARD_COMPAT_DISABLE_HOOKS("TextInputNode fix")
 
-    bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
+    bool ccTouchBegan(CCTouch* touch, CCEvent* event) {
         if (!this->getUserObject("fix-text-input")) {
             return CCTextInputNode::ccTouchBegan(touch, event);
         }
 
-        if (!this->isVisible()) {
+        if (!nodeIsVisible(this)) {
             this->onClickTrackNode(false);
             return false;
         }
@@ -62,30 +63,30 @@ bool TextInput::init(float width, std::string const& placeholder, std::string co
     this->setContentSize({ width, HEIGHT });
     this->setAnchorPoint({ .5f, .5f });
 
-    m_bgSprite = cocos2d::extension::CCScale9Sprite::create("square02b_001.png", { 0, 0, 80, 80 });
+    m_bgSprite = extension::CCScale9Sprite::create("square02b_001.png", { 0, 0, 80, 80 });
     m_bgSprite->setScale(.5f);
     m_bgSprite->setColor({ 0, 0, 0 });
     m_bgSprite->setOpacity(90);
     m_bgSprite->setContentSize({ width * 2, HEIGHT * 2 });
-    this->addChildAtPosition(m_bgSprite, cocos2d::Anchor::Center);
+    this->addChildAtPosition(m_bgSprite, Anchor::Center);
 
-    m_input = CCTextInputNode::create(width, HEIGHT, placeholder.c_str(), 24, font.c_str());
+    m_input = CCTextInputNode::create(width - 10.f, HEIGHT, placeholder.c_str(), 24, font.c_str());
     m_input->setLabelPlaceholderColor({ 150, 150, 150 });
-    m_input->setLabelPlaceholderScale(.6f);
+    m_input->setLabelPlaceholderScale(.5f);
     m_input->setMaxLabelScale(.6f);
     m_input->setUserObject("fix-text-input", CCBool::create(true));
-    this->addChildAtPosition(m_input, cocos2d::Anchor::Center);
+    this->addChildAtPosition(m_input, Anchor::Center);
 
     return true;
 }
 
 TextInput* TextInput::create(float width, std::string const& placeholder, std::string const& font) {
     auto ret = new TextInput();
-    if (ret && ret->init(width, placeholder, font)) {
+    if (ret->init(width, placeholder, font)) {
         ret->autorelease();
         return ret;
     }
-    CC_SAFE_DELETE(ret);
+    delete ret;
     return nullptr;
 }
 
@@ -98,6 +99,24 @@ void TextInput::textChanged(CCTextInputNode* input) {
 void TextInput::setPlaceholder(std::string const& placeholder) {
     m_input->m_caption = placeholder;
     m_input->refreshLabel();
+}
+void TextInput::setLabel(std::string const& label) {
+    if (label.size()) {
+        if (m_label) {
+            m_label->setString(label.c_str());
+        }
+        else {
+            m_label = CCLabelBMFont::create(label.c_str(), "goldFont.fnt");
+            this->addChildAtPosition(m_label, Anchor::TopLeft, ccp(3, 2), ccp(0, 0));
+        }
+        m_label->limitLabelWidth(m_bgSprite->getScaledContentWidth() - 6, .4f, .1f);
+    }
+    else {
+        if (m_label) {
+            m_label->removeFromParent();
+            m_label = nullptr;
+        }
+    }
 }
 void TextInput::setFilter(std::string const& allowedChars) {
     m_input->m_allowedChars = allowedChars;
@@ -113,9 +132,12 @@ void TextInput::setPasswordMode(bool enable) {
     m_input->refreshLabel();
 }
 void TextInput::setWidth(float width) {
-    m_input->m_maxLabelWidth = width;
-    m_input->setContentWidth(width * 2);
+    this->setContentWidth(width);
+    m_input->m_maxLabelWidth = width - 10.f;
+    m_input->setContentWidth(width);
     m_bgSprite->setContentWidth(width * 2);
+    m_input->setPositionX(width / 2.f);
+    m_bgSprite->setPositionX(width / 2.f);
 }
 void TextInput::setDelegate(TextInputDelegate* delegate, std::optional<int> tag) {
     m_input->m_delegate = delegate;
@@ -132,6 +154,22 @@ void TextInput::setEnabled(bool enabled) {
     m_input->setMouseEnabled(enabled);
     m_input->setTouchEnabled(enabled);
     m_input->m_placeholderLabel->setOpacity(enabled ? 255 : 150);
+}
+void TextInput::setTextAlign(TextInputAlign align) {
+    switch (align) {
+        default:
+        case TextInputAlign::Center: {
+            m_input->m_textField->setAnchorPoint({ .5f, .5f });
+            m_input->m_placeholderLabel->setAnchorPoint({ .5f, .5f });
+            m_input->updateAnchoredPosition(Anchor::Center);
+        } break;
+
+        case TextInputAlign::Left: {
+            m_input->m_textField->setAnchorPoint({ .0f, .5f });
+            m_input->m_placeholderLabel->setAnchorPoint({ .0f, .5f });
+            m_input->updateAnchoredPosition(Anchor::Left, ccp(5, 0));
+        } break;
+    }
 }
 
 void TextInput::hideBG() {

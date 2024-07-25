@@ -11,6 +11,9 @@
     XPStyle on
     RequestExecutionLevel user
     ManifestSupportedOS Win7
+    SetCompressor /SOLID lzma
+    SetCompressorDictSize 64
+    SetDatablockOptimize ON
 
 ; ui settings
     !define MUI_ABORTWARNING
@@ -52,6 +55,7 @@
     !insertmacro GEODE_LANGUAGE "Swedish"
     !insertmacro GEODE_LANGUAGE "Greek"
     !insertmacro GEODE_LANGUAGE "Finnish"
+    !insertmacro GEODE_LANGUAGE "Polish"
     !insertmacro GEODE_LANGUAGE "Russian"
     !insertmacro GEODE_LANGUAGE "PortugueseBR"
     !insertmacro GEODE_LANGUAGE "Ukrainian"
@@ -60,6 +64,7 @@
     !insertmacro GEODE_LANGUAGE "Japanese"
     !insertmacro GEODE_LANGUAGE "SimpChinese"
     !insertmacro GEODE_LANGUAGE "TradChinese"
+    !insertmacro GEODE_LANGUAGE "Korean"
 
     !insertmacro MUI_RESERVEFILE_LANGDLL
 
@@ -402,16 +407,17 @@ Function .onVerifyInstDir
     IfFileExists $INSTDIR\*.exe 0 noGameNoLife
     IfFileExists $INSTDIR\libcocos2d.dll 0 noGameNoLife
 
+    ; check if we're on 64-bit gd (checks for some of the DLLs introduced in 2.206)
+    IfFileExists $INSTDIR\libpng16.dll 0 versionIssueImo
+    IfFileExists $INSTDIR\pthreadVC3.dll 0 versionIssueImo
+    IfFileExists $INSTDIR\libcrypto-3-x64.dll 0 versionIssueImo
+
     ; check if geode is already installed
     IfFileExists $INSTDIR\Geode.dll valid
 
     ; check mod loaders/mod menus
     IfFileExists $INSTDIR\hackpro.dll other_hackpro
-    IfFileExists $INSTDIR\ToastedMarshmellow.dll other_gdhm
-    IfFileExists $INSTDIR\quickldr.dll other_quickldr
-    IfFileExists $INSTDIR\XInput9_1_0.dll other_xinput
-    IfFileExists $INSTDIR\mimalloc.dll other_mimalloc
-    IfFileExists $INSTDIR\GDH.dll other_GDH
+    IfFileExists $INSTDIR\XInput1_4.dll other_xinput
 
     ; all checks passed
     valid:
@@ -422,31 +428,25 @@ Function .onVerifyInstDir
     noGameNoLife:
         SendMessage $geode.DirectoryPage.ErrorText ${WM_SETTEXT} "" "STR:$(GEODE_TEXT_GD_MISSING)"
         Goto error
+    versionIssueImo:
+        SendMessage $geode.DirectoryPage.ErrorText ${WM_SETTEXT} "" "STR:$(GEODE_TEXT_GD_OLD)"
+        Goto error
     other_hackpro:
         StrCpy $0 "hackpro.dll"
         Goto other
-    other_gdhm:
-        StrCpy $0 "ToastedMarshmellow.dll"
-        Goto other
-    other_quickldr:
-        StrCpy $0 "quickldr.dll"
-        Goto other
     other_xinput:
-        StrCpy $0 "XInput9_1_0.dll"
-        Goto other
-    other_mimalloc:
-        StrCpy $0 "mimalloc.dll"
-        Goto other
-    other_GDH:
-        StrCpy $0 "GDH.dll"
+        StrCpy $0 "XInput1_4.dll"
         Goto other
     other:
         ${StrRep} $0 $(GEODE_TEXT_MOD_LOADER_ALREADY_INSTALLED) "the dll trademark" $0
         SendMessage $geode.DirectoryPage.ErrorText ${WM_SETTEXT} "" "STR:$0"
-        Goto error
+        SetCtlColors $geode.DirectoryPage.ErrorText e25402 transparent
+        LockWindow off
+        Return
 
     error:
         ShowWindow $geode.DirectoryPage.ErrorText 1
+        SetCtlColors $geode.DirectoryPage.ErrorText ff0000 transparent
         LockWindow off
         Abort
         Return
@@ -459,7 +459,20 @@ SectionGroup "Geode"
         File ${BINDIR}\Geode.dll
         File ${BINDIR}\Geode.pdb
         File ${BINDIR}\GeodeUpdater.exe
-        File ${BINDIR}\XInput9_1_0.dll
+        File ${BINDIR}\XInput1_4.dll
+
+        RMdir /r $INSTDIR\geode\update
+        RMdir /r $INSTDIR\geode\index
+        Delete "$INSTDIR\xinput9_1_0.dll"
+        Delete "$INSTDIR\xinput9_1_0.lib"
+        Delete "$INSTDIR\xinput9_1_0.pdb"
+
+        Delete "$INSTDIR\hackpro.dll"
+
+        Delete "$INSTDIR\msvcp140.dll"
+        Delete "$INSTDIR\msvcp140d.dll"
+        Delete "$INSTDIR\vcruntime140.dll"
+        Delete "$INSTDIR\vcruntime140d.dll"
 
         WriteUninstaller "GeodeUninstaller.exe"
     SectionEnd
@@ -475,9 +488,9 @@ SectionGroupEnd
 !execute "pwsh -nol -noni -nop dl-vcr.ps1"
 Section "Visual Studio Runtime"
     SetOutPath $INSTDIR
-    File VC_redist.x86.exe
-    ExecWait "$INSTDIR\VC_redist.x86.exe /install /quiet /norestart"
-    Delete "$INSTDIR\VC_redist.x86.exe"
+    File VC_redist.x64.exe
+    ExecWait "$INSTDIR\VC_redist.x64.exe /install /quiet /norestart"
+    Delete "$INSTDIR\VC_redist.x64.exe"
 SectionEnd
 
 Section "steam_appid.txt"
@@ -512,7 +525,7 @@ Function un.onInit
     IfFileExists $INSTDIR\libcocos2d.dll 0 invalid
 
     ; check if xinput and geode exist
-    IfFileExists $INSTDIR\XInput9_1_0.dll 0 invalid
+    IfFileExists $INSTDIR\XInput1_4.dll 0 invalid
     IfFileExists $INSTDIR\Geode.dll 0 invalid
         Return
 
@@ -527,7 +540,7 @@ Section "Uninstall"
     Delete $INSTDIR\Geode.pdb
     Delete $INSTDIR\Geode.lib
     Delete $INSTDIR\GeodeUpdater.exe
-    Delete $INSTDIR\XInput9_1_0.dll
+    Delete $INSTDIR\XInput1_4.dll
 
     # default value of DATA is an empty string
     # if DATA is empty, keep user data

@@ -1,12 +1,11 @@
-#include "../ui/internal/settings/GeodeSettingNode.hpp"
-
+#include <ui/mods/settings/GeodeSettingNode.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Setting.hpp>
 #include <Geode/loader/SettingEvent.hpp>
 #include <Geode/loader/SettingNode.hpp>
 #include <Geode/utils/general.hpp>
 #include <Geode/utils/JsonValidation.hpp>
-#include <re2/re2.h>
+#include <regex>
 
 using namespace geode::prelude;
 
@@ -74,8 +73,9 @@ Result<FloatSetting> FloatSetting::parse(JsonMaybeObject& obj) {
 Result<StringSetting> StringSetting::parse(JsonMaybeObject& obj) {
     StringSetting sett;
     parseCommon(sett, obj);
-    obj.has("match").into(sett.match);
-    obj.has("filter").into(sett.filter);
+    obj.has("match").into(sett.controls->match);
+    obj.has("filter").into(sett.controls->filter);
+    obj.has("one-of").into(sett.controls->options);
     return Ok(sett);
 }
 
@@ -166,6 +166,10 @@ Result<Setting> Setting::parse(
                 default: return Err("Unknown setting type \"" + type + "\"");
             }
         }
+
+        // this is handled before the setting is parsed
+        obj.addKnownKey("platforms");
+
         obj.checkUnknownKeys();
     }
     // if the type wasn't an object or a string, the JsonChecker that gave the 
@@ -237,6 +241,29 @@ std::optional<std::string> Setting::getDescription() const {
 std::string Setting::getModID() const {
     return m_modID;
 }
+
+// StringSetting
+
+StringSetting::StringSetting() : name(), description(), defaultValue(), controls(new Data()) {}
+StringSetting::StringSetting(StringSetting const& other) : name(other.name), description(other.description), 
+    defaultValue(other.defaultValue), controls(new Data(*other.controls)) {}
+StringSetting::StringSetting(StringSetting&& other) noexcept : name(std::move(other.name)), description(std::move(other.description)), 
+    defaultValue(std::move(other.defaultValue)), controls(std::move(other.controls)) {}
+StringSetting& StringSetting::operator=(StringSetting const& other) {
+    name = other.name;
+    description = other.description;
+    defaultValue = other.defaultValue;
+    *controls = *other.controls;
+    return *this;
+}
+StringSetting& StringSetting::operator=(StringSetting&& other) noexcept {
+    name = std::move(other.name);
+    description = std::move(other.description);
+    defaultValue = std::move(other.defaultValue);
+    controls = std::move(other.controls);
+    return *this;
+}
+StringSetting::~StringSetting() = default;
 
 // SettingValue
 
@@ -362,13 +389,28 @@ IMPL_TO_VALID(Float) {
 }
 
 IMPL_TO_VALID(String) {
-    if (m_definition.match) {
-        if (!re2::RE2::FullMatch(value, m_definition.match.value())) {
+    if (m_definition.controls->match) {
+        if (!std::regex_match(value, std::regex{m_definition.controls->match.value()})) {
             return {
                 m_definition.defaultValue,
                 fmt::format(
                     "Value must match regex {}",
-                    m_definition.match.value()
+                    m_definition.controls->match.value()
+                )
+            };
+        }
+    }
+    else if (m_definition.controls->options) {
+        if (std::find(
+            m_definition.controls->options.value().begin(),
+            m_definition.controls->options.value().end(),
+            value
+        ) == m_definition.controls->options.value().end()) {
+            return {
+                m_definition.defaultValue,
+                fmt::format(
+                    "Value must be one of {}",
+                    fmt::join(m_definition.controls->options.value(), ", ")
                 )
             };
         }

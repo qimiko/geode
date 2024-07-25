@@ -22,13 +22,6 @@ CCScale9Sprite* InputNode::getBG() const {
     return m_bgSprite;
 }
 
-void InputNode::activate() {
-    auto const size = m_input->getContentSize();
-    auto const pos = m_input->convertToNodeSpace(getMousePos()) + m_input->m_textField->getAnchorPoint() * size;
-    m_input->onClickTrackNode(true);
-//    m_input->updateCursorPosition(pos, { CCPointZero, size });
-}
-
 void InputNode::setEnabled(bool enabled) {
     m_input->setMouseEnabled(enabled);
     m_input->setTouchEnabled(enabled);
@@ -84,12 +77,12 @@ InputNode* InputNode::create(
 ) {
     auto pRet = new InputNode();
 
-    if (pRet && pRet->init(width, placeholder, font, filter, maxCharCount)) {
+    if (pRet->init(width, placeholder, font, filter, maxCharCount)) {
         pRet->autorelease();
         return pRet;
     }
 
-    CC_SAFE_DELETE(pRet);
+    delete pRet;
     return nullptr;
 }
 

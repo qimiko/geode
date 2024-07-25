@@ -287,6 +287,8 @@ namespace gd {
     class GEODE_DLL vector {
     public:
         using value_type = T;
+        using iterator = T*;
+        using const_iterator = const T*;
 
         auto allocator() const {
             return gd::allocator<T>();
@@ -302,10 +304,10 @@ namespace gd {
             m_reserveEnd = nullptr;
         }
 
-        size_t nextCapacity(size_t x) {
+        std::size_t nextCapacity(std::size_t x) {
             // minimum 16, powers of 2, don't use builtins
             if (x < 16) return 16;
-            size_t out = 16;
+            std::size_t out = 16;
             while (out < x) {
                 out *= 2;
             }
@@ -408,6 +410,34 @@ namespace gd {
                 m_finish = newFinish;
                 m_reserveEnd = newStart + newSize;
             }
+        }
+
+        iterator erase(iterator pos)
+        {
+            return erase(pos, pos + 1);
+        }
+
+        iterator erase(const_iterator pos)
+        {
+            return erase(pos, pos + 1);
+        }
+
+        iterator erase(iterator first, iterator last)
+        {
+            std::move(last, m_finish, first);
+
+            --m_finish;
+
+            return first;
+        }
+
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            std::move(last, m_finish, first);
+
+            --m_finish;
+
+            return first;
         }
 
         void push_back(T const& input) {
@@ -637,6 +667,16 @@ namespace gd {
 
         bool operator[](size_t index) const {
             return const_cast<vector&>(*this)[index];
+        }
+
+        _bit_reference at(size_t index) {
+            // TODO: bounds checking
+            return this->operator[](index);
+        }
+
+        bool at(size_t index) const {
+            // TODO: bounds checking
+            return this->operator[](index);
         }
     };
 

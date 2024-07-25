@@ -1,6 +1,4 @@
-#include "../ui/internal/list/ModListLayer.hpp"
-
-#include <Geode/loader/Index.hpp>
+#include "../ui/mods/ModsLayer.hpp"
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/Modify.hpp>
 #include <Geode/modify/IDManager.hpp>
@@ -10,39 +8,18 @@
 #include <Geode/ui/Popup.hpp>
 #include <Geode/ui/MDPopup.hpp>
 #include <Geode/utils/cocos.hpp>
+#include <Geode/utils/web.hpp>
 #include <loader/ModImpl.hpp>
 #include <loader/LoaderImpl.hpp>
 #include <loader/updater.hpp>
 #include <Geode/binding/ButtonSprite.hpp>
+#include <Geode/modify/LevelSelectLayer.hpp>
 
 using namespace geode::prelude;
 
 #pragma warning(disable : 4217)
 
 class CustomMenuLayer;
-
-static Ref<Notification> INDEX_UPDATE_NOTIF = nullptr;
-
-$execute {
-    new EventListener<IndexUpdateFilter>(+[](IndexUpdateEvent* event) {
-        if (!INDEX_UPDATE_NOTIF) return;
-        std::visit(makeVisitor {
-            [](UpdateProgress const& prog) {},
-            [](UpdateFinished const&) {
-                INDEX_UPDATE_NOTIF->setIcon(NotificationIcon::Success);
-                INDEX_UPDATE_NOTIF->setString("Index Up-to-Date");
-                INDEX_UPDATE_NOTIF->waitAndHide();
-                INDEX_UPDATE_NOTIF = nullptr;
-            },
-            [](UpdateFailed const& info) {
-                INDEX_UPDATE_NOTIF->setIcon(NotificationIcon::Error);
-                INDEX_UPDATE_NOTIF->setString(info);
-                INDEX_UPDATE_NOTIF->setTime(NOTIFICATION_LONG_TIME);
-                INDEX_UPDATE_NOTIF = nullptr;
-            },
-        }, event->status);
-    });
-};
 
 struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
     static void onModify(auto& self) {
@@ -55,6 +32,8 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
     struct Fields {
         bool m_menuDisabled = false;
         CCSprite* m_geodeButton = nullptr;
+        CCSprite* m_exclamation = nullptr;
+        Task<std::monostate> m_updateCheckTask;
     };
 
     bool init() {
@@ -72,7 +51,7 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
         if (!m_fields->m_menuDisabled) {
             m_fields->m_geodeButton = CircleButtonSprite::createWithSpriteFrameName(
                 "geode-logo-outline-gold.png"_spr,
-                1.0f,
+                .95f,
                 CircleBaseColor::Green,
                 CircleBaseSize::MediumAlt
             );
@@ -104,17 +83,21 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
         }
 
         // show if some mods failed to load
-        static bool shownFailedNotif = false;
-        if (!shownFailedNotif) {
-            shownFailedNotif = true;
-            auto problems = Loader::get()->getProblems();
-            if (std::any_of(problems.begin(), problems.end(), [&](auto& item) {
-                    return item.type != LoadProblem::Type::Suggestion && item.type != LoadProblem::Type::Recommendation;
-                })) {
-                Notification::create("There were problems loading some mods", NotificationIcon::Error)->show();
+        if (Loader::get()->getProblems().size()) {
+            static bool shownProblemPopup = false;
+            if (!shownProblemPopup) {
+                shownProblemPopup = true;
+                Notification::create("There were errors - see Geode page!", NotificationIcon::Error)->show();
             }
-        }
 
+            m_fields->m_exclamation = CCSprite::createWithSpriteFrameName("exMark_001.png");
+            m_fields->m_exclamation->setPosition(m_fields->m_geodeButton->getContentSize() - ccp(10, 10));
+            m_fields->m_exclamation->setID("errors-found");
+            m_fields->m_exclamation->setZOrder(99);
+            m_fields->m_exclamation->setScale(.6f);
+            m_fields->m_geodeButton->addChild(m_fields->m_exclamation);
+        }
+        
         // show if the user tried to be naughty and load arbitrary DLLs
         static bool shownTriedToLoadDlls = false;
         if (!shownTriedToLoadDlls) {
@@ -179,21 +162,48 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
             popup->show();
         }
 
+        // Check for mod updates
 /*
-        // update mods index
-        if (!m_fields->m_menuDisabled && !INDEX_UPDATE_NOTIF && !Index::get()->hasTriedToUpdate()) {
-            this->addChild(EventListenerNode<IndexUpdateFilter>::create(
-                this, &CustomMenuLayer::onIndexUpdate
-            ));
-            INDEX_UPDATE_NOTIF = Notification::create(
-                "Updating Index", NotificationIcon::Loading, 0
-            );
-            INDEX_UPDATE_NOTIF->setTime(NOTIFICATION_LONG_TIME);
-            INDEX_UPDATE_NOTIF->show();
-            Index::get()->update();
-        }
+        static bool checkedModUpdates = false;
+        if (!checkedModUpdates) {
+            // only run it once
+            checkedModUpdates = true;
+            m_fields->m_updateCheckTask = ModsLayer::checkInstalledModsForUpdates().map(
+                [this](server::ServerRequest<std::vector<std::string>>::Value* result) {
+                    if (result->isOk()) {
+                        auto updatesFound = result->unwrap();
+                        if (updatesFound.size() && !m_fields->m_geodeButton->getChildByID("updates-available")) {
+                            log::info("Found updates for mods: {}!", updatesFound);
+                            
+                            if(auto icon = CCSprite::createWithSpriteFrameName("updates-available.png"_spr)) {
+                                // Remove errors icon if it was added, to prevent overlap
+                                if (m_fields->m_exclamation) {
+                                    m_fields->m_exclamation->removeFromParent();
+                                    m_fields->m_exclamation = nullptr;
+                                }
 
-        this->addUpdateIndicator();
+                                icon->setPosition(
+                                    m_fields->m_geodeButton->getContentSize() - CCSize { 10.f, 10.f }
+                                );
+                                icon->setID("updates-available");
+                                icon->setZOrder(99);
+                                icon->setScale(.5f);
+                                m_fields->m_geodeButton->addChild(icon);
+                            }
+                        }
+                        else {
+                            log::info("All mods up to date!");
+                        }
+                    }
+                    else {
+                        auto error = result->unwrapErr();
+                        log::error("Unable to check for mod updates ({}): {}", error.code, error.details);
+                    }
+                    return std::monostate();
+                },
+                [](auto) { return std::monostate(); }
+            );
+        }
 */
 
         for (auto mod : Loader::get()->getAllMods()) {
@@ -255,27 +265,6 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
         }
     }
 
-    void onIndexUpdate(IndexUpdateEvent* event) {
-        if (
-            std::holds_alternative<UpdateFinished>(event->status) ||
-            std::holds_alternative<UpdateFailed>(event->status)
-        ) {
-            this->addUpdateIndicator();
-        }
-    }
-
-    void addUpdateIndicator() {
-        if (!m_fields->m_menuDisabled && Index::get()->areUpdatesAvailable()) {
-            auto icon = CCSprite::createWithSpriteFrameName("updates-available.png"_spr);
-            icon->setPosition(
-                m_fields->m_geodeButton->getContentSize() - CCSize { 10.f, 10.f }
-            );
-            icon->setZOrder(99);
-            icon->setScale(.5f);
-            m_fields->m_geodeButton->addChild(icon);
-        }
-    }
-
     void onMissingTextures(CCObject*) {
         
     #ifdef GEODE_IS_DESKTOP
@@ -328,6 +317,6 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
     }
 
     void onGeode(CCObject*) {
-        ModListLayer::scene();
+        ModsLayer::scene();
     }
 };

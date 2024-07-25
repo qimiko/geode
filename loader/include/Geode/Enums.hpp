@@ -565,7 +565,10 @@ enum class DialogAnimationType {
     // a 5th type is defined which acts exactly the same as FromTop
 };
 
-enum class CircleMode {};
+enum class CircleMode {
+    Filled = 0,
+    Outlined = 1,
+};
 
 // Geode Addition
 enum class ComparisonType {

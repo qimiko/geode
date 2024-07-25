@@ -19,7 +19,7 @@
         using DerivedFuncType = decltype(Resolve<__VA_ARGS__>::func(&Derived::FunctionName_));                \
         if constexpr (different) {                                                                            \
             static auto address = AddressInline_;                                                             \
-            static_assert(GEODE_REVERT_TODO_RETURN ||                                                         \
+            static_assert(                                                                                    \
                 !different || !std::is_same_v<typename ReturnType<BaseFuncType>::type, TodoReturn>,           \
                 "Function" #ClassName_ "::" #FunctionName_ " has a TodoReturn type, "                         \
                 "please fix it by editing the bindings."                                                      \
@@ -40,6 +40,38 @@
             );                                                                                                \
             this->m_hooks[#ClassName_ "::" #FunctionName_] = hook;                                            \
         }                                                                                                     \
+    } while (0);
+
+#define GEODE_APPLY_MODIFY_FOR_FUNCTION_ERROR(ClassName_, FunctionName_, ...)                                 \
+    do {                                                                                                      \
+        static_assert(!FunctionExists_##FunctionName_<Derived __VA_ARGS__>,                                   \
+            "Function " #ClassName_ "::" #FunctionName_ " does not have an available address in the"          \
+            " bindings, please add it to the bindings to hook it."                                            \
+        );                                                                                                    \
+    } while (0);
+
+#define GEODE_APPLY_MODIFY_FOR_FUNCTION_ERROR_DEFINED(ClassName_, FunctionName_, ...)                         \
+    do {                                                                                                      \
+        static auto constexpr different = Unique::different<                                                  \
+            Resolve<__VA_ARGS__>::func(&Base::FunctionName_),                                                 \
+            Resolve<__VA_ARGS__>::func(&Derived::FunctionName_)                                               \
+        >();                                                                                                  \
+        static_assert(!different,                                                                             \
+            "Function " #ClassName_ "::" #FunctionName_ " does not have an available address in the"          \
+            " bindings, please add it to the bindings to hook it."                                            \
+        );                                                                                                    \
+    } while (0);
+
+#define GEODE_APPLY_MODIFY_FOR_FUNCTION_ERROR_INLINE(ClassName_, FunctionName_, ...)                          \
+    do {                                                                                                      \
+        static auto constexpr different = Unique::different<                                                  \
+            Resolve<__VA_ARGS__>::func(&Base::FunctionName_),                                                 \
+            Resolve<__VA_ARGS__>::func(&Derived::FunctionName_)                                               \
+        >();                                                                                                  \
+        static_assert(!different,                                                                             \
+            "Function " #ClassName_ "::" #FunctionName_ " cannot be hooked due to an inline definition"       \
+            " existing for the function."                                                                     \
+        );                                                                                                    \
     } while (0);
 
 #define GEODE_APPLY_MODIFY_FOR_CONSTRUCTOR(AddressInline_, Convention_, ClassName_, ...)  \
@@ -100,10 +132,27 @@ namespace geode::modifier {
 
         // unordered_map<handles> idea
         ModifyBase() {
+            struct EboCheck : ModifyDerived::Base {
+                std::aligned_storage_t<
+                    std::alignment_of_v<typename ModifyDerived::Base>, 
+                    std::alignment_of_v<typename ModifyDerived::Base>
+                > m_padding;
+            };
+            static constexpr auto baseSize = sizeof(typename ModifyDerived::Base);
+            static constexpr auto derivedSize = sizeof(typename ModifyDerived::Derived);
+            static constexpr auto alignment = std::alignment_of_v<typename ModifyDerived::Base>;
+            static constexpr bool hasEbo = sizeof(EboCheck) == sizeof(typename ModifyDerived::Base);
+            static constexpr bool hasImproperCustomFields = hasEbo ? derivedSize != baseSize : derivedSize != baseSize + alignment;
+            static_assert(!hasImproperCustomFields,
+                "\n--- Error in modify class:\n"
+                "  Do not add members to a modify class, use `struct Fields` instead.\n"
+                "  See https://docs.geode-sdk.org/tutorials/fields for more info."
+                "\n---"
+            );
+
             // i really dont want to recompile codegen
             auto test = static_cast<ModifyDerived*>(this);
             test->ModifyDerived::apply();
-            ModifyDerived::Derived::onModify(*this);
             std::vector<std::string> added;
             for (auto& [uuid, hook] : m_hooks) {
                 auto res = Mod::get()->claimHook(hook);

@@ -551,9 +551,7 @@ protected:
     bool m_bFlipX;                              /// Whether the sprite is flipped horizaontally or not.
     bool m_bFlipY;                              /// Whether the sprite is flipped vertically or not.
 
-    RT_ADD(
-        CC_SYNTHESIZE(bool, m_bDontDraw, DontDraw);
-    )
+    CC_SYNTHESIZE(bool, m_bDontDraw, DontDraw);
 };
 
 

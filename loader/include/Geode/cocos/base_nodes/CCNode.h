@@ -442,7 +442,8 @@ public:
      */
     virtual const CCSize& getContentSize() const;
 
-    // RT_ADD(virtual CCSize getScaledContentSize(void); )
+    // @note RobTop Addition
+    // virtual CCSize getScaledContentSize(void);
 
     /**
      * Sets whether the node is visible
@@ -671,7 +672,8 @@ public:
      */
     virtual void removeFromParentAndCleanup(bool cleanup);
 
-    RT_ADD( virtual void removeMeAndCleanup(void);  )
+    // @note RobTop Addition
+    virtual void removeMeAndCleanup(void);
 
     /** 
      * Removes a child from the container with a cleanup
@@ -849,11 +851,15 @@ public:
      * Set a user-assigned CCObject with a specific ID. This allows nodes to 
      * have multiple user objects. Objects should be prefixed with the mod ID. 
      * Assigning a null removes the user object with the ID
+     * 
+     * @note Geode addition
      */
     GEODE_DLL void setUserObject(std::string const& id, CCObject* object);
 
     /**
      * Get a user-assigned CCObject with the specific ID
+     * 
+     * @note Geode addition
      */
     GEODE_DLL CCObject* getUserObject(std::string const& id);
     
@@ -918,6 +924,22 @@ public:
      * @note Geode addition
      */
     GEODE_DLL CCNode* getChildByIDRecursive(std::string const& id);
+
+    /**
+     * Get a child based on a query. Searches the child tree for a matching 
+     * child. The query currently only supports the following features:
+     *  - `node-id`: Match a node with a specific ID
+     *  - `node-id-1 node-id-2`: Match a descendant (possibly not immediate) 
+     *    child of a node with a specific ID
+     *  - `node-id-1 > node-id-2`: Match the immediate child of a node with a 
+     *    specific ID 
+     * For example, the query "my-layer button-menu > mod.id/epic-button" is 
+     * equivalent to `getChildByIDRecursive("my-layer")
+     * ->getChildByIDRecursive("button-menu")
+     * ->getChildByID("mod.id/epic-button")`
+     * @returns The first matching node, or nullptr if none was found
+     */
+    GEODE_DLL CCNode* querySelector(std::string const& query);
 
     /** 
      * Removes a child from the container by its ID.
@@ -1011,6 +1033,48 @@ public:
      * @note Geode addition
      */
     GEODE_DLL void addChildAtPosition(CCNode* child, Anchor anchor, CCPoint const& offset = CCPointZero, bool useAnchorLayout = true);
+    /**
+     * Adds a child at an anchored position with an offset. The node is placed 
+     * in its parent where the anchor specifies, and then the offset is used to 
+     * relatively adjust the node's position
+     * @param child The child to add
+     * @param anchor Where the place the child relative to this node
+     * @param offset Where to place the child relative to the anchor
+     * @param nodeAnchor The child's anchor position
+     * @param useAnchorLayout If true, sets this node's layout to `AnchorLayout` 
+     * if no other layout is already specified
+     * @note Geode addition
+     */
+    GEODE_DLL void addChildAtPosition(
+        CCNode* child,
+        Anchor anchor,
+        CCPoint const& offset,
+        CCPoint const& nodeAnchor,
+        bool useAnchorLayout = true
+    );
+    /**
+     * Updates the anchored position of a child. Requires the child to already 
+     * have a parent; if the child already has AnchorLayoutOptions set, those 
+     * are updated, otherwise nothing is done
+     * @param anchor Where the place the child relative to its parent
+     * @param offset Where to place the child relative to the anchor
+     * @note Geode addition
+     */
+    GEODE_DLL void updateAnchoredPosition(Anchor anchor, CCPoint const& offset = CCPointZero);
+    /**
+     * Updates the anchored position of a child. Requires the child to already 
+     * have a parent; if the child already has AnchorLayoutOptions set, those 
+     * are updated, otherwise nothing is done
+     * @param anchor Where the place the child relative to its parent
+     * @param offset Where to place the child relative to the anchor
+     * @param nodeAnchor The child's anchor position
+     * @note Geode addition
+     */
+    GEODE_DLL void updateAnchoredPosition(
+        Anchor anchor,
+        CCPoint const& offset,
+        CCPoint const& nodeAnchor
+    );
 
     /**
      * Swap two children
@@ -1020,10 +1084,23 @@ public:
      */
     GEODE_DLL void swapChildIndices(CCNode* first, CCNode* second);
 
+    /**
+     * @note Make sure to set the scale first!
+     * @note Geode addition
+     */
+    GEODE_DLL void setScaledContentSize(CCSize const& size);
+    // @note Geode addition
     GEODE_DLL void setContentWidth(float width);
+    // @note Geode addition
     GEODE_DLL void setContentHeight(float width);
+    // @note Geode addition
     GEODE_DLL float getContentWidth() const;
+    // @note Geode addition
     GEODE_DLL float getContentHeight() const;
+    // @note Geode addition
+    GEODE_DLL float getScaledContentWidth() const;
+    // @note Geode addition
+    GEODE_DLL float getScaledContentHeight() const;
 
     template <class Filter, class... Args>
     geode::EventListenerProtocol* addEventListener(
@@ -1459,6 +1536,8 @@ public:
     /** 
      * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.
      * The matrix is in Pixels.
+     * 
+     * @note Robtop Addition: return type changed from CCAffineTransform to const CCAffineTransform
      */
     virtual CCAffineTransform nodeToParentTransform(void);
 
@@ -1468,6 +1547,8 @@ public:
     /** 
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.
      * The matrix is in Pixels.
+     * 
+     * @note Robtop Addition: return type changed from CCAffineTransform to const CCAffineTransform
      */
     virtual CCAffineTransform parentToNodeTransform(void);
 
@@ -1598,9 +1679,8 @@ public:
     virtual void removeAllComponents();
     /// @} end of component functions
     
-    RT_ADD(
-        virtual void updateTweenAction(float, const char*);
-    )
+    // @note RobTop Addition
+    virtual void updateTweenAction(float, const char*);
 
 private:
     /// lazy allocs
@@ -1756,7 +1836,7 @@ NS_CC_END
 
 #ifndef GEODE_IS_MEMBER_TEST
 namespace geode {
-    struct GEODE_DLL UserObjectSetEvent : public Event {
+    struct GEODE_DLL UserObjectSetEvent final : public Event {
         cocos2d::CCNode* node;
         const std::string id;
         cocos2d::CCObject* value;
@@ -1764,7 +1844,7 @@ namespace geode {
         UserObjectSetEvent(cocos2d::CCNode* node, std::string const& id, cocos2d::CCObject* value);
     };
 
-    class GEODE_DLL AttributeSetFilter : public EventFilter<UserObjectSetEvent> {
+    class GEODE_DLL AttributeSetFilter final : public EventFilter<UserObjectSetEvent> {
 	public:
 		using Callback = void(UserObjectSetEvent*);
     

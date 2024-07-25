@@ -1,11 +1,20 @@
 {
     "geode": "@PROJECT_VERSION@@PROJECT_VERSION_SUFFIX@",
-    "gd": "*",
+    "gd": {
+        "win": "*",
+        "mac": "*",
+        "android": "*"
+    },
     "id": "geode.loader",
     "version": "@PROJECT_VERSION@@PROJECT_VERSION_SUFFIX@",
     "name": "Geode",
     "developer": "Geode Team",
     "description": "The Geode mod loader",
+    "links": {
+        "community": "https://discord.com/invite/9e43WMKzhp",
+        "homepage": "https://geode-sdk.org",
+        "source": "https://github.com/geode-sdk/geode"
+    },
     "repository": "https://github.com/geode-sdk/geode",
     "resources": {
         "fonts": {
@@ -31,7 +40,8 @@
             }
         },
         "sprites": [
-            "images/*.png"
+            "images/*.png",
+            "swelve/*.png"
         ],
         "files": [
             "sounds/*.ogg",
@@ -61,7 +71,8 @@
             "type": "bool",
             "default": false,
             "name": "Show Platform Console",
-            "description": "Show the native console (if one exists). <cr>This setting is meant for developers</c>"
+            "description": "Show the native console (if one exists). <cr>This setting is meant for developers</c>",
+            "platforms": ["win", "mac"]
         },
         "auto-check-updates": {
             "type": "bool",
@@ -69,17 +80,25 @@
             "name": "Check For Updates",
             "description": "Automatically check for <cy>Geode</c> updates on startup"
         },
-        "auto-update-mods": {
-            "type": "bool",
-            "default": true,
-            "name": "Auto-Update Mods",
-            "description": "Automatically update <cp>mods</c> on startup"
-        },
         "disable-last-crashed-popup": {
             "type": "bool",
             "default": false,
             "name": "Disable Crash Popup",
             "description": "Disables the popup at startup asking if you'd like to send a bug report; intended for developers"
+        },
+        "server-cache-size-limit": {
+            "type": "int",
+            "default": 20,
+            "min": 1,
+            "max": 100,
+            "name": "Server Cache Size Limit",
+            "description": "Limits the size of the cache used for loading mods. Higher values result in higher memory usage."
+        },
+        "enable-geode-theme": {
+            "type": "bool",
+            "default": true,
+            "name": "Enable Geode-Themed Colors",
+            "description": "When enabled, the Geode menu has a <ca>Geode-themed color scheme</c>. <cy>This does not affect any other menus!</c>"
         }
     },
     "issues": {

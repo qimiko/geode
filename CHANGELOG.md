@@ -1,5 +1,198 @@
 # Geode Changelog
 
+## v3.2.0
+ * Fix auto-updater on MacOS (d752bc2)
+ * Use tasks for `FileSettingNode` (f94e95e)
+ * Fix single argument overload of `Task` (6fe1ac9)
+ * Fix the GLFW message box fix (09c188a)
+ * Shrink `TextInput` input to give some padding (1da73cf)
+ * Undither account and editor blank sprites, add missing editor blank sprites (427e86e, efc4a00, 9fd9a78)
+ * Fix populating web headers and add some new getters (a96ec91)
+ * Build mods to load stack statically (255066a)
+ * Force internal mod to always appear enabled (e659b97)
+ * Bring back uninstall Geode button on Windows (22b2580)
+ * Add `geode::openChangelogPopup` (e432e72)
+ * Add special visuals for paid tag (0082765)
+ * Add 64-bit check to the Windows installer (c45d8f6)
+ * Add `Mod::checkUpdates` (9d02155)
+ * Error on attempting to hook missing or inlined functions (2dc989f)
+ * Implement function bound checking on Windows crashlog for symbol resolution (66c2f9a)
+ * Add new syntax for image scale arguments (#983)
+
+## v3.1.1
+ * Update Windows installer translations (ae589d2, dca28db, d12fb37, 08d8af3, f52cf02, 3fa1d9b)
+ * Add safe mode by holding shift on MacOS (e4905a0)
+ * Fix bug on android where `FileOperation::getFilePath` was not actually hooked (9885212)
+   * This was a problem with our bindings, there the return type was TodoReturn instead of gd::string causing the hook to silently fail, leaving only the launcher hook (which is prone to failing) as a fallback.
+
+## v3.1.0
+ * Implement LoaderImpl::getGameVersion on android, requires 1.4.0 launcher (00799b6)
+ * Better compression for windows installer, saves 6mb (54da3b0)
+ * Fix mod install confirmation popup not properly showing mods (5886324)
+ * Fix missing version check for incompatibilities (83bb3c2)
+ * Update TulipHook (f6260a5)
+   * This fixes a crash with CustomKeybinds
+ * Add more options to `web::WebRequest` (83f8a32) (#943)
+ * Prioritize mod updates over failed mods on the main menu icon (89ed81a)
+ * Windows installer improvements:
+   * Delete old geode/update folder to prevent downgrading (116af49)
+   * Delete left over dlls from 2.204 (d1e2919)
+   * Installer can now forcibly install over existing mod loaders (736a61e)
+   * Make installer delete msvcp dlls in gd folder (d9c7610, 9c6841e)
+ * Improve CI by cross compiling from linux (#935, #939)
+ * Alternate way of getting main function address on Windows (1384604)
+   * Previously this would affect about 2 people on earth
+ * Show special error on proxy loader if bad dlls are in gd folder (fd476fe) 
+
+## v3.0.0
+ * Show loader commit hashes again (b72bb9e)
+ * Don't save data if mod is uninstalled with save (518f941)
+ * Add "open in browser" button to mods (581e2d3)
+ * Remove the unimplemented Versions tab temporarily (581e2d3, 1f5ebf9)
+ * Texture fix (#941)
+ * Implement Android 64 bit exception fix in client side (cfb682e)
+   * Most of the fix is in the launcher itself, so you need to update to 1.4.0 for the full fix
+
+## v3.0.0-beta.5
+ * Add More Details button for mod problems (9095005)
+ * Display mods not on current platform (2cd0990)
+ * Fix `DefaultEventListenerPool` missing constructor ABI break for Dispatch (d88a93e)
+ * Implement `one-of` setting without ABI break (7742b57)
+ * Remove the missing custom setting warning (4509607)
+
+## v3.0.0-beta.4
+ * Fix events crash caused by immediate enabling & disabling (e796711)
+ * Make some classes final (ea96e2c)
+
+## v3.0.0-beta.3
+ * Fix a crash that might happen when entering the Geode mods page (79689cd)
+ * Fix a locale related crash (fdb473a)
+ * Cleanup old field syntax remnants (34e51ff)
+ * Use `clamp` for `SwelvyBG` instead of `repeat` (0a6a5e6)
+ * Add support for `one-of` settings for mods (3f674e5, 7d79ddd)
+ * Remove `RT_ADD` and `RT_REMOVE` (7bd8a1a)
+ * Add `CCDirector::m_bFastMenu` back (c3058ff)
+ * Fix UI visual bugs in `ModsLayer` (e273ef2, b3925f1, 255a42c)
+ * Fix race conditions for event pools (636be07, 4c15bdb, abc34f9)
+ * Add a `static_assert` to prevent old field syntax (5f37d30)
+ * Fix dangling `string_view` for `Task` names (92704b9)
+ * Download the exact update suggested by Index instead of latest version (115f0e7)
+ * Small cleanup and improvements for Windows stacktraces (2824c17)
+ * Fix bugs related to `delayload` (ec1d846)
+
+## v3.0.0-beta.2
+ * (WebRequest) Don't change the method from POST to GET on redirect follow (6ae11dd)
+ * Make `file::openFolder` actually work on selecting paths on Windows (0309e01)
+ * Hide platform console option on Android (df3d147)
+ * Add `gd::vector::erase` for Android (c3c2afa) - thanks SpaghettDev
+ * Stop using `android_stl=c++_shared` on mods (100dbdc)
+ * Show confirm dialog directly when updating mods (8f1a9cf)
+ * Only check for updates once per launch (3313a44)
+ * Fix various bugs with texture pack reloading (aeaf7f7)
+ * Fix `Ref` and `WeakRef` move assignment (f352503)
+ * Add comma to download counts (de50b98)
+ * Add check for Texture Loader's fallback function for mod logos (a421047)
+ * Bring back safe mode UI (6e6dace)
+ * Fix texture corruption bug on `ModsLayer` (76e2ed4)
+ * Fix `CCArrayExt::value_type` (97d2e44)
+ * Add `AxisAlignment::Between`, for equal space between elements (adc4469)
+ * Add discord and website links to loader mod.json (8792747) - thanks coopeeo
+ * Make mod updates log into an info log instead of error (815c4a3)
+ * Hopefully finally fix Windows crashlogs (70fe096)
+
+## v3.0.0-beta.1
+ * Add a special error for 1114 - vcredist update (d0821f5)
+ * Properly fix Windows exceptions (84a2c6b)
+ * Add keyboard support to ModsLayer (2b53e8a)
+ * Fix "Loading mods cancelled" appearing with no reason (698112a)
+ * Fix various compile warnings (68ac2b0, cb1e7de)
+ * Use `string_view` instead of `string` for some Task functions (da617ee)
+ * Add `Task::listen` for listening to Tasks globally (fa7a2de, eb7c4d9)
+ * Add 2.2 `CCDrawNode` members (562fbf6) - thanks Prevter
+ * Use `SPACE_WRAP` for mod problem textarea (4d267d3)
+ * Fix download links for mods being generated without prerelease tag (06bd2e2)
+ * Make developer filter search by username (014ec68, 1c40a63)
+ * Fix `Notification` crashing when shown during a transition fade (0270d47)
+ * Split `GEODE_PLATFORM_NAME` for Mac ARM and Mac Intel (48a7981)
+ * Use `string_view` instead of `const char*` for `expandSpriteName` (22cc33b)
+ * Make `_spr` compile time (b22a59d, bacab92)
+ * Update server UserAgent format (9679b40)
+ * Allow mods with old `gd` key syntax in `mod.json` to be checked for updates (c1fbc08)
+ * Replace the "Recommended" tab with "Featured" (#897)
+ * Use c++_shared STL on Android64 (115b9cf, d0cc62a, fbc6416)
+ * `file::pick` and `file::pickMany` are the new file APIs, which use Tasks (#899)
+
+## v3.0.0-alpha.2
+ * Add `WebResponse::into()` for writing responses to files (f909a73)
+ * Add `geodeImplicitEntry` and `geodeCustomEntry` (6b2ac24, 5969c90)
+ * Fix padding and add a custom color for borders (#868)
+ * Add more SMJS nodes to UI include (#869)
+ * Fix an issue with CCParticleQuad (330c20e, #865)
+ * Hopefully fix Windows crashlogs
+ * Fix supersede incompatiblity IDs being validated (754ae3c)
+ * Fix dates not respecting timezones (1c36854)
+ * Change dependency / incompatibility / settings 'platform' string values (80d95cf)
+ * Make tasks cancel when the handle is destroyed (c82112f)
+ * Increase delay when restarting GD (84c0ba5)
+ * trigger $on_mod(Loaded) for Loader
+ * Make Windows installer use x64 vc_redist (6793fbd)
+ * Fix some cocos members (#872, #881) - thanks Acaruso and SpaghettDev
+ * geode::ui::Border fixes (#883) - thanks SMJS
+ * Update the developer popup, and various other UI fixes (#877) - thanks Alphalaneous
+ * Check if is_json is defined for getSavedValue custom types
+
+## v3.0.0-alpha.1
+ * Deprecated the old web API, replacing it with a new one (b129808)
+ * Replace `ghc::filesystem` with `std::filesystem` (#713)
+ * Make `queueInMainThread` take a move only function
+ * Remove "gd" shorthand from mod.json (#471)
+ * Remove old fields syntax (#715)
+ * Make `TodoReturn` unusable (#714)
+ * Remove unused wstring utilities
+ * Add support for Geometry Dash 2.206
+ * New UI for the Index, which also uses a server implementation (#833)
+   * Implements new popups `ConfirmUninstallPopup`, `DevPopup`, `FiltersPopup`, `ModErrorPopup`, `ModPopup`, `SortPopup`
+     * Mod popup now has new features like tags, reverting accidental disabling, version (1876af8, dac16a4, f365dc4)
+   * Adds 4 tabs to the Geode menu: Installed, Recommended, Download, Recent
+   * Creates a fancy new background with `SwelvyBG`
+   * The entire color scheme has been changed to fit Geode's color language of pastel purple-pastel gold gradient
+ * Remove old web utilities (b129808)
+ * Implement Windows 64-bit and MacOS M1 arm64 support
+ * Add color support to `ListView` (#854, #859)
+ * Use `std::string` for `gd::string` on Windows (144b2d7)
+ * Make `queueInMainThread` take in a movable callback (0c35a92)
+ * Add `CCMenuItemExt` for lambda versions of CCMenuItem classes (de73317)
+ * Add `scrollToTop` for ScrollLayer (7071bb1)
+ * Add a new `Task` class for generic asynchronous task implementations
+   * Documentation can be found [here](https://docs.geode-sdk.org/tutorials/tasks/)
+   * Add a special task named `WebTask` for handling web requests
+ * Fix `Unzip` crash on missing progress callback (1145426)
+ * Fix `AnchorLayout` not ignoring `ignoreAnchorPointForPosition` (547c047)
+ * Add `ObjWrapper` class for wrapping objects inside a `CCObject` (5e76da1)
+ * Adjust fuzzy searching (cc5cb07)
+ * Add `TextInput::setLabel` (991fce0)
+
+## v2.0.0-beta.27
+ * Implement some `BasedButtonSprite` fixes (edb8e6c)
+ * Add early version check for MacOS (4083950)
+ * Move `Enums.hpp` to bindings (23e04a0)
+ * Add a query selector for query based child selection (c75ec63)
+ * Add `getDisplayFactor` utility for MacOS Retina (d725126)
+ * Add `Result::unwrapOrDefault` (1dc9ec4)
+ * Fix texture pack removal (006413a)
+
+## v2.0.0-beta.26
+ * Bring in several UI helpers from the `new-index-but-better` branch: `ListBorders`, `addSideArt`, `AxisLayout` improvements, ... (26729c3, 7ff257c)
+ * Make it possible to compile mods in Debug mode (517ad45)
+ * Add `GJDifficultyName` and `GJFeatureState` (#706)
+ * Add `geode::cocos::isSpriteName` and `geode::cocos::getChildBySpriteName` (#725)
+ * Add some Android keycodes (4fa8098)
+ * Update FMOD on Mac (c4a682b)
+ * Bump JSON version (5cc23e7)
+ * Fixes to `InputNode` touches (29b4732)
+ * Fix `file::readFromJson` (77e0f2e)
+ * Fix issues with TulipHook (f2ce7d0)
+
 ## v2.0.0-beta.25
  * Fix updater sometimes skipping releases (18dd0b7)
  * Fix resources getting downloaded every time (5f571d9)

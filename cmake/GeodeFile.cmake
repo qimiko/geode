@@ -98,6 +98,8 @@ function(setup_geode_mod proname)
         )
     endif()
 
+    target_compile_definitions(${proname} PRIVATE GEODE_MOD_ID="${MOD_ID}")
+
     # Add this mod to the list of known externals mods
     list(APPEND GEODE_MODS_BEING_BUILT "${MOD_ID}:${MOD_VERSION}")
     # Ensure that the list of mods being built is global (persists between setup_geode_mod calls)
@@ -231,7 +233,7 @@ function(setup_geode_mod proname)
     endif()
 
     # Add package target + make output name the mod id
-    # set_target_properties(${proname} PROPERTIES PREFIX "")
+    set_target_properties(${proname} PROPERTIES PREFIX "")
     if (DEFINED GEODE_MOD_BINARY_SUFFIX)
         set_target_properties(${proname} PROPERTIES SUFFIX ${GEODE_MOD_BINARY_SUFFIX})
     endif()

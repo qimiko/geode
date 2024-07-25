@@ -8,7 +8,6 @@
 #include <Geode/binding/LevelBrowserLayer.hpp>
 #include <Geode/loader/Mod.hpp>
 #include <Geode/loader/Loader.hpp>
-#include <Geode/loader/Index.hpp>
 #include <Geode/ui/MDTextArea.hpp>
 #include <Geode/utils/casts.hpp>
 #include <Geode/utils/cocos.hpp>
@@ -18,7 +17,6 @@
 #include <md4c.h>
 #include <charconv>
 #include <Geode/loader/Log.hpp>
-#include "../internal/info/ModInfoPopup.hpp"
 
 using namespace geode::prelude;
 
@@ -52,12 +50,12 @@ protected:
 public:
     static MDContentLayer* create(CCMenu* content, float width, float height) {
         auto ret = new MDContentLayer();
-        if (ret && ret->initWithColor({ 0, 255, 0, 0 }, width, height)) {
+        if (ret->initWithColor({ 0, 255, 0, 0 }, width, height)) {
             ret->m_content = content;
             ret->autorelease();
             return ret;
         }
-        CC_SAFE_DELETE(ret);
+        delete ret;
         return nullptr;
     }
 
@@ -168,12 +166,12 @@ protected:
 public:
     static BreakLine* create(float width) {
         auto ret = new BreakLine;
-        if (ret && ret->init()) {
+        if (ret->init()) {
             ret->autorelease();
             ret->setContentSize({ width, 1.f });
             return ret;
         }
-        CC_SAFE_DELETE(ret);
+        delete ret;
         return nullptr;
     }
 };
@@ -235,42 +233,43 @@ void MDTextArea::onGDLevel(CCObject* pSender) {
 }
 
 void MDTextArea::onGeodeMod(CCObject* pSender) {
-    auto href = as<CCString*>(as<CCNode*>(pSender)->getUserObject());
-    auto modString = std::string(href->getCString());
-    modString = modString.substr(modString.find(":") + 1);
-    auto loader = Loader::get();
-    auto index = Index::get();
-    Mod* mod;
-    bool success = false;
-    IndexItemHandle indexItem;
-    bool isIndexMod = !loader->isModInstalled(modString);
+    // TODO
+    // auto href = as<CCString*>(as<CCNode*>(pSender)->getUserObject());
+    // auto modString = std::string(href->getCString());
+    // modString = modString.substr(modString.find(":") + 1);
+    // auto loader = Loader::get();
+    // auto index = Index::get();
+    // Mod* mod;
+    // bool success = false;
+    // IndexItemHandle indexItem;
+    // bool isIndexMod = !loader->isModInstalled(modString);
 
-    if (isIndexMod) {
-        auto indexSearch = index->getItemsByModID(modString);
-        if (indexSearch.size() != 0) {
-            indexItem = indexSearch.back();
-            Mod mod2 = Mod(indexItem->getMetadata());
-            mod = &mod2;
-            auto item = Index::get()->getItem(mod);
-            IndexItemInfoPopup::create(item, nullptr)->show();
-            success = true;
-        }
-    } else {
-        mod = loader->getLoadedMod(modString);
-        LocalModInfoPopup::create(mod, nullptr)->show();
-        success = true;
-    }
+    // if (isIndexMod) {
+    //     auto indexSearch = index->getItemsByModID(modString);
+    //     if (indexSearch.size() != 0) {
+    //         indexItem = indexSearch.back();
+    //         Mod mod2 = Mod(indexItem->getMetadata());
+    //         mod = &mod2;
+    //         auto item = Index::get()->getItem(mod);
+    //         IndexItemInfoPopup::create(item, nullptr)->show();
+    //         success = true;
+    //     }
+    // } else {
+    //     mod = loader->getLoadedMod(modString);
+    //     LocalModInfoPopup::create(mod, nullptr)->show();
+    //     success = true;
+    // }
 
-    if (!success) {
-        FLAlertLayer::create(
-            "Error",
-            ("Invalid mod ID: <cr>" + modString +
-                "</c>. This is "
-                "probably the mod developers's fault, report the bug to them.").c_str(),
-            "OK"
-        )
-            ->show();
-    }
+    // if (!success) {
+    //     FLAlertLayer::create(
+    //         "Error",
+    //         "Invalid mod ID: <cr>" + modString +
+    //             "</c>. This is "
+    //             "probably the mod developers's fault, report the bug to them.",
+    //         "OK"
+    //     )
+    //         ->show();
+    // }
 }
 
 void MDTextArea::FLAlert_Clicked(FLAlertLayer* layer, bool btn) {
@@ -340,24 +339,45 @@ struct MDParser {
                         renderer->popDecoFlags();
                         renderer->popColor();
                     }
-                    else if (s_lastImage.size()) {
+                    else if (!s_lastImage.empty()) {
                         bool isFrame = false;
 
-                        std::vector<std::string> imgArguments = utils::string::split(s_lastImage, "&");
-                        s_lastImage = imgArguments.at(0);
+                        const auto splitOnce = [](const std::string& str, char delim) -> std::pair<std::string, std::string> {
+                            const auto pos = str.find(delim);
+                            if (pos == std::string::npos) {
+                                return { str, {} };
+                            }
+                            return { str.substr(0, pos), str.substr(pos + 1) };
+                        };
 
-                        imgArguments.erase(imgArguments.begin()); //remove the image path
+                        // key value pair of arguments
+                        std::vector<std::pair<std::string, std::string>> imgArguments;
+                        auto split = splitOnce(s_lastImage, '?');
+                        s_lastImage = split.first;
+
+                        // TODO: remove this in v4.0.0
+                        // check if this image is using the old format "my.mod/image.png&scale:0.5"
+                        // this will be deprecated and then removed in the future
+                        if (utils::string::contains(s_lastImage, "&")) {
+                            split = splitOnce(s_lastImage, '&');
+                            s_lastImage = split.first;
+                            imgArguments = ranges::map<decltype(imgArguments)>(utils::string::split(split.second, "&"), [&](auto str) {
+                                return splitOnce(str, ':');
+                            });
+                        } else {
+                            // new format "my.mod/image.png?scale=0.5"
+                            imgArguments = ranges::map<decltype(imgArguments)>(utils::string::split(split.second, "&"), [&](auto str) {
+                                return splitOnce(str, '=');
+                            });
+                        }
 
                         float spriteScale = 1.0f;
 
-                        for(std::string arg : imgArguments){
-                            if(utils::string::startsWith(arg, "scale:")){
-                                std::string scaleValue = arg.substr(arg.find(":") + 1);
-                                std::stringstream s(scaleValue);
-
-                                float scale;
-                                if (s >> scale) { //if valid float, put into spriteScale
-                                    spriteScale = scale;
+                        for (auto [key, value] : imgArguments) {
+                            if (key == "scale") {
+                                auto scaleRes = utils::numFromString<float>(value);
+                                if (scaleRes) {
+                                    spriteScale = *scaleRes;
                                 }
                             }
                         }
@@ -373,7 +393,7 @@ struct MDParser {
                         else {
                             spr = CCSprite::create(s_lastImage.c_str());
                         }
-                        if (spr) {
+                        if (spr && spr->getUserObject("geode.texture-loader/fallback") == nullptr) {
                             spr->setScale(spriteScale);
                             renderer->renderNode(spr);
                         }
@@ -825,10 +845,10 @@ char const* MDTextArea::getString() {
 
 MDTextArea* MDTextArea::create(std::string const& str, CCSize const& size) {
     auto ret = new MDTextArea;
-    if (ret && ret->init(str, size)) {
+    if (ret->init(str, size)) {
         ret->autorelease();
         return ret;
     }
-    CC_SAFE_DELETE(ret);
+    delete ret;
     return nullptr;
 }

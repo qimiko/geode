@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
+cmake_policy(SET CMP0097 NEW)
 
 project(geode-loader VERSION ${GEODE_VERSION} LANGUAGES C CXX)
 if (GEODE_VERSION_TAG_TYPE)
@@ -67,15 +68,20 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 	src/hooks/*.cpp
 	src/ids/*.cpp
 	src/internal/*.cpp
+	src/server/*.cpp
 	src/loader/*.cpp
 	src/load.cpp
 	src/utils/*.cpp
 	src/ui/*.cpp
 	src/ui/nodes/*.cpp
-	src/ui/internal/*.cpp
-	src/ui/internal/info/*.cpp
-	src/ui/internal/list/*.cpp
-	src/ui/internal/settings/*.cpp
+	src/ui/other/*.cpp
+	src/ui/mods/*.cpp
+	src/ui/mods/list/*.cpp
+	src/ui/mods/popups/*.cpp
+	src/ui/mods/sources/*.cpp
+	src/ui/mods/settings/*.cpp
+	src/ui/mods/test/*.cpp
+	src/ui/*.cpp
 	src/c++stl/*.cpp
 	hash/hash.cpp
 )
@@ -83,6 +89,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 # Obj-c sources
 file(GLOB OBJC_SOURCES
 	src/platform/Objcpp.mm
+	src/load.mm
 )
 set_source_files_properties(${OBJC_SOURCES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 
@@ -166,6 +173,18 @@ if (GEODE_NO_UNDEFINED_VIRTUALS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC GEODE_NO_UNDEFINED_VIRTUALS)
 endif()
 
+# CA Bundle
+CPMAddPackage(
+	GITHUB_REPOSITORY geode-sdk/net_libs
+	GIT_TAG 1f5ffb3
+# CPM is bugged and will not allow an empty string.
+# https://github.com/cpm-cmake/CPM.cmake/issues/467
+# https://github.com/cpm-cmake/CPM.cmake/issues/461
+	GIT_SUBMODULES "nghttp3"
+	GIT_SUBMODULES_RECURSE OFF
+)
+target_link_libraries(${PROJECT_NAME} ca-bundle)
+
 # Package resources for UI
 package_geode_resources_now(
 	${PROJECT_NAME}
@@ -176,7 +195,7 @@ package_geode_resources_now(
 
 if (APPLE) 
 	# I don't care a single bit where to put this
-	file(COPY ${GEODE_LOADER_PATH}/include/link/libfmod.dylib DESTINATION ${GEODE_BIN_PATH}/nightly)
+	file(COPY ${GEODE_LOADER_PATH}/include/link/macos/libfmod.dylib DESTINATION ${GEODE_BIN_PATH}/nightly)
 endif()
 
 if (ANDROID)
@@ -213,25 +232,27 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 	_CRT_SECURE_NO_WARNINGS
 )
 
+# set GEODE_MOD_ID for loader itself
+target_compile_definitions(${PROJECT_NAME} PRIVATE GEODE_MOD_ID="geode.loader")
+
 # These are only needed for building source :-)
 if (NOT GEODE_BUILDING_DOCS)
 	# Markdown support
 	CPMAddPackage("gh:mity/md4c#release-0.5.2")
 
 	# Zip support (needed for in-memory streams, which zlib's minizip doesn't support)
-	set(MZ_LZMA Off CACHE INTERNAL "Enables LZMA & XZ compression")
-	set(MZ_ZSTD Off CACHE INTERNAL "")
-	set(MZ_BZIP2 Off CACHE INTERNAL "")
-	set(MZ_OPENSSL Off CACHE INTERNAL "")
-	set(MZ_LIBBSD Off CACHE INTERNAL "")
-	set(SKIP_INSTALL_ALL On CACHE INTERNAL "")
-	set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
-	CPMAddPackage(
-		GITHUB_REPOSITORY zlib-ng/minizip-ng
-		GIT_TAG cee6d8c
-		OPTIONS "CMAKE_POLICY_DEFAULT_CMP0048 OLD" "ZLIB_TAG v1.2.13"
-	)
-	set(CMAKE_WARN_DEPRECATED ON CACHE BOOL "" FORCE)
+	set(MZ_LZMA OFF CACHE INTERNAL "")
+	set(MZ_ZSTD OFF CACHE INTERNAL "")
+	set(MZ_BZIP2 OFF CACHE INTERNAL "")
+	set(MZ_OPENSSL OFF CACHE INTERNAL "")
+	set(MZ_LIBBSD OFF CACHE INTERNAL "")
+	set(MZ_FETCH_LIBS ON CACHE INTERNAL "" FORCE)
+	set(MZ_FORCE_FETCH_LIBS ${WIN32} CACHE INTERNAL "")
+	set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
+	CPMAddPackage("gh:geode-sdk/minizip-ng#7548419")
+	if (WIN32)
+		set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
+	endif()
 
 	# Silence warnings from dependencies
 	include(CheckCXXCompilerFlag)
@@ -244,19 +265,27 @@ if (NOT GEODE_BUILDING_DOCS)
 			target_compile_options(zlib PRIVATE -Wno-everything)
 		endif()
 		if (TARGET zlibstatic)
-			target_compile_options(zlibstatic PRIVATE -Wno-everything)
+			get_property(zlibstatic_ALIASED TARGET zlibstatic PROPERTY ALIASED_TARGET)
+			if ("${zlibstatic_ALIASED}" STREQUAL "")
+				target_compile_options(zlibstatic PRIVATE -Wno-everything)
+			endif()
 		endif()
 	endif()
 
-	# Regex support
-	CPMAddPackage("gh:google/re2#c9cba76")
+	# Cool date library
+	CPMAddPackage("gh:HowardHinnant/date#1ead671")
 
 	target_include_directories(${PROJECT_NAME} PRIVATE ${md4c_SOURCE_DIR}/src)
 
-	target_link_libraries(${PROJECT_NAME} md4c re2 minizip)
+	target_link_libraries(${PROJECT_NAME} md4c minizip date)
 endif()
 
-target_link_libraries(${PROJECT_NAME} z TulipHook geode-sdk mat-json-impl)
+target_link_libraries(${PROJECT_NAME} TulipHook geode-sdk mat-json-impl)
+
+# Required by curl for macos
+if (APPLE)
+	target_link_libraries(${PROJECT_NAME} z)
+endif()
 
 if (MSVC)
 	# Disable outputting .exp file

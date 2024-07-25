@@ -5,6 +5,8 @@
 #include "../utils/Result.hpp"
 #include "../utils/VersionInfo.hpp"
 #include "../utils/general.hpp"
+
+#include "Loader.hpp" // very nice circular dependency fix
 #include "Hook.hpp"
 #include "ModMetadata.hpp"
 #include "Setting.hpp"
@@ -12,6 +14,7 @@
 #include "Loader.hpp"
 
 #include <matjson.hpp>
+#include <matjson/stl_serialize.hpp>
 #include <optional>
 #include <string_view>
 #include <tulip/TulipHook.hpp>
@@ -41,6 +44,29 @@ namespace geode {
         UninstallWithSaveData
     };
 
+    static constexpr bool modRequestedActionIsToggle(ModRequestedAction action) {
+        return action == ModRequestedAction::Enable || action == ModRequestedAction::Disable;
+    }
+    static constexpr bool modRequestedActionIsUninstall(ModRequestedAction action) {
+        return action == ModRequestedAction::Uninstall || action == ModRequestedAction::UninstallWithSaveData;
+    }
+
+    template <class T>
+    static consteval bool typeImplementsIsJSON() {
+        using namespace matjson;
+        if constexpr (requires(const Value& json) { Serialize<std::decay_t<T>>::is_json(json); })
+            return true;
+        if constexpr (std::is_same_v<T, Value>) return true;
+        if constexpr (std::is_same_v<T, Array>) return true;
+        if constexpr (std::is_same_v<T, Object>) return true;
+        if constexpr (std::is_constructible_v<std::string, T>) return true;
+        if constexpr (std::is_integral_v<T> || std::is_floating_point_v<T>) return true;
+        if constexpr (std::is_same_v<T, bool>) return true;
+        if constexpr (std::is_same_v<T, std::nullptr_t>) return true;
+
+        return false;
+    }
+
     GEODE_HIDDEN Mod* takeNextLoaderMod();
 
     class ModImpl;
@@ -49,7 +75,7 @@ namespace geode {
      * Represents a Mod ingame.
      * @class Mod
      */
-    class GEODE_DLL Mod {
+    class GEODE_DLL Mod final {
     protected:
         class Impl;
         std::unique_ptr<Impl> m_impl;
@@ -84,23 +110,24 @@ namespace geode {
         std::vector<std::string> getDevelopers() const;
         std::optional<std::string> getDescription() const;
         std::optional<std::string> getDetails() const;
-        ghc::filesystem::path getPackagePath() const;
+        std::filesystem::path getPackagePath() const;
         VersionInfo getVersion() const;
         bool isEnabled() const;
+        bool isOrWillBeEnabled() const;
         bool isInternal() const;
         bool needsEarlyLoad() const;
         ModMetadata getMetadata() const;
-        ghc::filesystem::path getTempDir() const;
+        std::filesystem::path getTempDir() const;
         /**
          * Get the path to the mod's platform binary (.dll on Windows, .dylib
          * on Mac & iOS, .so on Android)
          */
-        ghc::filesystem::path getBinaryPath() const;
+        std::filesystem::path getBinaryPath() const;
         /**
          * Get the path to the mod's runtime resources directory (contains all
          * of its resources)
          */
-        ghc::filesystem::path getResourcesDir() const;
+        std::filesystem::path getResourcesDir() const;
 
 #if defined(GEODE_EXPOSE_SECRET_INTERNALS_IN_HEADERS_DO_NOT_DEFINE_PLEASE)
         void setMetadata(ModMetadata const& metadata);
@@ -115,7 +142,21 @@ namespace geode {
          * @returns The latest available version on the index if there are 
          * updates for this mod
          */
+        [[deprecated("Use Mod::checkUpdates instead; this function always returns nullopt")]]
         std::optional<VersionInfo> hasAvailableUpdate() const;
+
+        using CheckUpdatesTask = Task<Result<std::optional<VersionInfo>, std::string>>;
+        /**
+         * Check if this Mod has updates available on the mods index. If 
+         * you're using this for automatic update checking, use 
+         * `openInfoPopup` from the `ui/GeodeUI.hpp` header to open the Mod's 
+         * page to let the user install the update
+         * @returns A task that resolves to an option, either the latest 
+         * available version on the index if there are updates available, or 
+         * `std::nullopt` if there are no updates. On error, the Task returns 
+         * an error
+         */
+        CheckUpdatesTask checkUpdates() const;
 
         Result<> saveData();
         Result<> loadData();
@@ -123,11 +164,11 @@ namespace geode {
         /**
          * Get the mod's save directory path
          */
-        ghc::filesystem::path getSaveDir() const;
+        std::filesystem::path getSaveDir() const;
         /**
          * Get the mod's config directory path
          */
-        ghc::filesystem::path getConfigDir(bool create = true) const;
+        std::filesystem::path getConfigDir(bool create = true) const;
 
         bool hasSettings() const;
         std::vector<std::string> getSettingKeys() const;
@@ -227,6 +268,7 @@ namespace geode {
 
         template <class T>
         T getSavedValue(std::string_view const key) {
+            static_assert(geode::typeImplementsIsJSON<T>(), "T must implement is_json in matjson::Serialize<T>, otherwise this always returns default value.");
             auto& saved = this->getSaveContainer();
             if (saved.contains(key)) {
                 if (auto value = saved.try_get<T>(key)) {
@@ -238,6 +280,7 @@ namespace geode {
 
         template <class T>
         T getSavedValue(std::string_view const key, T const& defaultValue) {
+            static_assert(geode::typeImplementsIsJSON<T>(), "T must implement is_json in matjson::Serialize<T>, otherwise this always returns default value.");
             auto& saved = this->getSaveContainer();
             if (saved.contains(key)) {
                 if (auto value = saved.try_get<T>(key)) {
@@ -415,7 +458,7 @@ namespace geode {
          */
         bool hasUnresolvedIncompatibilities() const;
 
-        char const* expandSpriteName(char const* name);
+        std::string_view expandSpriteName(std::string_view name);
 
         /**
          * Get info about the mod as JSON
@@ -427,6 +470,9 @@ namespace geode {
         void setLoggingEnabled(bool enabled);
 
         bool hasProblems() const;
+        std::vector<LoadProblem> getAllProblems() const;
+        std::vector<LoadProblem> getProblems() const;
+        std::vector<LoadProblem> getRecommendations() const;
         bool shouldLoad() const;
         bool isCurrentlyLoading() const;
 
@@ -434,6 +480,26 @@ namespace geode {
     };
 }
 
-GEODE_HIDDEN inline char const* operator"" _spr(char const* str, size_t) {
-    return geode::Mod::get()->expandSpriteName(str);
+namespace geode::geode_internal {
+    // this impl relies on the GEODE_MOD_ID macro set by cmake
+    template <size_t N>
+    struct StringConcatModIDSlash {
+        static constexpr size_t extra = sizeof(GEODE_MOD_ID);
+        char buffer[extra + N]{};
+        constexpr StringConcatModIDSlash(const char (&pp)[N]) {
+            char id[] = GEODE_MOD_ID;
+            for (int i = 0; i < sizeof(id); ++i) {
+                buffer[i] = id[i];
+            }
+            buffer[extra - 1] = '/';
+            for (int i = 0; i < N; ++i) {
+                buffer[extra + i] = pp[i];
+            }
+        }
+    };
+}
+
+template <geode::geode_internal::StringConcatModIDSlash Str>
+constexpr auto operator""_spr() {
+    return Str.buffer;
 }

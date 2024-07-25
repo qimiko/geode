@@ -93,9 +93,8 @@ public:
         return false;
     }
 
-    RT_ADD(
-    	virtual void textChanged() {}
-    )
+    // @note RobTop Addition
+    virtual void textChanged() {}
 };
 
 /**
@@ -110,6 +109,7 @@ public:
      *  @lua NA
      */
     CCTextFieldTTF();
+    GEODE_CUSTOM_CONSTRUCTOR_COCOS(CCTextFieldTTF, CCLabelTTF)
     /**
      *  @lua NA
      */
@@ -181,6 +181,8 @@ protected:
 private:
     class LengthStack;
     LengthStack * m_pLens;
+public:
+    int m_uCursorPos;
 };
 
 // end of input group

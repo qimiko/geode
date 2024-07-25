@@ -25,7 +25,8 @@ const char* geode::baseEnumToString(CircleBaseColor value) {
         case CircleBaseColor::Gray: return "Gray";
         case CircleBaseColor::Blue: return "Blue";
         case CircleBaseColor::Cyan: return "Cyan";
-        case CircleBaseColor::Geode: return "Geode";
+        case CircleBaseColor::DarkPurple: return "DarkPurple";
+        case CircleBaseColor::DarkAqua: return "DarkAqua";
     }
     return "Unknown";
 }
@@ -94,6 +95,10 @@ const char* geode::baseEnumToString(EditorBaseColor value) {
         case EditorBaseColor::Teal: return "Teal";
         case EditorBaseColor::Aqua: return "Aqua";
         case EditorBaseColor::Cyan: return "Cyan";
+        case EditorBaseColor::Magenta: return "Magenta";
+        case EditorBaseColor::DimGreen: return "DimGreen";
+        case EditorBaseColor::BrightGreen: return "BrightGreen";
+        case EditorBaseColor::Salmon: return "Salmon";
     }
     return "Unknown";
 }
@@ -181,7 +186,7 @@ static std::string baseEnumsToString(BaseType type, int size, int color) {
 
 bool BasedButtonSprite::init(CCNode* ontop, BaseType type, int size, int color) {
     if (!CCSprite::initWithSpriteFrameName(
-        Mod::get()->expandSpriteName(baseEnumsToString(type, size, color).c_str())
+        Mod::get()->expandSpriteName(baseEnumsToString(type, size, color)).data()
     )) return false;
 
     m_type = type;
@@ -190,8 +195,9 @@ bool BasedButtonSprite::init(CCNode* ontop, BaseType type, int size, int color) 
 
     if (ontop) {
         m_onTop = ontop;
-        m_onTop->setPosition(this->getContentSize() / 2 + this->getTopOffset());
-        limitNodeSize(m_onTop, this->getMaxTopSize(), m_onTop->getScale(), .1f);
+        m_onTop->setPosition(this->getContentSize() / 2 + m_topOffset);
+        limitNodeSize(m_onTop, this->getMaxTopSize(), 999.f, .1f);
+        m_onTop->setScale(m_onTop->getScale() * m_onTopRelativeScale);
         this->addChild(m_onTop);
     }
 
@@ -202,8 +208,18 @@ CCSize BasedButtonSprite::getMaxTopSize() const {
     return m_obContentSize - CCSize(18.f, 18.f);
 }
 
-CCPoint BasedButtonSprite::getTopOffset() const {
-    return { 0, 0 };
+void BasedButtonSprite::setTopOffset(CCPoint const& offset) {
+    m_topOffset = offset;
+    if (m_onTop) {
+        m_onTop->setPosition(this->getContentSize() / 2 + offset);
+    }
+}
+void BasedButtonSprite::setTopRelativeScale(float scale) {
+    m_onTopRelativeScale = scale;
+    if (m_onTop) {
+        limitNodeSize(m_onTop, this->getMaxTopSize(), 999.f, .1f);
+        m_onTop->setScale(m_onTop->getScale() * m_onTopRelativeScale);
+    }
 }
 
 bool BasedButtonSprite::initWithSprite(
@@ -211,7 +227,7 @@ bool BasedButtonSprite::initWithSprite(
 ) {
     auto spr = CCSprite::create(sprName);
     if (!spr) return false;
-    spr->setScale(sprScale);
+    m_onTopRelativeScale = sprScale;
     return this->init(spr, type, size, color);
 }
 
@@ -220,7 +236,7 @@ bool BasedButtonSprite::initWithSpriteFrameName(
 ) {
     auto spr = CCSprite::createWithSpriteFrameName(sprName);
     if (!spr) return false;
-    spr->setScale(sprScale);
+    m_onTopRelativeScale = sprScale;
     return this->init(spr, type, size, color);
 }
 
@@ -232,11 +248,11 @@ BasedButtonSprite::~BasedButtonSprite() {}
 
 BasedButtonSprite* BasedButtonSprite::create(CCNode* ontop, BaseType type, int size, int color) {
     auto ret = new BasedButtonSprite();
-    if (ret && ret->init(ontop, type, size, color)) {
+    if (ret->init(ontop, type, size, color)) {
         ret->autorelease();
         return ret;
     }
-    CC_SAFE_DELETE(ret);
+    delete ret;
     return nullptr;
 }
 
@@ -245,14 +261,14 @@ BasedButtonSprite* BasedButtonSprite::create(CCNode* ontop, BaseType type, int s
         cocos2d::CCNode* top, ty_##BaseColor color, ty_##BaseSize size  \
     ) {                                                                 \
         auto ret = new ty_##ButtonSprite();                             \
-        if (ret && ret->init(                                           \
+        if (ret->init(                                           \
             top, BaseType::ty_,                                         \
             static_cast<int>(size), static_cast<int>(color)             \
         )) {                                                            \
             ret->autorelease();                                         \
             return ret;                                                 \
         }                                                               \
-        CC_SAFE_DELETE(ret);                                            \
+        delete ret;                                            \
         return nullptr;                                                 \
     }
 
@@ -262,14 +278,14 @@ BasedButtonSprite* BasedButtonSprite::create(CCNode* ontop, BaseType type, int s
         ty_##BaseColor color, ty_##BaseSize size            \
     ) {                                                     \
         auto ret = new ty_##ButtonSprite();                 \
-        if (ret && ret->initWithSprite(                     \
+        if (ret->initWithSprite(                     \
             sprName, sprScale, BaseType::ty_,               \
             static_cast<int>(size), static_cast<int>(color) \
         )) {                                                \
             ret->autorelease();                             \
             return ret;                                     \
         }                                                   \
-        CC_SAFE_DELETE(ret);                                \
+        delete ret;                                \
         return nullptr;                                     \
     }
 
@@ -279,14 +295,14 @@ BasedButtonSprite* BasedButtonSprite::create(CCNode* ontop, BaseType type, int s
         ty_##BaseColor color, ty_##BaseSize size                    \
     ) {                                                             \
         auto ret = new ty_##ButtonSprite();                         \
-        if (ret && ret->initWithSpriteFrameName(                    \
+        if (ret->initWithSpriteFrameName(                    \
             sprName, sprScale, BaseType::ty_,                       \
             static_cast<int>(size), static_cast<int>(color)         \
         )) {                                                        \
             ret->autorelease();                                     \
             return ret;                                             \
         }                                                           \
-        CC_SAFE_DELETE(ret);                                        \
+        delete ret;                                        \
         return nullptr;                                             \
     }
 
@@ -315,13 +331,13 @@ TabButtonSprite* TabButtonSprite::create(char const* text, TabBaseColor color, T
     auto ret = new TabButtonSprite();
     auto label = CCLabelBMFont::create(text, "bigFont.fnt");
     label->limitLabelWidth(75.f, .6f, .1f);
-    if (ret && ret->init(
+    if (ret->init(
         label, BaseType::Tab, 
         static_cast<int>(size), static_cast<int>(color)
     )) {
         ret->autorelease();
         return ret;
     }
-    CC_SAFE_DELETE(ret);
+    delete ret;
     return nullptr;
 }

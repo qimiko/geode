@@ -58,14 +58,12 @@ public:
     /**
     @brief Dispatches the input text from IME.
     */
-    void dispatchInsertText(const char * pText, int nLen, cocos2d::enumKeyCodes);
+    void dispatchInsertText(const char * pText, int nLen);
 
     /**
     @brief Dispatches the delete-backward operation.
     */
     void dispatchDeleteBackward();
-
-	void dispatchDeleteForward();
 
 	bool hasDelegate();
 
