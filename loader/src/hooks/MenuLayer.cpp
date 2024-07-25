@@ -204,10 +204,6 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
                 [](auto) { return std::monostate(); }
             );
         }
-*/
-
-        for (auto mod : Loader::get()->getAllMods()) {
-            if (mod->getMetadata().usesDeprecatedIDForm()) {
                 log::error(
                     "Mod ID '{}' will be rejected in the future - "
                     "IDs must match the regex `[a-z0-9\\-_]+\\.[a-z0-9\\-_]+`",
@@ -215,7 +211,8 @@ struct CustomMenuLayer : Modify<CustomMenuLayer, MenuLayer> {
                 );
             }
         }
-    
+*/
+
         return true;
     }
 

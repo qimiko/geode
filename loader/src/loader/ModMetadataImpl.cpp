@@ -163,6 +163,8 @@ Result<ModMetadata> ModMetadata::Impl::createFromSchemaV010(ModJson const& rawJs
         return Err("[mod.json] is missing target GD version");
     }
 
+    dontCheckVersion:
+
     root.addKnownKey("internal-binary");
     if (rawJson.contains("internal-binary")) {
         if (rawJson["internal-binary"].is_object()) {
@@ -174,8 +176,6 @@ Result<ModMetadata> ModMetadata::Impl::createFromSchemaV010(ModJson const& rawJs
             return Err("[mod.json] has invalid internal binary value");
         }
     }
-
-    dontCheckVersion:
 
     root.needs("id")
         // todo: make this use validateID in full 2.0.0 release

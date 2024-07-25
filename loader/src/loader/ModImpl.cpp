@@ -140,7 +140,7 @@ matjson::Value& Mod::Impl::getSavedSettingsData() {
 }
 
 bool Mod::Impl::isEnabled() const {
-    return m_enabled;
+    return m_enabled || this->isInternal();
 }
 
 bool Mod::Impl::isInternal() const {
