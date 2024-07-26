@@ -280,8 +280,8 @@ jobs:
     # hardcoding toolchain path :(
     - name: Dump Symbols
       run: |
-        ${{ steps.breakpad-tools.outputs.binary-path }} ./bin/nightly/Geode.${{ matrix.config.id }}.so -o ./bin/nightly/Geode.${{ matrix.config.id }}.so.sym
-        $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip ./bin/nightly/Geode.${{ matrix.config.id }}.so
+        ${{ steps.breakpad-tools.outputs.binary-path }} ./bin/nightly/libgeode.so -o ./bin/nightly/libgeode.so.sym
+        $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip ./bin/nightly/libgeode.so
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
