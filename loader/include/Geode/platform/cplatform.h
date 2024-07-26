@@ -91,7 +91,7 @@
 		#define GEODE_ANDROID64(...) 
         #define GEODE_IS_ANDROID32
 		#define GEODE_PLATFORM_NAME "Android32"
-        #define GEODE_PLATFORM_EXTENSION ".so"
+        #define GEODE_PLATFORM_EXTENSION ".android32.so"
         #define GEODE_PLATFORM_SHORT_IDENTIFIER "android32"
 	#elif defined(__aarch64__)
         #define GEODE_ANDROID32(...)

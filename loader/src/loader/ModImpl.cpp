@@ -140,7 +140,7 @@ matjson::Value& Mod::Impl::getSavedSettingsData() {
 }
 
 bool Mod::Impl::isEnabled() const {
-    return m_enabled || this->isInternal();
+    return m_enabled || m_metadata.getID() == "geode.loader";
 }
 
 bool Mod::Impl::isInternal() const {
@@ -425,6 +425,7 @@ Result<> Mod::Impl::loadBinary() {
     }
 
     if (!std::filesystem::exists(this->getBinaryPath())) {
+        geode::log::info("Couldn't find binary at {}", this->getBinaryPath());
         return Err(
             fmt::format(
                 "Failed to load {}: No binary could be found for current platform.\n"

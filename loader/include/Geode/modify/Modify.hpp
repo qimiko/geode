@@ -153,6 +153,7 @@ namespace geode::modifier {
             // i really dont want to recompile codegen
             auto test = static_cast<ModifyDerived*>(this);
             test->ModifyDerived::apply();
+            ModifyDerived::Derived::onModify(*this);
             std::vector<std::string> added;
             for (auto& [uuid, hook] : m_hooks) {
                 auto res = Mod::get()->claimHook(hook);
