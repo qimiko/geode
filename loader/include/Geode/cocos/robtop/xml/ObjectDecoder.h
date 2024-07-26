@@ -1,4 +1,3 @@
-
 #ifndef __OBJECTDECODER_H__
 #define __OBJECTDECODER_H__
 
