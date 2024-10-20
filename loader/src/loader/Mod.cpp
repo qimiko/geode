@@ -49,7 +49,7 @@ matjson::Value& Mod::getSaveContainer() {
 }
 
 matjson::Value& Mod::getSavedSettingsData() {
-    return m_impl->getSavedSettingsData();
+    return m_impl->m_settings->getSaveData();
 }
 
 bool Mod::isEnabled() const {
@@ -143,6 +143,10 @@ std::filesystem::path Mod::getConfigDir(bool create) const {
     return m_impl->getConfigDir(create);
 }
 
+std::filesystem::path Mod::getPersistentDir(bool create) const {
+    return m_impl->getPersistentDir(create);
+}
+
 bool Mod::hasSettings() const {
     return m_impl->hasSettings();
 }
@@ -156,15 +160,25 @@ bool Mod::hasSetting(std::string_view const key) const {
 }
 
 std::optional<Setting> Mod::getSettingDefinition(std::string_view const key) const {
-    return m_impl->getSettingDefinition(key);
+    return m_impl->m_settings->getLegacyDefinition(std::string(key));
 }
 
 SettingValue* Mod::getSetting(std::string_view const key) const {
-    return m_impl->getSetting(key);
+    return m_impl->m_settings->getLegacy(std::string(key)).get();
+}
+
+std::shared_ptr<SettingV3> Mod::getSettingV3(std::string_view const key) const {
+    return m_impl->m_settings->get(std::string(key));
 }
 
 void Mod::registerCustomSetting(std::string_view const key, std::unique_ptr<SettingValue> value) {
-    return m_impl->registerCustomSetting(key, std::move(value));
+    auto reg = m_impl->m_settings->registerLegacyCustomSetting(key, std::move(value));
+    if (!reg) {
+        log::error("Unable to register custom setting: {}", reg.unwrapErr());
+    }
+}
+Result<> Mod::registerCustomSettingType(std::string_view type, SettingGenerator generator) {
+    return m_impl->m_settings->registerCustomSettingType(type, generator);
 }
 
 std::vector<std::string> Mod::getLaunchArgumentNames() const {

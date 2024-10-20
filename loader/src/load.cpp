@@ -33,8 +33,8 @@ $on_mod(Loaded) {
         JsonChecker checker(args);
         auto root = checker.root("[ipc/list-mods]").obj();
 
-        auto includeRunTimeInfo = root.has("include-runtime-info").template get<bool>();
-        auto dontIncludeLoader = root.has("dont-include-loader").template get<bool>();
+        auto includeRunTimeInfo = root.has("include-runtime-info").get<bool>();
+        auto dontIncludeLoader = root.has("dont-include-loader").get<bool>();
 
         if (!dontIncludeLoader) {
             res.push_back(
@@ -186,6 +186,7 @@ int geodeEntry(void* platformData) {
 
 /*
     // download and install new loader update in the background
+    
     if (Mod::get()->getSettingValue<bool>("auto-check-updates")) {
         log::info("Starting loader update check");
         updater::checkForLoaderUpdates();

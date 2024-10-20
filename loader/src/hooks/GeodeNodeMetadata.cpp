@@ -124,7 +124,7 @@ void CCNode::setID(std::string const& id) {
 }
 
 CCNode* CCNode::getChildByID(std::string const& id) {
-    for (auto child : CCArrayExt<CCNode*>(m_pChildren)) {
+    for (auto child : CCArrayExt<CCNode*>(this->getChildren())) {
         if (child->getID() == id) {
             return child;
         }
@@ -296,7 +296,7 @@ CCNode* CCNode::querySelector(std::string const& queryStr) {
         return nullptr;
     }
     auto query = std::move(res.unwrap());
-    log::info("parsed query: {}", query->toString());
+    // log::info("parsed query: {}", query->toString());
     return query->match(this);
 }
 

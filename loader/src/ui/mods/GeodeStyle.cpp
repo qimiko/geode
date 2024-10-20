@@ -3,6 +3,7 @@
 #include <Geode/utils/ColorProvider.hpp>
 #include <Geode/loader/SettingEvent.hpp>
 #include <Geode/binding/ButtonSprite.hpp>
+#include <Geode/ui/LoadingSpinner.hpp>
 
 $on_mod(Loaded) {
     // todo: these names should probably be shorter so they fit in SSO...
@@ -17,6 +18,7 @@ $on_mod(Loaded) {
     ColorProvider::get()->define("mod-list-updates-available-bg-2"_spr, { 45, 110, 222, 255 });
     ColorProvider::get()->define("mod-list-errors-found"_spr, { 235, 35, 112, 255 });
     ColorProvider::get()->define("mod-list-errors-found-2"_spr, { 245, 27, 27, 255 });
+    ColorProvider::get()->define("mod-list-gray"_spr, { 205, 205, 205, 255 });
     ColorProvider::get()->define("mod-list-tab-deselected-bg"_spr, { 26, 24, 29, 255 });
     ColorProvider::get()->define("mod-list-tab-selected-bg"_spr, { 168, 147, 185, 255 });
     ColorProvider::get()->define("mod-list-tab-selected-bg-alt"_spr, { 147, 163, 185, 255 });
@@ -68,16 +70,21 @@ $on_mod(Loaded) {
     Loader::get()->queueInMainThread([updateColors = updateColors] {
         // this code is ran during static init, where settings aren't loaded yet, and getSettingValue will always return false.
         // because of that, we have to delay it until next frame.
-        updateColors(Mod::get()->template getSettingValue<bool>("enable-geode-theme"));
+        updateColors(Mod::get()->getSettingValue<bool>("enable-geode-theme"));
     });
 }
 
-bool GeodeSquareSprite::init(CCSprite* top, bool* state) {
-    if (!CCSprite::initWithFile(isGeodeTheme() ? "GE_button_05.png"_spr : "GJ_button_01.png"))
+bool isGeodeTheme(bool forceDisableTheme) {
+    return !forceDisableTheme && Mod::get()->getSettingValue<bool>("enable-geode-theme");
+}
+
+bool GeodeSquareSprite::init(CCSprite* top, bool* state, bool forceDisableTheme) {
+    if (!CCSprite::initWithFile(isGeodeTheme(forceDisableTheme) ? "GE_button_05.png"_spr : "GJ_button_01.png"))
         return false;
 
     m_stateSrc = state;
     m_topSprite = top;
+    m_forceDisableTheme = forceDisableTheme;
 
     limitNodeSize(top, m_obContentSize * .65f, 2.f, .1f);
     this->addChildAtPosition(top, Anchor::Center);
@@ -92,7 +99,7 @@ bool GeodeSquareSprite::init(CCSprite* top, bool* state) {
 
 void GeodeSquareSprite::updateImage() {
     this->setTexture(CCTextureCache::get()->addImage(
-        (m_state ? "GJ_button_02.png" : (isGeodeTheme() ? "GE_button_05.png"_spr : "GJ_button_01.png")),
+        (m_state ? "GJ_button_02.png" : (isGeodeTheme(m_forceDisableTheme) ? "GE_button_05.png"_spr : "GJ_button_01.png")),
         false
     ));
 }
@@ -104,18 +111,18 @@ void GeodeSquareSprite::update(float dt) {
     }
 }
 
-GeodeSquareSprite* GeodeSquareSprite::create(const char* top, bool* state) {
+GeodeSquareSprite* GeodeSquareSprite::create(const char* top, bool* state, bool forceDisableTheme) {
     auto ret = new GeodeSquareSprite();
-    if (ret->init(CCSprite::create(top), state)) {
+    if (ret->init(CCSprite::create(top), state, forceDisableTheme)) {
         ret->autorelease();
         return ret;
     }
     delete ret;
     return nullptr;
 }
-GeodeSquareSprite* GeodeSquareSprite::createWithSpriteFrameName(const char* top, bool* state) {
+GeodeSquareSprite* GeodeSquareSprite::createWithSpriteFrameName(const char* top, bool* state, bool forceDisableTheme) {
     auto ret = new GeodeSquareSprite();
-    if (ret->init(CCSprite::createWithSpriteFrameName(top), state)) {
+    if (ret->init(CCSprite::createWithSpriteFrameName(top), state, forceDisableTheme)) {
         ret->autorelease();
         return ret;
     }
@@ -134,65 +141,21 @@ void GeodeSquareSprite::setState(bool state) {
     }
 }
 
-class LoadingSpinner : public CCNode {
-protected:
-    CCSprite* m_spinner;
-
-    bool init(float sideLength) {
-        if (!CCNode::init())
-            return false;
-
-        this->setID("loading-spinner");
-        this->setContentSize({ sideLength, sideLength });
-        this->setAnchorPoint({ .5f, .5f });
-
-        m_spinner = CCSprite::create("loadingCircle.png");
-        m_spinner->setBlendFunc({ GL_ONE, GL_ONE });
-        limitNodeSize(m_spinner, m_obContentSize, 1.f, .1f);
-        this->addChildAtPosition(m_spinner, Anchor::Center);
-
-        this->spin();
-
-        return true;
-    }
-
-    void spin() {
-        m_spinner->runAction(CCRepeatForever::create(CCRotateBy::create(1.f, 360.f)));
-    }
-
-public:
-    static LoadingSpinner* create(float sideLength) {
-        auto ret = new LoadingSpinner();
-        if (ret->init(sideLength)) {
-            ret->autorelease();
-            return ret;
-        }
-        delete ret;
-        return nullptr;
-    }
-
-    void setVisible(bool visible) override {
-        CCNode::setVisible(visible);
-        if (visible) {
-            this->spin();
-        }
-    }
-};
-
 CCNode* createLoadingCircle(float sideLength, const char* id) {
     auto spinner = LoadingSpinner::create(sideLength);
     spinner->setID(id);
     return spinner;
 }
 
-const char* getGeodeButtonSpriteName(GeodeButtonSprite spr) {
-    if (isGeodeTheme()) {
+const char* getGeodeButtonSpriteName(GeodeButtonSprite spr, bool forceDisableTheme) {
+    if (isGeodeTheme(forceDisableTheme)) {
         switch (spr) {
             default:
             case GeodeButtonSprite::Default: return "GE_button_05.png"_spr;
             case GeodeButtonSprite::Install: return "GE_button_01.png"_spr;
             case GeodeButtonSprite::Delete: return "GJ_button_03.png";
             case GeodeButtonSprite::Enable: return "GJ_button_01.png";
+            case GeodeButtonSprite::Gray: return "GJ_button_05.png";
         }
     }
     else {
@@ -202,22 +165,23 @@ const char* getGeodeButtonSpriteName(GeodeButtonSprite spr) {
             case GeodeButtonSprite::Install: return "GE_button_01.png"_spr;
             case GeodeButtonSprite::Delete: return "GJ_button_03.png";
             case GeodeButtonSprite::Enable: return "GJ_button_02.png";
+            case GeodeButtonSprite::Gray: return "GJ_button_05.png";
         }
     }
 }
 
-IconButtonSprite* createGeodeButton(CCNode* icon, std::string const& text, GeodeButtonSprite bg) {
-    return IconButtonSprite::create(getGeodeButtonSpriteName(bg), icon, text.c_str(), "bigFont.fnt");
+IconButtonSprite* createGeodeButton(CCNode* icon, std::string const& text, GeodeButtonSprite bg, bool forceDisableTheme) {
+    return IconButtonSprite::create(getGeodeButtonSpriteName(bg, forceDisableTheme), icon, text.c_str(), "bigFont.fnt");
 }
-ButtonSprite* createGeodeButton(std::string const& text, int width, bool gold, bool absolute, GeodeButtonSprite bg) {
-    return ButtonSprite::create(text.c_str(), width, absolute, gold ? "goldFont.fnt" : "bigFont.fnt", getGeodeButtonSpriteName(bg), 0.0f, .8f);
+ButtonSprite* createGeodeButton(std::string const& text, int width, bool gold, bool absolute, GeodeButtonSprite bg, bool forceDisableTheme) {
+    return ButtonSprite::create(text.c_str(), width, absolute, gold ? "goldFont.fnt" : "bigFont.fnt", getGeodeButtonSpriteName(bg, forceDisableTheme), 0.0f, .8f);
 }
-ButtonSprite* createGeodeButton(std::string const& text, bool gold, GeodeButtonSprite bg) {
-    return ButtonSprite::create(text.c_str(), gold ? "goldFont.fnt" : "bigFont.fnt", getGeodeButtonSpriteName(bg), .8f);
+ButtonSprite* createGeodeButton(std::string const& text, bool gold, GeodeButtonSprite bg, bool forceDisableTheme) {
+    return ButtonSprite::create(text.c_str(), gold ? "goldFont.fnt" : "bigFont.fnt", getGeodeButtonSpriteName(bg, forceDisableTheme), .8f);
 }
 
-CircleButtonSprite* createGeodeCircleButton(CCSprite* top, float scale, CircleBaseSize size, bool altColor) {
-    const auto geodeTheme = isGeodeTheme();
+CircleButtonSprite* createGeodeCircleButton(CCSprite* top, float scale, CircleBaseSize size, bool altColor, bool forceDisableTheme) {
+    const auto geodeTheme = isGeodeTheme(forceDisableTheme);
     auto ret = CircleButtonSprite::create(
         top, geodeTheme ? (altColor ? CircleBaseColor::DarkAqua : CircleBaseColor::DarkPurple) : CircleBaseColor::Green, size
     );
@@ -225,21 +189,16 @@ CircleButtonSprite* createGeodeCircleButton(CCSprite* top, float scale, CircleBa
     return ret;
 }
 
-ButtonSprite* createGeodeTagLabel(std::string const& text, std::optional<std::pair<ccColor3B, ccColor3B>> const& color) {
+ButtonSprite* createTagLabel(std::string const& text, std::pair<ccColor3B, ccColor3B> const& color) {
     auto label = ButtonSprite::create(text.c_str(), "bigFont.fnt", "white-square.png"_spr, .8f);
-    if (color) {
-        label->m_label->setColor(color->first);
-        label->m_bgSprite->setColor(color->second);
-    }
-    else {
-        auto def = geodeTagColor(text);
-        label->m_label->setColor(def.first);
-        label->m_bgSprite->setColor(def.second);
-    }
+    label->m_label->setColor(color.first);
+    label->m_bgSprite->setColor(color.second);
     return label;
 }
-
-std::pair<ccColor3B, ccColor3B> geodeTagColor(std::string_view const& text) {
+ButtonSprite* createGeodeTagLabel(std::string_view tag) {
+    return createTagLabel(geodeTagName(tag), geodeTagColors(tag));
+}
+std::pair<ccColor3B, ccColor3B> geodeTagColors(std::string_view tag) {
     static std::array TAG_COLORS {
         std::make_pair(ccc3(240, 233, 255), ccc3(130, 123, 163)),
         std::make_pair(ccc3(234, 255, 245), ccc3(123, 163, 136)),
@@ -247,20 +206,32 @@ std::pair<ccColor3B, ccColor3B> geodeTagColor(std::string_view const& text) {
         std::make_pair(ccc3(255, 253, 240), ccc3(163, 157, 123)),
         std::make_pair(ccc3(255, 242, 240), ccc3(163, 128, 123)),
     };
-    return TAG_COLORS[hash(text) % 5932 % TAG_COLORS.size()];
-}
-
-ListBorders* createGeodeListBorders(CCSize const& size) {
-    auto ret = ListBorders::create();
-    if (isGeodeTheme()) {
-        ret->setSpriteFrames("geode-list-top.png"_spr, "geode-list-side.png"_spr, 2);
+    if (tag == "modtober24") {
+        return std::make_pair(ccc3(225, 236, 245), ccc3(82, 139, 201));
     }
-    ret->setContentSize(size);
-    return ret;
+    return TAG_COLORS[hash(tag) % 5932 % TAG_COLORS.size()];
+}
+std::string geodeTagName(std::string_view tag) {
+    // todo in v4: rework tags to use a server-provided display name instead
+    if (tag == "modtober24") {
+        return "Modtober 2024";
+    }
+    // Everything else just capitalize and that's it
+    auto readable = std::string(tag);
+    readable[0] = std::toupper(readable[0]);
+    return readable;
 }
 
-bool isGeodeTheme() {
-    return Mod::get()->template getSettingValue<bool>("enable-geode-theme");
+ListBorders* createGeodeListBorders(CCSize const& size, bool forceDisableTheme) {
+    auto ret = ListBorders::create();
+    const bool geodeTheme = isGeodeTheme(forceDisableTheme);
+    if (geodeTheme) {
+        ret->setSpriteFrames("geode-list-top.png"_spr, "geode-list-side.png"_spr, 2);
+        ret->setContentSize(size);
+    } else {
+        ret->setContentSize(size + ccp(5, 5));
+    }
+    return ret;
 }
 
 bool GeodeTabSprite::init(const char* iconFrame, const char* text, float width, bool altColor) {

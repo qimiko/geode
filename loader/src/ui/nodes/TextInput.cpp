@@ -151,7 +151,6 @@ void TextInput::setCallback(std::function<void(std::string const&)> onInput) {
     m_onInput = onInput;
 }
 void TextInput::setEnabled(bool enabled) {
-    m_input->setMouseEnabled(enabled);
     m_input->setTouchEnabled(enabled);
     m_input->m_placeholderLabel->setOpacity(enabled ? 255 : 150);
 }
@@ -189,6 +188,13 @@ void TextInput::setString(std::string const& str, bool triggerCallback) {
 
 std::string TextInput::getString() const {
     return m_input->getString();
+}
+
+void TextInput::focus() {
+    m_input->onClickTrackNode(true);
+}
+void TextInput::defocus() {
+    m_input->detachWithIME();
 }
 
 CCTextInputNode* TextInput::getInputNode() const {

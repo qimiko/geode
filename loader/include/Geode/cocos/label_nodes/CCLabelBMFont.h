@@ -273,10 +273,11 @@ public:
     // @note RobTop Addition
     void limitLabelWidth(float width, float defaultScale, float minScale);
 
+/*
 	// @note RobTop Addition
-    int getExtraKerning() const;
+    inline int getExtraKerning() const { return m_nExtraKerning; }
 	// @note RobTop Addition
-    void setExtraKerning(int);
+    inline void setExtraKerning(int extraKerning) { m_nExtraKerning = extraKerning; }
 
 	// @note RobTop Addition
     bool getIsBatched() const;
@@ -287,9 +288,13 @@ public:
     cocos2d::CCArray* getTargetArray() const;
 	// @note RobTop Addition
     void setTargetArray(cocos2d::CCArray*);
+*/
 
 private:
+/*
     char * atlasNameFromFntFile(const char *fntFile);
+*/
+
     int kerningAmountForFirst(unsigned short first, unsigned short second);
     float getLetterPosXLeft( CCSprite* characterSprite, float, bool);
     float getLetterPosXRight( CCSprite* characterSprite, float, bool);
@@ -330,12 +335,14 @@ protected:
     /** conforms to CCRGBAProtocol protocol */
     bool        m_bIsOpacityModifyRGB;
 
+/*
     // @note RobTop Addition
     bool m_bIsBatched;
     // @note RobTop Addition
     CCArray* m_pTargetArray;
     // @note RobTop Addition
     CCTexture2D* m_pSomeTexture;
+*/
 };
 
 /** Free function that parses a FNT file a place it on the cache

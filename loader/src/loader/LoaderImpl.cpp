@@ -589,7 +589,7 @@ void Loader::Impl::findProblems() {
 
             switch(dep.importance) {
                 case ModMetadata::Dependency::Importance::Suggested:
-                    if (!Mod::get()->template getSavedValue<bool>(dismissKey)) {
+                    if (!Mod::get()->getSavedValue<bool>(dismissKey)) {
                         this->addProblem({
                             LoadProblem::Type::Suggestion,
                             mod,
@@ -602,7 +602,7 @@ void Loader::Impl::findProblems() {
                     }
                     break;
                 case ModMetadata::Dependency::Importance::Recommended:
-                    if (!Mod::get()->template getSavedValue<bool>(dismissKey)) {
+                    if (!Mod::get()->getSavedValue<bool>(dismissKey)) {
                         this->addProblem({
                             LoadProblem::Type::Recommendation,
                             mod,
@@ -657,7 +657,7 @@ void Loader::Impl::findProblems() {
         }
 
         for (auto const& dep : mod->getMetadata().getIncompatibilities()) {
-            if (!dep.mod || !dep.version.compare(dep.mod->getVersion()))
+            if (!dep.mod || !dep.version.compare(dep.mod->getVersion()) || !dep.mod->isEnabled())
                 continue;
             switch(dep.importance) {
                 case ModMetadata::Incompatibility::Importance::Conflicting: {

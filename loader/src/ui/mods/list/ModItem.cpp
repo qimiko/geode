@@ -9,6 +9,7 @@
 #include "../popups/DevPopup.hpp"
 #include "ui/mods/popups/ModErrorPopup.hpp"
 #include "ui/mods/sources/ModSource.hpp"
+#include "../../GeodeUIEvent.hpp"
 
 bool ModItem::init(ModSource&& source) {
     if (!CCNode::init())
@@ -83,12 +84,12 @@ bool ModItem::init(ModSource&& source) {
     );
     m_infoContainer->addChild(m_developers);
 
-    m_restartRequiredLabel = createGeodeTagLabel(
+    m_restartRequiredLabel = createTagLabel(
         "Restart Required",
-        {{
+        {
             to3B(ColorProvider::get()->color("mod-list-restart-required-label"_spr)),
             to3B(ColorProvider::get()->color("mod-list-restart-required-label-bg"_spr))
-        }}
+        }
     );
     m_restartRequiredLabel->setID("restart-required-label");
     m_restartRequiredLabel->setLayoutOptions(AxisLayoutOptions::create()->setScaleLimits(std::nullopt, .75f));
@@ -133,12 +134,27 @@ bool ModItem::init(ModSource&& source) {
     m_viewMenu->setAnchorPoint({ 1.f, .5f });
     m_viewMenu->setScale(.55f);
 
-    ButtonSprite* spr;
-    if (Loader::get()->isModInstalled(m_source.getID())) {
-        spr = createGeodeButton("View", 50, false, true);
-    } else {
-        spr = createGeodeButton("Get", 50, false, true, GeodeButtonSprite::Install);
+    ButtonSprite* spr = nullptr;
+    if (auto serverMod = m_source.asServer(); serverMod != nullptr) {
+        auto version = serverMod->latestVersion();
+
+        auto geodeValid = Loader::get()->isModVersionSupported(version.getGeodeVersion());
+        auto gameVersion = version.getGameVersion();
+        auto gdValid = !gameVersion || gameVersion == "*" || gameVersion == GEODE_STR(GEODE_GD_VERSION);
+
+        if (!geodeValid || !gdValid) {
+            spr = createGeodeButton("N/A", 50, false, true, GeodeButtonSprite::Gray);
+        }
     }
+
+    if (!spr) {
+        if (Loader::get()->isModInstalled(m_source.getID())) {
+            spr = createGeodeButton("View", 50, false, true);
+        } else {
+            spr = createGeodeButton("Get", 50, false, true, GeodeButtonSprite::Install);
+        }
+    }
+
     auto viewBtn = CCMenuItemSpriteExtra::create(
         spr,
         this, menu_selector(ModItem::onView)
@@ -191,6 +207,11 @@ bool ModItem::init(ModSource&& source) {
                 auto paidModLabel = CCSprite::createWithSpriteFrameName("tag-paid.png"_spr);
                 paidModLabel->setLayoutOptions(AxisLayoutOptions::create()->setScaleLimits(.1f, .8f));
                 m_titleContainer->addChild(paidModLabel);
+            }
+            if (metadata.tags.contains("modtober24")) {
+                auto modtoberLabel = CCSprite::createWithSpriteFrameName("tag-modtober.png"_spr);
+                modtoberLabel->setLayoutOptions(AxisLayoutOptions::create()->setScaleLimits(.1f, .8f));
+                m_titleContainer->addChild(modtoberLabel);
             }
 
             // Show mod download count here already so people can make informed decisions 
@@ -282,6 +303,11 @@ bool ModItem::init(ModSource&& source) {
     m_downloadListener.bind([this](auto) { this->updateState(); });
     m_downloadListener.setFilter(server::ModDownloadFilter(m_source.getID()));
 
+    m_settingNodeListener.bind([this](SettingNodeValueChangeEventV3*) {
+        this->updateState();
+        return ListenerResult::Propagate;
+    });
+
     return true;
 }
 
@@ -342,7 +368,10 @@ void ModItem::updateState() {
                 m_bg->setColor("mod-list-paid-color"_cc3b);
                 m_bg->setOpacity(55);
             }
-            
+            if (metadata.tags.contains("modtober24")) {
+                m_bg->setColor(ccc3(63, 91, 138));
+                m_bg->setOpacity(85);
+            }
             if (isGeodeTheme() && metadata.featured) {
                 m_bg->setColor("mod-list-featured-color"_cc3b);
                 m_bg->setOpacity(65);
@@ -407,6 +436,8 @@ void ModItem::updateState() {
             on->setOpacity(105);
         }
     }
+
+    ModItemUIEvent(std::make_unique<ModItemUIEvent::Impl>(this)).post();
 }
 
 void ModItem::updateSize(float width, bool big) {
@@ -470,6 +501,36 @@ void ModItem::onView(CCObject*) {
         )->show();
     }
 
+    // Show popups for invalid mods
+    if (m_source.asServer()) {
+        auto version = m_source.asServer()->latestVersion();
+        auto gameVersion = version.getGameVersion();
+        if (gameVersion == "0.000") {
+            return FLAlertLayer::create(
+                nullptr,
+                "Invalid Platform",
+                "This mod is <cr>not available</c> for your current platform.",
+                "OK", nullptr, 360
+            )->show();
+        }
+        if (gameVersion && gameVersion != "*" && gameVersion != GEODE_STR(GEODE_GD_VERSION)) {
+            return FLAlertLayer::create(
+                nullptr,
+                "Unavailable",
+                "This mod targets an <cr>unsupported version of Geometry Dash</c>.",
+                "OK", nullptr, 360
+            )->show();
+        }
+        if (!Loader::get()->isModVersionSupported(version.getGeodeVersion())) {
+            return FLAlertLayer::create(
+                nullptr,
+                "Unavailable",
+                "This mod targets an <cr>unsupported version of Geode</c>.",
+                "OK", nullptr, 360
+            )->show();
+        }
+    }
+
     // Always open up the popup for the installed mod page if that is possible
     ModPopup::create(m_source.convertForPopup())->show();
 }
@@ -520,4 +581,8 @@ ModItem* ModItem::create(ModSource&& source) {
     }
     delete ret;
     return nullptr;
+}
+
+ModSource& ModItem::getSource() & {
+    return m_source;
 }

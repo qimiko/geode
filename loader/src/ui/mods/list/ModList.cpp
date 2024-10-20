@@ -4,6 +4,7 @@
 #include "../popups/SortPopup.hpp"
 #include "../GeodeStyle.hpp"
 #include "../ModsLayer.hpp"
+#include "../popups/ModtoberPopup.hpp"
 
 bool ModList::init(ModListSource* src, CCSize const& size) {
     if (!CCNode::init())
@@ -235,7 +236,7 @@ bool ModList::init(ModListSource* src, CCSize const& size) {
     searchFiltersMenu->addChild(m_filtersBtn);
 
     m_clearFiltersBtn = CCMenuItemSpriteExtra::create(
-        GeodeSquareSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"_spr),
+        GeodeSquareSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"),
         this, menu_selector(ModList::onClearFilters)
     );
     m_clearFiltersBtn->setID("clear-filters-button");
@@ -248,6 +249,34 @@ bool ModList::init(ModListSource* src, CCSize const& size) {
     m_searchMenu->addChildAtPosition(searchFiltersMenu, Anchor::Right, ccp(-10, 0));
 
     m_topContainer->addChild(m_searchMenu);
+
+    // Modtober banner; this can be removed after Modtober 2024 is over!
+    if (
+        auto src = typeinfo_cast<ServerModListSource*>(m_source);
+        src && src->getType() == ServerModListType::Modtober24
+    ) {
+        auto menu = CCMenu::create();
+        menu->setID("modtober-banner");
+        menu->ignoreAnchorPointForPosition(false);
+        menu->setContentSize({ size.width, 30 });
+
+        auto banner = CCSprite::createWithSpriteFrameName("modtober24-banner.png"_spr);
+        limitNodeWidth(banner, size.width, 1.f, .1f);
+        menu->addChildAtPosition(banner, Anchor::Center);
+
+        auto label = CCLabelBMFont::create("Modtober 2024 is Here!", "bigFont.fnt");
+        label->setScale(.5f);
+        menu->addChildAtPosition(label, Anchor::Left, ccp(10, 0), ccp(0, .5f));
+
+        auto aboutSpr = createGeodeButton("About");
+        aboutSpr->setScale(.5f);
+        auto aboutBtn = CCMenuItemSpriteExtra::create(
+            aboutSpr, this, menu_selector(ModList::onModtoberInfo)
+        );
+        menu->addChildAtPosition(aboutBtn, Anchor::Right, ccp(-35, 0));
+        
+        m_topContainer->addChild(menu);
+    }
 
     m_topContainer->setLayout(
         ColumnLayout::create()
@@ -496,7 +525,7 @@ void ModList::updateTopContainer() {
     auto oldPosition = oldPositionArea > 0.f ?
         m_list->m_contentLayer->getPositionY() / oldPositionArea : 
         -1.f;
-        
+
     // Update list size to account for the top menu 
     // (giving a little bit of extra padding for it, the same size as gap)
     m_list->setContentHeight(
@@ -505,6 +534,8 @@ void ModList::updateTopContainer() {
                 static_cast<AxisLayout*>(m_list->m_contentLayer->getLayout())->getGap() : 
             this->getContentHeight()
     );
+    static_cast<ColumnLayout*>(m_list->m_contentLayer->getLayout())->setAutoGrowAxis(m_list->getContentHeight());
+    m_list->m_contentLayer->updateLayout();
 
     // Preserve relative scroll position
     m_list->m_contentLayer->setPositionY((
@@ -581,6 +612,7 @@ void ModList::updateState() {
     filterSpr->setState(!isDefaultQuery);
 
     auto clearSpr = static_cast<GeodeSquareSprite*>(m_clearFiltersBtn->getNormalImage());
+    m_clearFiltersBtn->setEnabled(!isDefaultQuery);
     clearSpr->setColor(isDefaultQuery ? ccGRAY : ccWHITE);
     clearSpr->setOpacity(isDefaultQuery ? 90 : 255);
     clearSpr->getTopSprite()->setColor(isDefaultQuery ? ccGRAY : ccWHITE);
@@ -661,6 +693,9 @@ void ModList::onToggleErrors(CCObject*) {
 }
 void ModList::onUpdateAll(CCObject*) {
     server::ModDownloadManager::get()->startUpdateAll();
+}
+void ModList::onModtoberInfo(CCObject*) {
+    ModtoberPopup::create()->show();
 }
 
 size_t ModList::getPage() const {
