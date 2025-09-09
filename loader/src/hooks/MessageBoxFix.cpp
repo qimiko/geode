@@ -37,25 +37,20 @@ $execute {
     // updated for 2.206
     // check xrefs to "GLFWError #%d Happen, %s\n", now there's two functions with the same exact
     // behaviour, one is a member function though...
-    // hook them to call our own handler
+    // patch MessageBoxW to MessageBoxA
     if (LoaderImpl::get()->isForwardCompatMode()) return;
 
-#if GEODE_COMP_GD_VERSION == 22074
-    const uintptr_t offset1 = 0x75D90; // member function in CCEGLView
-    const uintptr_t offset2 = 0x75DF0; // static function
+#if GEODE_COMP_GD_VERSION == 19200
+    const uint32_t importedMessageBoxA = geode::base::getCocos() + 0x1185f8;
 
-    (void) Mod::get()->hook(
-        reinterpret_cast<void*>(geode::base::getCocos() + offset1),
-        fixedErrorHandler,
-        "onGLFWError"
-    );
+    ByteVector p = {
+        static_cast<unsigned char>((importedMessageBoxA) & 0xff),
+        static_cast<unsigned char>((importedMessageBoxA >> 8) & 0xff),
+        static_cast<unsigned char>((importedMessageBoxA >> 16) & 0xff),
+        static_cast<unsigned char>((importedMessageBoxA >> 24) & 0xff)};
 
-    (void) Mod::get()->hook(
-        reinterpret_cast<void*>(geode::base::getCocos() + offset2),
-        fixedErrorHandler2,
-        "onGLFWError2"
-    );
-
+    (void)Mod::get()->patch(reinterpret_cast<void*>(geode::base::getCocos() + 0xc13b9), p);
+    (void)Mod::get()->patch(reinterpret_cast<void*>(geode::base::getCocos() + 0xc1411), p);
 #else
     #pragma message("Unsupported GD version!")
 #endif
