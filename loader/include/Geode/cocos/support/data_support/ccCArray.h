@@ -136,6 +136,7 @@ void ccArrayFullRemoveArray(ccArray *arr, ccArray *minusArr);
 
 typedef struct _ccCArray {
     unsigned int num, max;
+    unsigned int unk1, unk2;
     void** arr;
 } ccCArray;
 

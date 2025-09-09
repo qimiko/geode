@@ -150,15 +150,18 @@ namespace geode {
 
         /**
          * Get the mod's save directory path
+         * `geode::dirs::getModsSaveDir()`/{mod_id}/
          */
         std::filesystem::path getSaveDir() const;
         /**
          * Get the mod's config directory path
+         * `geode::dirs::getModConfigDir()`/{mod_id}/
          */
         std::filesystem::path getConfigDir(bool create = true) const;
         /**
          * Get the mod's persistent directory path
          * This directory is not deleted even when Geode/mod is uninstalled
+         * `geode::dirs::getModPersistentDir()`/{mod_id}/
          */
         std::filesystem::path getPersistentDir(bool create = true) const;
 
@@ -500,6 +503,8 @@ namespace geode {
     };
 }
 
+#ifdef GEODE_MOD_ID
+
 namespace geode::geode_internal {
     // this impl relies on the GEODE_MOD_ID macro set by cmake
     template <size_t N>
@@ -524,6 +529,14 @@ constexpr auto operator""_spr() {
     return Str.buffer;
 }
 
+#else
+
+GEODE_HIDDEN inline char const* operator"" _spr(char const* str, size_t len) {
+    return geode::Mod::get()->expandSpriteName({ str, len }).data();
+}
+
+#endif
+
 /**
  * Leaves a marker in the binary that can be used to patch
  * the game at a specific offset with a specific byte sequence.
@@ -535,10 +548,10 @@ constexpr auto operator""_spr() {
  * ```
  */
 #define GEODE_MOD_STATIC_PATCH(Offset_, ...) \
-    doNotOptimize(utils::string::ConstexprString::toLiteral([](){\
-        utils::string::ConstexprString str2;                     \
+    geode::doNotOptimize(geode::utils::string::ConstexprString::toLiteral([](){\
+        geode::utils::string::ConstexprString str2;              \
         str2.push(__VA_ARGS__);                                  \
-        utils::string::ConstexprString str;                      \
+        geode::utils::string::ConstexprString str;               \
         str.push("[GEODE_PATCH_SIZE]");                          \
         str.push(str2.size(), 16);                               \
         str.push("[GEODE_PATCH_BYTES]");                         \
@@ -559,8 +572,8 @@ constexpr auto operator""_spr() {
  * ```
  */
 #define GEODE_MOD_STATIC_HOOK(Offset_, Detour_, ...) \
-    (doNotOptimize(utils::string::ConstexprString::toLiteral([](){ \
-        utils::string::ConstexprString str;                        \
+    (geode::doNotOptimize(geode::utils::string::ConstexprString::toLiteral([](){ \
+        geode::utils::string::ConstexprString str;                 \
         str.push("[GEODE_MODIFY_NAME]");                           \
         str.push(GEODE_STR(__VA_ARGS__));                          \
         str.push("[GEODE_MODIFY_OFFSET]");                         \
