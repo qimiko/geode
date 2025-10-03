@@ -386,6 +386,8 @@ public:
     CC_PROPERTY(GLubyte, m_cEndOpacity, EndOpacity)
     CC_PROPERTY_PASS_BY_REF(CCPoint, m_AlongVector, Vector)
 
+	bool getShouldPremultiply() const;
+	void setShouldPremultiply(bool);
 	void setValues(cocos2d::_ccColor3B const&, unsigned char, cocos2d::_ccColor3B const&, unsigned char, cocos2d::CCPoint const&);
 
 
@@ -394,7 +396,6 @@ public:
     */
 protected:
     bool m_bCompressedInterpolation;
-    CC_SYNTHESIZE_NV(bool, m_bShouldPremultiply, ShouldPremultiply)
 public:
     virtual void setCompressedInterpolation(bool bCompressedInterpolation);
     virtual bool isCompressedInterpolation();

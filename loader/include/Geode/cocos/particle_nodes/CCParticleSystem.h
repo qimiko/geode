@@ -314,47 +314,47 @@ public:
 
 
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFadeInTime, FadeInTime);
+    float m_fFadeInTime;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFadeInTimeVar, FadeInTimeVar);
+    float m_fFadeInTimeVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFadeOutTime, FadeOutTime);
+    float m_fFadeOutTime;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFadeOutTimeVar, FadeOutTimeVar);
+    float m_fFadeOutTimeVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionPos, FrictionPos);
+    float m_fFrictionPos;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionPosVar, FrictionPosVar);
+    float m_fFrictionPosVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionSize, FrictionSize);
+    float m_fFrictionSize;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionSizeVar, FrictionSizeVar);
+    float m_fFrictionSizeVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionRot, FrictionRot);
+    float m_fFrictionRot;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fFrictionRotVar, FrictionRotVar);
+    float m_fFrictionRotVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fRespawn, Respawn);
+    float m_fRespawn;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(float, m_fRespawnVar, RespawnVar);
+    float m_fRespawnVar;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bStartSpinEqualToEnd, StartSpinEqualToEnd);
+    bool m_bStartSpinEqualToEnd;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bStartSizeEqualToEnd, StartSizeEqualToEnd);
+    bool m_bStartSizeEqualToEnd;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bStartRadiusEqualToEnd, StartRadiusEqualToEnd);
+    bool m_bStartRadiusEqualToEnd;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bDynamicRotationIsDir, DynamicRotationIsDir);
+    bool m_bDynamicRotationIsDir;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bOrderSensitive, OrderSensitive);
+    bool m_bOrderSensitive;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bStartRGBVarSync, StartRGBVarSync);
+    bool m_bStartRGBVarSync;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bEndRGBVarSync, EndRGBVarSync);
+    bool m_bEndRGBVarSync;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bWasRemoved, WasRemoved);
+    bool m_bWasRemoved;
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bUsingSchedule, UsingSchedule);
+    bool m_bUsingSchedule;
 
 
     /** start size in pixels of each particle */
@@ -410,7 +410,6 @@ public:
     */
 public:
     bool m_bIsAutoRemoveOnFinish;
-    CC_SYNTHESIZE_NV(bool, m_bDontCleanupOnFinish, DontCleanupOnFinish)
 public:
     virtual bool isAutoRemoveOnFinish();
     virtual void setAutoRemoveOnFinish(bool var);
@@ -497,7 +496,7 @@ public:
     // @note RobTop Addition
     ccColor4F m_tUniformDeltaColor;
     // @note RobTop Addition
-    CC_SYNTHESIZE_READONLY_NV(bool, m_bUseUniformColorMode, UseUniformColorMode);
+    bool m_bUseUniformColorMode;
         // saved/loaded in loadDefaults, loadScaledDefaults and saveDefaults
 
         // @note RobTop Addition
@@ -532,16 +531,120 @@ public:
     void calculateWorldSpace();
 
 	// @note RobTop Addition
+    bool getDontCleanupOnFinish() const;
+	// @note RobTop Addition
+    void setDontCleanupOnFinish(bool);
+
+	// @note RobTop Addition
+    bool getDynamicRotationIsDir() const;
+	// @note RobTop Addition
+    void setDynamicRotationIsDir(bool);
+
+	// @note RobTop Addition
+    bool getEndRGBVarSync() const;
+	// @note RobTop Addition
+    void setEndRGBVarSync(bool);
+
+    // @note RobTop Addition
+    float getFadeInTime() const;
+	// @note RobTop Addition
+    float getFadeInTimeVar() const;
+	// @note RobTop Addition
+    float getFadeOutTime() const;
+	// @note RobTop Addition
+    float getFadeOutTimeVar() const;
+	// @note RobTop Addition
+    float getFrictionPos() const;
+	// @note RobTop Addition
+    float getFrictionPosVar() const;
+	// @note RobTop Addition
+    float getFrictionRot() const;
+	// @note RobTop Addition
+    float getFrictionRotVar() const;
+    // @note RobTop Addition
+    float getFrictionSize() const;
+	// @note RobTop Addition
+    float getFrictionSizeVar() const;
+
+	// @note RobTop Addition
+    bool getOrderSensitive() const;
+
+    // @note RobTop Addition
+    float getRespawn() const;
+	// @note RobTop Addition
+    float getRespawnVar() const;
+
+	// @note RobTop Addition
+    bool getStartRGBVarSync() const;
+	// @note RobTop Addition
+    bool getStartRadiusEqualToEnd() const;
+	// @note RobTop Addition
+    bool getStartSizeEqualToEnd() const;
+	// @note RobTop Addition
+    bool getStartSpinEqualToEnd() const;
+
+	// @note RobTop Addition
     float getTimeElapsed();
 
 	// @note RobTop Addition
-    void setEndAlpha(float alpha) { m_tEndColor.a = alpha; }
+    bool getUseUniformColorMode() const;
 
 	// @note RobTop Addition
-    void setStartAlpha(float alpha) { m_tStartColor.a = alpha; }
+    bool getWasRemoved() const;
 
 	// @note RobTop Addition
-    void toggleUniformColorMode(bool useUniformColorMode) { m_bUseUniformColorMode = useUniformColorMode; }
+    bool getUsingSchedule() const;
+
+	// @note RobTop Addition
+    void setEndAlpha(float);
+    // @note RobTop Addition
+    void setFadeInTime(float);
+	// @note RobTop Addition
+    void setFadeInTimeVar(float);
+	// @note RobTop Addition
+    void setFadeOutTime(float);
+	// @note RobTop Addition
+    void setFadeOutTimeVar(float);
+	// @note RobTop Addition
+    void setFrictionPos(float);
+	// @note RobTop Addition
+    void setFrictionPosVar(float);
+	// @note RobTop Addition
+    void setFrictionRot(float);
+	// @note RobTop Addition
+    void setFrictionRotVar(float);
+	// @note RobTop Addition
+    void setFrictionSize(float);
+	// @note RobTop Addition
+    void setFrictionSizeVar(float);
+
+	// @note RobTop Addition
+    void setOrderSensitive(bool);
+
+    // @note RobTop Addition
+    void setRespawn(float);
+	// @note RobTop Addition
+    void setRespawnVar(float);
+
+	// @note RobTop Addition
+    void setStartAlpha(float);
+	// @note RobTop Addition
+    void setStartRGBVarSync(bool);
+	// @note RobTop Addition
+    void setStartRadiusEqualToEnd(bool);
+	// @note RobTop Addition
+    void setStartSizeEqualToEnd(bool);
+	// @note RobTop Addition
+    void setStartSpinEqualToEnd(bool);
+
+	// @note RobTop Addition
+    void setUsingSchedule(bool);
+
+	// @note RobTop Addition
+    void setWasRemoved(bool);
+
+	// @note RobTop Addition
+    void toggleUniformColorMode(bool);
 	// @note RobTop Addition
     void updateVisible();
 };
