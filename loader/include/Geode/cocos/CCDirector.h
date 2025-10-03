@@ -476,20 +476,21 @@ protected:
 
     void purgeDirector();
     // @note RobTop Addition
-    CC_SYNTHESIZE_READONLY_NV(bool, m_bIsTransitioning, IsTransitioning);   // if in a CCTransitionScene
+    CC_SYNTHESIZE_READONLY(bool, m_bIsTransitioning, IsTransitioning);   // if in a CCTransitionScene
 
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bSmoothFix, SmoothFix);                        // if smooth fix is on
+    CC_SYNTHESIZE(bool, m_bSmoothFix, SmoothFix);                        // if smooth fix is on
     // @note RobTop Addition
-    CC_SYNTHESIZE_NV(bool, m_bSmoothFixCheck, SmoothFixCheck);              // not exactly sure what this is, but the name says something ig
+    CC_SYNTHESIZE(bool, m_bSmoothFixCheck, SmoothFixCheck);              // not exactly sure what this is, but the name says something ig
 #if defined(GEODE_IS_ANDROID)
+/*
     // @note RobTop Addition
     CC_SYNTHESIZE_NV(bool, m_bForceSmoothFix, ForceSmoothFix);              // if "force smooth fix" is on or not
+*/
     // @note RobTop Addition
-    CC_SYNTHESIZE_READONLY_NV(int, m_nSmoothFixCounter, SmoothFixCounter);  // not sure about this one either
+    CC_SYNTHESIZE_READONLY(int, m_nSmoothFixCounter, SmoothFixCounter);  // not sure about this one either
 #elif defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MAC)
 public:
-	bool m_bForceSmoothFix;
 	int m_nSmoothFixCounter;
 #endif
 public:
@@ -573,14 +574,20 @@ public:
     CCDirectorDelegate *m_pProjectionDelegate;
 
     // @note RobTop Addition
-    CC_SYNTHESIZE(CCSceneDelegate*, m_pAppDelegate, SceneDelegate);
+    CCSceneDelegate* m_pAppDelegate;
     // @note RobTop Addition
     CCSize m_obScaleFactor;
     // @note RobTop Addition
     CCSize m_obResolutionInPixels;
     // @note RobTop Addition
-    CC_SYNTHESIZE_READONLY_NV(TextureQuality, m_eTextureQuality, LoadedTextureQuality);
-    // CCEGLViewProtocol will recreate stats labels to fit visible rect
+    CC_SYNTHESIZE_READONLY(TextureQuality, m_eTextureQuality, LoadedTextureQuality);
+
+public:
+	// the virtual functions are strangly in a different order than the members
+	virtual CCSceneDelegate* getSceneDelegate() const;
+	virtual void setSceneDelegate(CCSceneDelegate*);
+
+	// CCEGLViewProtocol will recreate stats labels to fit visible rect
     friend class CCEGLViewProtocol;
 };
 
