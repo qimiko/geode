@@ -264,7 +264,7 @@ public:
      *
      * @note Robtop Addition: return value from void to bool
      */
-    bool pushScene(CCScene *pScene);
+    void pushScene(CCScene *pScene);
 
     /** Pops out a scene from the queue.
      * This scene will replace the running one.
@@ -363,6 +363,7 @@ public:
     inline float getContentScaleFactor(void) { return m_fContentScaleFactor; }
 
 public:
+/*
     // @note RobTop Addition
     void checkSceneReference(void);
     // @note RobTop Addition
@@ -375,14 +376,17 @@ public:
     void popToSceneInStack(CCScene*);
     // @note RobTop Addition
     int sceneCount(void);
+*/
     // @note RobTop Addition
     void willSwitchToScene(CCScene*);
 
     // @note RobTop Addition
     void removeStatsLabel(void);
 
+/*
     // @note RobTop Addition
     void resetSmoothFixCounter(void);
+*/
     // @note RobTop Addition
     void setDeltaTime(float);
 
@@ -393,15 +397,19 @@ public:
     // @note RobTop Addition
     void updateScreenScale(CCSize);
 
+/*
     // @note RobTop Addition
     void applySmoothFix();
     // @note RobTop Addition
     void showFPSLabel();
     // @note RobTop Addition
     void toggleShowFPS(bool, gd::string, cocos2d::CCPoint);
+*/
 protected:
+/*
     // @note RobTop Addition
     void createStatsLabel();
+*/
 
 protected:
     // @note RobTop Addition
@@ -474,11 +482,17 @@ protected:
     CC_SYNTHESIZE_NV(bool, m_bSmoothFix, SmoothFix);                        // if smooth fix is on
     // @note RobTop Addition
     CC_SYNTHESIZE_NV(bool, m_bSmoothFixCheck, SmoothFixCheck);              // not exactly sure what this is, but the name says something ig
+#if defined(GEODE_IS_ANDROID)
     // @note RobTop Addition
     CC_SYNTHESIZE_NV(bool, m_bForceSmoothFix, ForceSmoothFix);              // if "force smooth fix" is on or not
     // @note RobTop Addition
     CC_SYNTHESIZE_READONLY_NV(int, m_nSmoothFixCounter, SmoothFixCounter);  // not sure about this one either
-
+#elif defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MAC)
+public:
+	bool m_bForceSmoothFix;
+	int m_nSmoothFixCounter;
+#endif
+public:
     bool m_bPurgeDirecotorInNextLoop; // this flag will be set to true in end()
 
 protected:
@@ -486,7 +500,7 @@ protected:
 
     void showStats();
     // Robtop Removal
-    // void createStatsLabel();
+    void createStatsLabel();
     void calculateMPF();
     void getFPSImageData(unsigned char** datapointer, unsigned int* length);
 
