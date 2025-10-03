@@ -339,9 +339,9 @@ public:
 
 /*
     // @note RobTop Addition
-    bool m_bIsBatched;
+    CC_SYNTHESIZE_NV(bool, m_bIsBatched, IsBatched);
     // @note RobTop Addition
-    CCArray* m_pTargetArray;
+    CC_SYNTHESIZE_NV(CCArray*, m_pTargetArray, TargetArray);
     // @note RobTop Addition
     CCTexture2D* m_pSomeTexture;
 */

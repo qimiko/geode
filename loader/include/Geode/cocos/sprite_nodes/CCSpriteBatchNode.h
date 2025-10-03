@@ -193,7 +193,7 @@ public:
     CCArray* m_pobDescendants;
 
     // @note RobTop Addition
-    bool m_bManualSortChildren;
+    CC_SYNTHESIZE_NV(bool, m_bManualSortChildren, ManualSortChildren);
     // @note RobTop Addition
     bool m_bManualSortAllChildrenDirty;
 };
