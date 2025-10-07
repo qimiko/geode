@@ -1,5 +1,5 @@
 #include <Geode/Geode.hpp>
-#ifndef GEODE_IS_IOS
+#if 0
 #include <Geode/utils/VMTHookManager.hpp>
 #include <Geode/modify/Traits.hpp>
 #include <Geode/modify/CCMenu.hpp>
