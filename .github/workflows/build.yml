@@ -141,78 +141,78 @@ jobs:
         target: win
       if: inputs.build-debug-info && (success() || failure())
 
-  # build-mac:
-  #   name: Build macOS
-  #   runs-on: macos-latest
+  build-mac:
+    name: Build macOS
+    runs-on: macos-latest
 
   #   env:
   #    SCCACHE_CACHE_MULTIARCH: 1
 
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v4
-  #     with:
-  #       submodules: recursive
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-  #   - name: Prepare for Build Debug Info
-  #     id: build-debug-info
-  #     uses: ./.github/actions/build-debug-info
-  #     with:
-  #       has-sccache: ${{ inputs.use-ccache }}
-  #     if: inputs.build-debug-info
+    - name: Prepare for Build Debug Info
+      id: build-debug-info
+      uses: ./.github/actions/build-debug-info
+      with:
+        has-sccache: ${{ inputs.use-ccache }}
+      if: inputs.build-debug-info
 
     # due to very strange performance issues, sccache is currently disabled for macos. sorry
 
-    # - name: Setup caches
-    #   uses: ./.github/actions/setup-cache
-    #   with:
-    #     host: mac
-    #     target: mac
-    #     use-ccache: ${{ github.event_name != 'workflow_dispatch' || inputs.use-ccache }}
+    - name: Setup caches
+      uses: ./.github/actions/setup-cache
+      with:
+        host: mac
+        target: mac
+        use-ccache: ${{ github.event_name != 'workflow_dispatch' || inputs.use-ccache }}
 
-  #   - name: Setup Ninja
-  #     uses: ./.github/actions/setup-ninja
-  #     with:
-  #       host: mac
+    - name: Setup Ninja
+      uses: ./.github/actions/setup-ninja
+      with:
+        host: mac
 
-  #   - name: Setup CLI
-  #     uses: geode-sdk/cli/.github/actions/setup@main
+    - name: Setup CLI
+      uses: geode-sdk/cli/.github/actions/setup@main
 
-  #   - name: Configure
-  #     run: >
-  #       ${{ env.base-configure-command }}
-  #       -DCMAKE_C_COMPILER=clang
-  #       -DCMAKE_CXX_COMPILER=clang++
-  #       -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
-  #       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
-  #       -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF
-  #       ${{ steps.build-debug-info.outputs.extra-configure }}
+    - name: Configure
+      run: >
+        ${{ env.base-configure-command }}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+        -DCMAKE_OSX_ARCHITECTURES="x86_64"
+        -DGEODE_DISABLE_PRECOMPILED_HEADERS=OFF
+        ${{ steps.build-debug-info.outputs.extra-configure }}
 
-  #   - name: Build
-  #     run: |
-  #       ${{ env.base-build-command }}
-  #       ${{ steps.build-debug-info.outputs.extra-build }}
+    - name: Build
+      run: |
+        ${{ env.base-build-command }}
+        ${{ steps.build-debug-info.outputs.extra-build }}
 
-  #   - name: Upload Artifacts
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: geode-mac
-  #       path: ./bin/nightly
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: geode-mac
+        path: ./bin/nightly
 
-  #   - name: Package Installer
-  #     run: ./installer/mac/package.sh ./bin/nightly ./installer/mac/geode-installer-mac.pkg
+    - name: Package Installer
+      run: ./installer/mac/package.sh ./bin/nightly ./installer/mac/geode-installer-mac.pkg
 
-  #   - name: Upload Installer
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: geode-installer-mac
-  #       path: './installer/mac/geode-installer-mac.pkg'
+    - name: Upload Installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: geode-installer-mac
+        path: './installer/mac/geode-installer-mac.pkg'
 
-  #   - name: Complete Build Debug Info
-  #     uses: ./.github/actions/build-debug-info-post
-  #     with:
-  #       target: mac
-  #     if: inputs.build-debug-info && (success() || failure())
+    - name: Complete Build Debug Info
+      uses: ./.github/actions/build-debug-info-post
+      with:
+        target: mac
+      if: inputs.build-debug-info && (success() || failure())
 
   build-android:
     strategy:
