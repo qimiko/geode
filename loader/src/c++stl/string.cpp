@@ -13,8 +13,8 @@ using geode::stl::StringImpl;
 #define implFor(x) StringImpl{intoMutRef(x.m_data)}
 #define impl implFor((*this))
 
+
 namespace gd {
-#if !defined(GEODE_IS_MACOS) && !defined(GEODE_IS_IOS)
     string::string() {
         impl.setEmpty();
     }
@@ -112,5 +112,4 @@ namespace gd {
     string::operator std::string_view() const {
         return std::string_view(this->data(), this->size());
     }
-#endif
 }

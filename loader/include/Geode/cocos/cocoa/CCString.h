@@ -51,7 +51,7 @@ public:
     /**
      * @lua NA
      */
-#ifndef GEODE_IS_ANDROID
+#if !defined(GEODE_IS_ANDROID) && !defined(GEODE_IS_MACOS)
     inline CCString() : m_sString("") {}
 #else
     // Make sure its imported because of gd::string stuff,

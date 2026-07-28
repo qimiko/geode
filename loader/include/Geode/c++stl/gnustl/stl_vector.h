@@ -235,7 +235,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
   // provide overloads whose operands are of the same type.  Can someone
   // remind me what generic programming is about? -- Gaby
 
-#ifdef __cpp_lib_three_way_comparison
+#if defined(__cpp_lib_three_way_comparison) && defined(GEODE_IS_ANDROID) // synth3way doesn't exist on mac ig
   template<typename _IteratorL, typename _IteratorR, typename _Container>
     [[nodiscard, __gnu__::__always_inline__]]
     constexpr bool

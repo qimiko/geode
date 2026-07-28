@@ -4,7 +4,7 @@
 
 #include "string.hpp"
 
-#if defined(GEODE_IS_ANDROID)
+#if defined(GEODE_IS_ANDROID) || defined(GEODE_IS_MACOS) || defined(GEODE_IS_IOS)
 #include "gnustl.hpp"
 #elif defined(GEODE_IS_WINDOWS)
 #include "msvcstl.hpp"

@@ -12,7 +12,7 @@ namespace geode::base {
     uintptr_t get();
 }
 
-#if defined(GEODE_IS_ANDROID)
+#if defined(GEODE_IS_ANDROID) || defined(GEODE_IS_MACOS) || defined(GEODE_IS_IOS)
 
     #include "gnustl/functexcept.h"
     #include "gnustl/stl_vector.h"
@@ -109,8 +109,10 @@ namespace gd {
     using unordered_set = geode::stl::unordered_set<Value, Hash, Pred, Alloc>;
 };
 
+#if defined(GEODE_IS_ANDROID)
 template <>
 struct std::__ndk1::iterator_traits<typename gd::vector<char>::iterator> : std::__ndk1::iterator_traits<char*> {};
+#endif
 
 #elif defined(GEODE_IS_IOS)
 namespace gd {
