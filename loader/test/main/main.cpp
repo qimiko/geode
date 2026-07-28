@@ -215,12 +215,12 @@ struct GJGarageLayerTest2 : Modify<GJGarageLayerTest2, GJGarageLayer> {
         log::debug("Touch began on GJGarageLayer");
 
         if (m_fields->counter % 2) {
-            VMTHookManager::get().forceDisableFunction<
+            (void)VMTHookManager::get().forceDisableFunction<
                 ResolveC<GJGarageLayerTest2>::func(&GJGarageLayerTest2::ccTouchEnded)
             >(this);
         }
         else {
-            VMTHookManager::get().forceEnableFunction<
+            (void)VMTHookManager::get().forceEnableFunction<
                 ResolveC<GJGarageLayerTest2>::func(&GJGarageLayerTest2::ccTouchEnded)
             >(this);
         }

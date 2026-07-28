@@ -39,3 +39,11 @@ Result<> Mod::Impl::loadPlatformBinary() {
     std::string err = (char const*)dlerror();
     return Err("Unable to load the DYLIB: dlerror returned (" + err + ")");
 }
+
+Result<> Mod::Impl::loadInternalBinary() {
+    if (!m_metadata.getInternalBinary()) {
+        return Ok();
+    }
+
+    return Err("loadInternalBinary is currently unimplemented on macOS, sorry :(");
+}

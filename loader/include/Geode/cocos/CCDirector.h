@@ -489,7 +489,7 @@ protected:
 */
     // @note RobTop Addition
     CC_SYNTHESIZE_READONLY(int, m_nSmoothFixCounter, SmoothFixCounter);  // not sure about this one either
-#elif defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MAC)
+#elif defined(GEODE_IS_WINDOWS) || defined(GEODE_IS_MACOS)
 public:
 	int m_nSmoothFixCounter;
 #endif

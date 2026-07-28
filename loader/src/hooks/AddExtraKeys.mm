@@ -143,7 +143,7 @@ bool isKeyNumpad(NSEvent* event) {
 }
 
 
-void keyDownExecHook(EAGLView* self, SEL sel, NSEvent* event) {
+void keyDownHook(EAGLView* self, SEL sel, NSEvent* event) {
     bool extraKey = isExtraKey(event);
     bool numpad = isKeyNumpad(event);
     if (!extraKey && !numpad) {
@@ -178,7 +178,7 @@ void keyDownExecHook(EAGLView* self, SEL sel, NSEvent* event) {
     CCKeyboardDispatcher::get()->dispatchKeyboardMSG(keyCode, true);
 }
 
-void keyUpExecHook(EAGLView* self, SEL sel, NSEvent* event) {
+void keyUpHook(EAGLView* self, SEL sel, NSEvent* event) {
     bool extraKey = isExtraKey(event);
     bool numpad = isKeyNumpad(event);
     if (!extraKey && !numpad) {
@@ -200,7 +200,7 @@ void keyUpExecHook(EAGLView* self, SEL sel, NSEvent* event) {
     CCKeyboardDispatcher::get()->dispatchKeyboardMSG(keyCode, false);
 }
 
-void mouseDownExecHook(EAGLView* self, SEL sel, NSEvent* event) {
+void mouseDownHook(EAGLView* self, SEL sel, NSEvent* event) {
     if (!isExtraMouseButton(event)) {
         GEODE_MACOS([self performSelector:sel withObject:event]);
         return;
@@ -210,7 +210,7 @@ void mouseDownExecHook(EAGLView* self, SEL sel, NSEvent* event) {
     CCKeyboardDispatcher::get()->dispatchKeyboardMSG(keyCode, true);
 }
 
-void mouseUpExecHook(EAGLView* self, SEL sel, NSEvent* event) {
+void mouseUpHook(EAGLView* self, SEL sel, NSEvent* event) {
     if (!isExtraMouseButton(event)) {
         GEODE_MACOS([self performSelector:sel withObject:event]);
         return;
@@ -425,11 +425,11 @@ __attribute__((constructor)) void initialize_newKeyboardMSGKeysHooks() {
 #if defined(GEODE_IS_MACOS)
     auto eaglView = objc_getClass("EAGLView");
 
-    HOOK_OBJC_METHOD(eaglView, keyDownExec);
-    HOOK_OBJC_METHOD(eaglView, keyUpExec);
+    HOOK_OBJC_METHOD(eaglView, keyDown);
+    HOOK_OBJC_METHOD(eaglView, keyUp);
 
-    HOOK_OBJC_METHOD(eaglView, mouseDownExec);
-    HOOK_OBJC_METHOD(eaglView, mouseUpExec);
+    HOOK_OBJC_METHOD(eaglView, mouseDown);
+    HOOK_OBJC_METHOD(eaglView, mouseUp);
 #else
     @autoreleasepool {
         keyStates = [NSMutableDictionary dictionary];

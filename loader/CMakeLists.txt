@@ -178,6 +178,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY "${GEODE_BIN_PATH}/nightly"
 )
 
+if (APPLE)
+	set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+endif()
+
 if (GEODE_NO_UNDEFINED_VIRTUALS)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC GEODE_NO_UNDEFINED_VIRTUALS)
 endif()

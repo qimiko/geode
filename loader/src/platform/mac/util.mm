@@ -252,8 +252,8 @@ std::filesystem::path dirs::getResourcesDir() {
 
 void geode::utils::game::exit(bool save) {
     if (CCApplication::sharedApplication() &&
-        (GameManager::get()->m_playLayer || GameManager::get()->m_levelEditorLayer)) {
-        log::error("Cannot exit in PlayLayer or LevelEditorLayer!");
+        (GameManager::get()->m_playLayer)) {
+        log::error("Cannot exit in PlayLayer!");
         return;
     }
 
@@ -284,8 +284,8 @@ void geode::utils::game::exit() {
 
 void geode::utils::game::restart(bool save) {
     if (CCApplication::sharedApplication() &&
-        (GameManager::get()->m_playLayer || GameManager::get()->m_levelEditorLayer)) {
-        log::error("Cannot restart in PlayLayer or LevelEditorLayer!");
+        (GameManager::get()->m_playLayer)) {
+        log::error("Cannot restart in PlayLayer!");
         return;
     }
 
