@@ -51,13 +51,10 @@ public:
     /**
      * @lua NA
      */
-#if !defined(GEODE_IS_ANDROID) && !defined(GEODE_IS_MACOS)
-    inline CCString() : m_sString("") {}
-#else
-    // Make sure its imported because of gd::string stuff,
-    // check android/main.cpp for more info
+
+    // TODO: check if this breaks backwards compatibility
     CCString();
-#endif
+
     /**
      * @lua NA
      */
