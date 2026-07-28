@@ -16,6 +16,7 @@
 #include <thread>
 #include <variant>
 #include <loader/updater.hpp>
+#include "internalString.hpp"
 
 using namespace geode::prelude;
 
