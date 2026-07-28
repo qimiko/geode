@@ -19,6 +19,7 @@ struct MacConsoleData {
 };
 
 bool s_isOpen = false;
+bool s_outputToConsole = false;
 MacConsoleData s_platformData;
 
 void console::messageBox(char const* title, std::string const& info, Severity) {
@@ -31,23 +32,59 @@ void console::messageBox(char const* title, std::string const& info, Severity) {
 }
 
 void console::log(std::string const& msg, Severity severity) {
-    if (s_isOpen) {
-        int colorcode = 0;
+    if (s_isOpen || s_outputToConsole) {
+        int color = 0;
+        int color2 = -1;
         switch (severity) {
-            case Severity::Debug: colorcode = 36; break;
-            case Severity::Info: colorcode = 34; break;
-            case Severity::Warning: colorcode = 33; break;
-            case Severity::Error: colorcode = 31; break;
-            default: colorcode = 35; break;
+            case Severity::Debug:
+                color = 243;
+                color2 = 250;
+                break;
+            case Severity::Info:
+                color = 33;
+                color2 = 254;
+                break;
+            case Severity::Warning:
+                color = 229;
+                color2 = 230;
+                break;
+            case Severity::Error:
+                color = 9;
+                color2 = 224;
+                break;
+            default:
+                color = 7;
+                break;
         }
-        auto newMsg = "\033[1;" + std::to_string(colorcode) + "m" + msg.substr(0, 8) + "\033[0m" + msg.substr(8);
 
-        std::cout << newMsg << "\n" << std::flush;
+        std::string_view sv{msg};
+
+        std::string_view colored;
+        std::string_view rest;
+
+        size_t bracketStart = sv.find_first_of('[');
+        if (bracketStart != std::string_view::npos) {
+            bracketStart -= 1;
+
+            colored = sv.substr(0, bracketStart);
+            rest = sv.substr(bracketStart);
+        } else {
+            rest = sv;
+        }
+
+        auto const str = fmt::format("\x1b[38;5;{}m{}\x1b[0m{}\n", color, colored, rest);
+        std::cout << str << std::flush;
     }
 }
 
 
-void console::setup() { }
+void console::setup() {
+    if (isatty(fileno(stdout))) {
+        s_outputToConsole = true;
+        return;
+    }
+}
+
 void console::openIfClosed() {
     if (s_isOpen) return;
 
@@ -230,6 +267,11 @@ std::string Loader::Impl::getGameVersion() {
     NSString *version = infoDictionary[@"CFBundleShortVersionString"];
 
     auto versionStr = std::string([version UTF8String]);
+
+    // lol.
+    if (versionStr == "1.92") {
+        return "1.920";
+    }
 
     if (gameVersionIsAmbiguous(versionStr)) {
         static std::string manualVersionStr = []() -> std::string {
