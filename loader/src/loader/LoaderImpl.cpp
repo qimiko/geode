@@ -293,7 +293,9 @@ void Loader::Impl::queueInternalMods(std::vector<ModMetadata>& modQueue) {
 
     auto modsRes = utils::file::readJsonFromResources("mods.json");
     if (!modsRes) {
-        geode::log::warn("Failed to find internal loads: {}", modsRes.unwrapErr());
+        m_hasExternalMods = true;
+
+        geode::log::warn("Failed to find internal mods: {}", modsRes.unwrapErr());
         return;
     }
 
