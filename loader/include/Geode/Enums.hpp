@@ -264,16 +264,6 @@ enum class SavedActiveObjectState {};
 enum class SavedSpecialObjectState {};
 enum class SavedObjectStateRef {};
 
-// Thanks cocoa!
-#ifdef GEODE_IS_MACOS
-    #undef CommentType
-#endif
-
-enum class CommentType {
-    Level = 0,
-    Account = 1,
-};
-
 enum class BoomListType {
     Default = 0x0,
     User = 0x2,
